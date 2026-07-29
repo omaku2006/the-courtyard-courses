@@ -1,148 +1,360 @@
-@import 'tailwindcss';
-@import 'tw-animate-css';
-@import 'shadcn/tailwind.css';
-@import '@fontsource-variable/inter';
+@import "tailwindcss";
 
-@custom-variant dark (&:is(.dark *));
+@theme {
+  --font-main-headline: "Cormorant SC", serif;
+  --font-heading: "Cormorant Garamond", serif;
+  --font-body: "Libre Baskerville", serif;
+  --font-rare: "UnifrakturMaguntia", cursive;
+  --radius-min: 2px;
+  --radius-max: 4px;
+  --color-bg: #f5eddf;
+  --color-surface: #ede4d0;
+  --color-border: #c9a86a;
+  --color-text-primary: #3a2b1e;
+  --color-text-secondary: #7b5a3a;
+  --color-text-muted: #8c7b63;
+  --color-accent: #c9a86a;
+  --color-accent-hover: #7b5a3a;
+  --color-error: #7a1f1f;
+  --color-success: #4e5e44;
+  --color-highlight: #2e3945;
+    --base-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem); /* 18px to 20px */
+  --radius-min: 2px;
+  --radius-max: 4px;
 
-@theme inline {
-  --font-display: 'Cormorant SC', serif;
-  --font-heading: 'Playfair Display', serif;
-  --font-sans: 'Manrope', sans-serif;
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
-  --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
 }
 
+/* Light theme (default) */
 :root {
-  --background: #e0e1dd;
-  --foreground: #0d1b2a;
-
-  --card: #ffffff;
-  --card-foreground: #1b263b;
-
-  --popover: #ffffff;
-  --popover-foreground: #0d1b2a;
-
-  --primary: #0d1b2a;
-  --primary-foreground: #e0e1dd;
-
-  --secondary: #e2decf;
-  --secondary-foreground: #1b263b;
-
-  --muted: #e2decf;
-  --muted-foreground: #415a77;
-
-  --accent: #e9c46a;
-  --accent-foreground: #0d1b2a;
-
-  --destructive: #dc2626;
-  --destructive-foreground: #ffffff;
-
-  --border: #778da9;
-  --input: #778da9;
-  --ring: #e9c46a;
-
-  --chart-1: #0d1b2a;
-  --chart-2: #415a77;
-  --chart-3: #778da9;
-  --chart-4: #e9c46a;
-  --chart-5: #f4a261;
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --color-bg: #f5eddf;
+  --color-surface: #ede4d0;
+  --color-border: #c9a86a;
+  --color-text-primary: #3a2b1e;
+  --color-text-secondary: #7b5a3a;
+  --color-text-muted: #8c7b63;
+  --color-accent: #c9a86a;
+  --color-accent-hover: #7b5a3a;
+  --color-error: #7a1f1f;
+  --color-success: #4e5e44;
+  --color-highlight: #2e3945;
+  --base-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem); /* 18px to 20px */
+  --radius-min: 2px;
+  --radius-max: 4px;
 }
 
-.dark {
-  --background: #0d1b2a;
-  --foreground: #e0e1dd;
-
-  --card: #1b263b;
-  --card-foreground: #e0e1dd;
-
-  --popover: #1b263b;
-  --popover-foreground: #e0e1dd;
-
-  --primary: #e9c46a;
-  --primary-foreground: #0d1b2a;
-
-  --secondary: #1b263b;
-  --secondary-foreground: #e0e1dd;
-
-  --muted: #1b263b;
-  --muted-foreground: #778da9;
-
-  --accent: #f4a261;
-  --accent-foreground: #0d1b2a;
-
-  --border: #415a77;
-  --input: #415a77;
-  --ring: #e9c46a;
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Dark theme */
+[data-theme="dark"] {
+  --color-bg: #1f1e1c;
+  --color-surface: #3d3a34;
+  --color-border: #8c7b63;
+  --color-text-primary: #f7f3ea;
+  --color-text-secondary: #d8c9b0;
+  --color-text-muted: #8c7b63;
+  --color-accent: #8c7b63;
+  --color-accent-hover: #d8c9b0;
+  --color-error: #a63232;
+  --color-success: #6b7d5f;
+  --color-highlight: #2e3945;
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+html {
+  scroll-behavior: smooth;
+}
+body {
+  font-family: var(--font-body);
+  font-size: var(--base-size);
+  line-height: 1.7; /* Victorian books have slightly wider line height for readability */
+  color: var(--text-color);
+  background-color: var(--color-bg);
+  transition:
+    background-color 0.4s ease,
+    color 0.4s ease;
+}
+
+h1,
+h2 {
+  font-family: var(--main-headline);
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em; /* Slight spacing makes it look engraved */
+  color: var(--color-text-primary);
+}
+h3,
+h4 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+  letter-spacing: 0.08em; /* Slight spacing makes it look engraved */
+  color: var(--color-text-secondary);
+}
+
+h5,
+h6 {
+  font-family: var(--font-heading);
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.08em; /* Slight spacing makes it look engraved */
+  color: var(--color-text-secondary);
+}
+h1 {
+  font-size: clamp(2.5rem, 1.8rem + 3.5vw, 4.5rem);
+  letter-spacing: 0.05em; /* Less spacing for larger text */
+}
+h2 {
+  font-size: clamp(2rem, 1.5rem + 2.5vw, 3rem);
+}
+h3 {
+  font-size: clamp(1.5rem, 1.2rem + 1.5vw, 2rem);
+}
+h4 {
+  font-size: clamp(1.25rem, 1.1rem + 0.8vw, 1.5rem);
+}
+h5 {
+  font-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem);
+}
+h6 {
+  font-size: clamp(1rem, 0.95rem + 0.2vw, 1.125rem);
+}
+p {
+  margin-bottom: 1.5rem; /* Default spacing between paragraphs */
+}
+span {
+  font-family: inherit; /* Takes the font of its parent (e.g., if inside a p, uses Garamond) */
+  font-size: inherit;
+  line-height: inherit;
+}
+button,
+.btn,
+label {
+  font-family: var(--font-heading);
+  font-size: clamp(0.875rem, 0.85rem + 0.2vw, 1rem); /* 14px to 16px */
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em; /* Wide letters for buttons & labels */
+  line-height: 1.5;
+  cursor: pointer;
+}
+
+/* Button fix - alag classes */
+.btnPrimary {
+  /* color: var(--color-bg); */
+  color: #f5eddf;
+  background-color: var(--color-highlight);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-min);
+  padding: 15px 35px;
+  /* clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); */
+  transition: all 0.3s ease;
+  font-family: var(--font-heading);
+  font-size: clamp(0.875rem, 0.85rem + 0.2vw, 1rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.btnSecondary {
+  color: var(--color-bg);
+  background-color: var(--color-accent);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-min);
+  padding: 15px 35px;
+  /* clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); */
+  transition: all 0.3s ease;
+  font-family: var(--font-heading);
+  font-size: clamp(0.875rem, 0.85rem + 0.2vw, 1rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.btnPrimary:hover,
+.btnSecondary:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px color-mix(in srgb, var(--color-surface) 20%, transparent 80%);
+  filter: brightness(1.1);
+}
+
+/* Mobile specific */
+@media (max-width: 768px) {
+  .btnPrimary,
+  .btnSecondary {
+    padding: 10px 20px; /* smaller padding */
+    font-size: 0.875rem; /* fixed size, no clamp needed */
+    letter-spacing: 0.08em; /* thodu kam spacing */
+    width: 100%; /* full width on mobile */
   }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
+
+  .btnPrimary:hover,
+  .btnSecondary:hover {
+    transform: translateY(-1px); /* subtle on mobile */
   }
 }
 
+/* Body fix */
+html {
+  overflow-x: hidden;
+}
+body {
+  overflow-x: hidden;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+}
+.lamp-glow {
+  filter: drop-shadow(0 0 12px #c9a86a) drop-shadow(0 0 25px #c9a86a80);
+}
+
+.lamp-glow-intense {
+  filter: drop-shadow(0 0 20px #c9a86a) drop-shadow(0 0 40px #c9a86a80)
+    drop-shadow(0 0 60px #c9a86a40);
+}
+
+.lamp-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.lamp-wrapper {
+  position: relative;
+  /* Ensure the wrapper doesn't clip the glow */
+  overflow: visible;
+}
+
+.lamp-wrapper::before {
+  content: "";
+  position: absolute;
+  background: radial-gradient(
+    circle,
+    rgba(201, 168, 106, 0.8) 0% /* Strong light in the center */,
+    rgba(201, 168, 106, 0.4) 25% /* Mid fade */,
+    rgba(201, 168, 106, 0.1) 55% /* Weak outer fade */,
+    transparent 75% /* Smooth exit to transparent */
+  );
+  left: 50%;
+  transform: translateX(-50%);
+  top: calc(var(--pole-height, 600px) * -0.09);
+  height: calc(var(--pole-height, 600px) * 0.42);
+  width: calc(var(--pole-height, 600px) * 0.42);
+  border-radius: 100%;
+  pointer-events: none;
+
+  /* Blend mode makes it mix with background like real light */
+  mix-blend-mode: screen;
+
+  /* Soften the edges */
+  filter: blur(8px);
+
+  /* Keep glow behind the lamp vector */
+  z-index: -1;
+
+  /* Organic flicker animation */
+  animation: lampFlicker var(--lamp-duration, 5s) infinite;
+  animation-delay: var(--lamp-delay, 0s);
+}
+
+@keyframes lampFlicker {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  5% {
+    opacity: 0.85;
+  }
+  10% {
+    opacity: 1;
+  }
+  15% {
+    opacity: 0.6;
+    transform: translateX(-50%) scale(0.98);
+  } /* Sudden small drop */
+  16% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  } /* Quick recovery */
+  40% {
+    opacity: 0.9;
+  }
+  42% {
+    opacity: 0.4;
+  } /* Wind gust effect */
+  43% {
+    opacity: 1;
+  }
+  70% {
+    opacity: 0.95;
+    transform: translateX(-50%) scale(0.99);
+  }
+  72% {
+    opacity: 0.7;
+  }
+  74% {
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
+  }
+  85% {
+    opacity: 0.8;
+  }
+  86% {
+    opacity: 1;
+  }
+}
+
+/* FOG */
+/* Fog Animations */
+@keyframes fogDrift1 {
+  0% {
+    transform: translateX(-10%) translateY(0);
+  }
+  50% {
+    transform: translateX(10%) translateY(-20px);
+  }
+  100% {
+    transform: translateX(-10%) translateY(0);
+  }
+}
+
+@keyframes fogDrift2 {
+  0% {
+    transform: translateX(10%) translateY(0);
+  }
+  50% {
+    transform: translateX(-10%) translateY(20px);
+  }
+  100% {
+    transform: translateX(10%) translateY(0);
+  }
+}
+
+.fog-layer {
+  position: absolute;
+  bottom: -50px;
+  left: 0;
+  width: 100%;
+  height: 60%; /* Bottom half of the screen */
+  pointer-events: none; /* Clicks pass through jashe */
+  z-index: 1; /* Text (z-10) upar rahe, poles (z-0) niche */
+  overflow: hidden;
+}
+
+.fog-cloud {
+  position: absolute;
+  width: 150%;
+  height: 100%;
+  background: radial-gradient(ellipse at center, rgba(247, 243, 234, 0.08) 0%, transparent 70%);
+  filter: blur(40px);
+}
+
+.fog-cloud-1 {
+  left: -20%;
+  animation: fogDrift1 20s ease-in-out infinite;
+}
+
+.fog-cloud-2 {
+  right: -20%;
+  animation: fogDrift2 25s ease-in-out infinite;
+  opacity: 0.7;
+}
