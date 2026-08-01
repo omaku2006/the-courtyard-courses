@@ -4,10 +4,12 @@ import Pole from './Pole';
 export default function NightPole({
   className,
   height = 600,
+  width,
   fill = '#c9a86a',
 }: {
   className?: string;
-  height?: number;
+  height?: number | string;
+  width?: number | string;
   fill?: string;
 }) {
   // Random delay (0 thi -5 seconds)
@@ -21,11 +23,11 @@ export default function NightPole({
         {
           '--lamp-delay': `${randomDelay}s`,
           '--lamp-duration': `${randomDuration}s`,
-          '--pole-height': `${height}px`,
+          '--pole-height': typeof height === 'number' ? `${height}px` : height,
         } as React.CSSProperties
       }
     >
-      <Pole className={className} fill={fill} height={height} />
+      <Pole className={className} fill={fill} height={height} width={width} />
     </div>
   );
 }

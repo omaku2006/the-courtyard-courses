@@ -127,9 +127,7 @@ const HomePage = () => {
                 <FacultyCard.Name name={data.name} />
                 <FacultyCard.Designation designation={data.designation} />
                 <hr className="w-full h-1 rounded-[2px] border-accent my-6" />
-                <FacultyCard.Bio>
-                  <p>{data.bio}</p>
-                </FacultyCard.Bio>
+                <FacultyCard.Bio>{data.bio}</FacultyCard.Bio>
                 <FacultyCard.Button />
               </FacultyCard>
             );

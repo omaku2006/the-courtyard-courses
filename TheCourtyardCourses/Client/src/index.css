@@ -358,3 +358,21 @@ body {
   animation: fogDrift2 25s ease-in-out infinite;
   opacity: 0.7;
 }
+
+.courtyardBackground {
+  position: fixed; /* Screen par fix raheshe */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh; /* Full screen cover */
+  background: url("/courtyardBg.png") no-repeat center / cover;
+}
+
+.courtyardBackgroundNight {
+  position: fixed; /* Screen par fix raheshe */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh; /* Full screen cover */
+  background: url("/courtyardBgNight.png") no-repeat center / cover;
+}

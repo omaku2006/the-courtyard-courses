@@ -5,6 +5,7 @@ import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import CoursesPage from './pages/CoursesPage';
+import LoginPage from './pages/LoginPage';
 
 const App = () => {
   const theme = useAppSelector((state) => state.theme.mode);
@@ -24,6 +25,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/courses" element={<CoursesPage />} />
+          <Route path="/login" element={<LoginPage />} />
         </Routes>
       </main>
       <Footer />

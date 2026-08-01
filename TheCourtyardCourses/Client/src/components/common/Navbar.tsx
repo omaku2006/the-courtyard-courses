@@ -2,7 +2,7 @@ import { ListIcon, XIcon, SunIcon, MoonIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { toggleTheme } from '../../features/themes/themeSlice';
-import { NavLink } from 'react-router-dom';
+import { Link, NavLink } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -45,7 +45,9 @@ const Navbar = () => {
             <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
               <NavLink
                 to="/"
-                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+                className={({ isActive }) =>
+                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
+                }
               >
                 Home
               </NavLink>
@@ -59,7 +61,9 @@ const Navbar = () => {
             <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
               <NavLink
                 to="/courses"
-                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+                className={({ isActive }) =>
+                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
+                }
               >
                 Courses
               </NavLink>
@@ -73,7 +77,9 @@ const Navbar = () => {
             <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all max-[860px]:hidden">
               <NavLink
                 to="/communities"
-                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+                className={({ isActive }) =>
+                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
+                }
               >
                 Communities
               </NavLink>
@@ -87,7 +93,9 @@ const Navbar = () => {
             <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
               <NavLink
                 to="/about"
-                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+                className={({ isActive }) =>
+                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
+                }
               >
                 About Us
               </NavLink>
@@ -119,7 +127,9 @@ const Navbar = () => {
           >
             {theme === 'dark' ? <MoonIcon weight="fill" /> : <SunIcon weight="fill" />}
           </button>
-          <button className="btnPrimary">Login</button>
+          <Link to="/login" className="btnPrimary">
+            Login
+          </Link>
         </div>
       </nav>
     </>
