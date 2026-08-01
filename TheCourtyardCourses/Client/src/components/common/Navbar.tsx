@@ -2,6 +2,7 @@ import { ListIcon, XIcon, SunIcon, MoonIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { toggleTheme } from '../../features/themes/themeSlice';
+import { NavLink } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -41,8 +42,13 @@ const Navbar = () => {
             <li className="menu md:hidden absolute left-5 top-5" onClick={() => setIsOpen(!isOpen)}>
               <XIcon />
             </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center p-2 hover:bg-surface duration-300 transition-all">
-              Home
+            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
+              <NavLink
+                to="/"
+                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+              >
+                Home
+              </NavLink>
               <span
                 className="absolute bottom-0 left-1/2 w-0 h-0.5
                    bg-accent -translate-x-1/2
@@ -50,8 +56,13 @@ const Navbar = () => {
                    transition-all duration-500 ease-in-out"
               />
             </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center p-2 hover:bg-surface duration-300 transition-all">
-              Courses
+            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
+              <NavLink
+                to="/courses"
+                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+              >
+                Courses
+              </NavLink>
               <span
                 className="absolute bottom-0 left-1/2 w-0 h-0.5
                    bg-accent -translate-x-1/2
@@ -59,8 +70,13 @@ const Navbar = () => {
                    transition-all duration-500 ease-in-out"
               />
             </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center p-2 hover:bg-surface duration-300 transition-all max-[860px]:hidden">
-              Communities
+            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all max-[860px]:hidden">
+              <NavLink
+                to="/communities"
+                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+              >
+                Communities
+              </NavLink>
               <span
                 className="absolute bottom-0 left-1/2 w-0 h-0.5
                    bg-accent -translate-x-1/2
@@ -68,8 +84,13 @@ const Navbar = () => {
                    transition-all duration-500 ease-in-out"
               />
             </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center p-2 hover:bg-surface duration-300 transition-all">
-              About Us
+            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
+              <NavLink
+                to="/about"
+                className={({ isActive }) => `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`}
+              >
+                About Us
+              </NavLink>
               <span
                 className="absolute bottom-0 left-1/2 w-0 h-0.5
                    bg-accent -translate-x-1/2

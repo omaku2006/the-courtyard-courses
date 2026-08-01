@@ -1,6 +1,7 @@
 import slugify from 'slugify';
 import Course from '../models/course.js';
 import User from '../models/user.js';
+import Enrollment from '../models/enrollment.js';
 
 export const createCourse = async (req, res) => {
   const { title, description, category, tags, level, language, chapters, price } = req.body;
@@ -359,7 +360,159 @@ export const enrollCourse = async (req, res) => {
 
 export const updateRatingsCourse = async (req, res) => {
   const { stars, description } = req.body;
+  const { courseId } = req.params;
   const userId = req.user.id;
+
+  // ✅ Validation: Stars 1-5 ma hovva joie
+  if (!stars || stars < 1 || stars > 5) {
+    return res.status(400).json({ message: 'Rating must be between 1 and 5 stars!' });
+  }
+
+  try {
+    // 1. Course shodho
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found!' });
+    }
+
+    // 2. Check karo ke user enrolled chhe ke nahi
+    // (Faktu enrolled students j rate kari shake)
+    if (!course.students.includes(userId)) {
+      return res.status(403).json({ 
+        message: 'You must be enrolled in this course to rate it!' 
+      });
+    }
+
+    // 3. Check karo ke user pahle thi j rate toh nathi karyu
+    const existingRatingIndex = course.ratings.findIndex(
+      (rating) => rating.user.toString() === userId
+    );
+
+    // 4. Rating update/add karo
+    if (existingRatingIndex !== -1) {
+      // ✅ User ne pahle thi rating apeli chhe → Update karo
+      course.ratings[existingRatingIndex].stars = stars;
+      course.ratings[existingRatingIndex].description = description || '';
+    } else {
+      // ✅ New rating add karo
+      course.ratings.push({
+        user: userId,
+        stars,
+        description: description || '',
+      });
+    }
+
+    // 5. Average rating recalculate karo
+    const totalStars = course.ratings.reduce((sum, rating) => sum + rating.stars, 0);
+    course.averageRating = (totalStars / course.ratings.length).toFixed(1);
+
+    // 6. Course save karo
+    await course.save();
+
+    return res.status(200).json({
+      message: 'Rating submitted successfully!',
+      averageRating: course.averageRating,
+      totalRatings: course.ratings.length,
+    });
+
+  } catch (e) {
+    console.error('Update Rating Error:', e.message);
+    return res.status(500).json({ 
+      message: 'Error submitting rating!',
+      error: e.message 
+    });
+  }
 };
 
+export const fetchRatingsCourse = async (req, res) => { // ✅ async add karyu
+  const { courseId } = req.params;
+  
+  try {
+    // ✅ Sahi syntax + Populate (User ni details lakva mate)
+    const course = await Course.findById(courseId)
+      .populate({
+        path: 'ratings.user',
+        select: 'name username avatarImage' // ✅ Faktu aa 3 fields lakho
+      });
 
+    // ✅ Null check
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found!' });
+    }
+
+    // ✅ Sahi JSON syntax
+    return res.status(200).json({
+      ratings: course.ratings,
+      averageRating: course.averageRating, // ✅ Bonus: Average rating pan mokli do
+      totalRatings: course.ratings.length  // ✅ Bonus: Total reviews count
+    });
+
+  } catch (e) {
+    console.error('Fetch Course Ratings Error:', e.message); // ✅ Typo fix karyo
+    return res.status(500).json({ message: 'Internal Server Error!' });
+  }
+};
+
+export const fetchCertificate = async (req, res) => {
+  const { courseId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    // 1. Course shodho (Faktu jaruri fields lakho for speed)
+    const course = await Course.findById(courseId).select('title certificate students');
+    
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found!' });
+    }
+
+    // 2. Check karo: Course ma certificate enabled chhe ke nahi?
+    if (!course.certificate || !course.certificate.enabled) {
+      return res.status(400).json({ 
+        message: 'Certificate is not available for this course.' 
+      });
+    }
+
+    // 3. Check karo: User enrolled chhe ke nahi?
+    const isEnrolled = course.students.some(
+      (studentId) => studentId.toString() === userId
+    );
+
+    if (!isEnrolled) {
+      return res.status(403).json({ 
+        message: 'You must be enrolled in this course to get the certificate!' 
+      });
+    }
+
+    // 4. (Optional) Check karo: User ne course complete karyu chhe?
+    // Jo tame Enrollment model banavyu hoy toh:
+    const enrollment = await Enrollment.findOne({ student: userId, course: courseId });
+    if (!enrollment || enrollment.progress < 100) {
+      return res.status(403).json({ 
+        message: 'Please complete 100% of the course to unlock the certificate!' 
+      });
+    }
+
+    // 5. User ni details lakho (Certificate par naam lakva mate)
+    const user = await User.findById(userId).select('name username');
+
+    // 6. Certificate data return karo
+    return res.status(200).json({
+      message: 'Certificate fetched successfully!',
+      certificate: {
+        courseTitle: course.title,
+        studentName: user.name,
+        username: user.username,
+        template: course.certificate.template, // PDF/Image URL
+        issuedAt: new Date().toISOString().split('T')[0], // Aaj ni date (YYYY-MM-DD)
+        courseId: course._id,
+      }
+    });
+
+  } catch (e) {
+    console.error('Fetch Certificate Error:', e.message);
+    return res.status(500).json({ 
+      message: 'Internal Server Error!',
+      error: e.message 
+    });
+  }
+};

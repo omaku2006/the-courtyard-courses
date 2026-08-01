@@ -4,6 +4,7 @@ import FacultyCard from '../components/section/Hero/FacultyCard';
 import Hero from '../components/section/Hero/Hero';
 import SuggestionCard from '../components/section/Hero/SuggestionCard';
 import Testimonials from '../components/section/Hero/Testimonials';
+import Newsletter from '../components/section/Hero/Newsletter.tsx';
 
 const coursesData = [
   {
@@ -143,20 +144,20 @@ const HomePage = () => {
           Hear from those who have walked the cobblestone paths and emerged with minds sharpened and
           horizons broadened.
         </p>
-        <div>
+        <div className="flex max-w-[1780px] justify-between gap-6 max-[1180px]:flex-col max-[1180px]:w-1/2 max-[900px]:w-[80%] p-6">
           {testimonalsData.map((data) => {
             return (
               <Testimonials>
-                <Testimonials.Designation designation={data.designation} />
                 <Testimonials.Quote>
-                  <p>{data.quote}</p>
+                  <p className="text-justify">{data.quote}</p>
                 </Testimonials.Quote>
-                <Testimonials.Name name={data.name} />
+                <Testimonials.Name name={data.name} designation={data.designation} />
               </Testimonials>
             );
           })}
         </div>
       </section>
+      <Newsletter />
     </SingleColumnLayout>
   );
 };

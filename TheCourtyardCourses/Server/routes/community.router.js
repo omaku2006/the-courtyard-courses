@@ -1,4 +1,4 @@
-import express from 'express';
+import express from "express";
 import {
   createCommunity,
   fetchAllCommunity,
@@ -9,24 +9,40 @@ import {
   leaveCommunity,
   updatePermissions,
   fetchMembers,
-} from '../controllers/community.controller.js';
-import { verifyToken } from '../middleware/auth.middleware.js';
+} from "../controllers/community.controller.js";
+import { isTeacher, verifyToken } from "../middleware/auth.middleware.js";
+import {
+  checkValidInputForCreateCommunity,
+  generateCommunitySlug,
+} from "../middleware/community.middleware.js";
 
 const communityRouter = express.Router();
 
 // CRUD
-communityRouter.post('/', verifyToken, createCommunity);
-communityRouter.get('/', fetchAllCommunity);
-communityRouter.get('/:communityId', fetchCommunity);
-communityRouter.put('/:communityId', verifyToken, updateCommunity);
-communityRouter.delete('/:communityId', verifyToken, deleteCommunity);
+communityRouter.post(
+  "/",
+  verifyToken,
+  isTeacher,
+  checkValidInputForCreateCommunity,
+  generateCommunitySlug,
+  createCommunity
+);
+communityRouter.get("/", fetchAllCommunity);
+communityRouter.get("/:slug", fetchCommunity);
+communityRouter.put("/:slug", verifyToken, isTeacher, updateCommunity);
+communityRouter.delete("/:slug", verifyToken, isTeacher, deleteCommunity);
 
 // Members
-communityRouter.post('/:communityId/join', verifyToken, joinCommunity);
-communityRouter.post('/:communityId/leave', verifyToken, leaveCommunity);
-communityRouter.get('/:communityId/members', fetchMembers);
+communityRouter.post("/:slug/join", verifyToken, joinCommunity);
+communityRouter.post("/:slug/leave", verifyToken, leaveCommunity);
+communityRouter.get("/:slug/members", fetchMembers);
 
 // Permissions
-communityRouter.put('/:communityId/permissions', verifyToken, updatePermissions);
+communityRouter.put(
+  "/:slug/permissions",
+  verifyToken,
+  isTeacher,
+  updatePermissions
+);
 
 export default communityRouter;
