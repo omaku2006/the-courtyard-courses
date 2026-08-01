@@ -1,33 +1,37 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useAppSelector } from '../../app/hooks';
+
 import DayPole from './DayPole';
 import NightPole from './NightPole';
+import Fog from './Fog';
 
-const IMAGE_WIDTH = 1980;
-const IMAGE_HEIGHT = 1080;
+const WORLD_WIDTH = 1980;
+const WORLD_HEIGHT = 1080;
 
 const poles = [
+  // LEFT
   { x: 55, y: 1100, height: 1100 },
-  { x: 360, y: 1085, height: 850 },
-  { x: 590, y: 1030, height: 600 },
-  { x: 715, y: 970, height: 420 },
-  { x: 800, y: 920, height: 280 },
-  { x: 860, y: 890, height: 190 },
-  { x: 900, y: 865, height: 130 },
-  { x: 925, y: 850, height: 95 },
-  { x: 945, y: 842, height: 70 },
-  { x: 959, y: 833, height: 50 },
+  { x: 360, y: 1020, height: 850 },
+  { x: 590, y: 938, height: 590 },
+  { x: 715, y: 885, height: 420 },
+  { x: 800, y: 845, height: 280 },
+  { x: 860, y: 820, height: 190 },
+  { x: 900, y: 804, height: 130 },
+  { x: 925, y: 792, height: 95 },
+  { x: 945, y: 783, height: 70 },
+  { x: 959, y: 778, height: 50 },
 
+  // RIGHT
   { x: 1925, y: 1100, height: 1100 },
-  { x: 1630, y: 1085, height: 850 },
-  { x: 1430, y: 1030, height: 600 },
-  { x: 1305, y: 970, height: 420 },
-  { x: 1210, y: 920, height: 280 },
-  { x: 1160, y: 890, height: 190 },
-  { x: 1115, y: 865, height: 130 },
-  { x: 1088, y: 850, height: 95 },
-  { x: 1072, y: 842, height: 70 },
-  { x: 1060, y: 833, height: 50 },
+  { x: 1630, y: 1020, height: 850 },
+  { x: 1430, y: 938, height: 590 },
+  { x: 1305, y: 885, height: 420 },
+  { x: 1210, y: 845, height: 280 },
+  { x: 1160, y: 820, height: 190 },
+  { x: 1115, y: 804, height: 130 },
+  { x: 1088, y: 792, height: 95 },
+  { x: 1072, y: 783, height: 70 },
+  { x: 1060, y: 778, height: 50 },
 ];
 
 export default function CourtyardBackground() {
@@ -41,54 +45,81 @@ export default function CourtyardBackground() {
   });
 
   useEffect(() => {
-    const resize = () =>
+    const handleResize = () => {
       setViewport({
         width: window.innerWidth,
         height: window.innerHeight,
       });
+    };
 
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', handleResize);
 
-    return () => window.removeEventListener('resize', resize);
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
-  const cover = useMemo(() => {
-    const scale = Math.max(viewport.width / IMAGE_WIDTH, viewport.height / IMAGE_HEIGHT);
-
-    const renderWidth = IMAGE_WIDTH * scale;
-    const renderHeight = IMAGE_HEIGHT * scale;
-
-    const offsetX = (viewport.width - renderWidth) / 2;
-    const offsetY = (viewport.height - renderHeight) / 2;
-
-    return {
-      scale,
-      offsetX,
-      offsetY,
-    };
+  const scale = useMemo(() => {
+    return Math.max(viewport.width / WORLD_WIDTH, viewport.height / WORLD_HEIGHT);
   }, [viewport]);
 
   return (
     <div className="fixed inset-0 overflow-hidden z-10">
-      <img
-        src={theme === 'dark' ? '/courtyardBgNight.png' : '/courtyardBg.png'}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover pointer-events-none select-none"
-      />
+      {/* Camera */}
 
-      {poles.map((pole, index) => (
-        <div
-          key={index}
-          className="fixed z-20"
-          style={{
-            left: cover.offsetX + pole.x * cover.scale,
-            top: cover.offsetY + pole.y * cover.scale,
-            transform: 'translate(-50%, -100%)',
-          }}
-        >
-          <Pole height={pole.height * cover.scale} />
-        </div>
-      ))}
+      {theme === 'dark' && <Fog />}
+      <div
+        className="absolute top-1/2 left-1/2"
+        style={{
+          width: WORLD_WIDTH,
+          height: WORLD_HEIGHT,
+
+          transform: `
+            translate(-50%, -50%)
+            scale(${scale})
+          `,
+
+          willChange: 'transform',
+          transformOrigin: 'center center',
+        }}
+      >
+        {/* Background */}
+
+        <img
+          src={theme === 'dark' ? '/courtyardBgNight.jpg' : '/courtyardBg.jpg'}
+          alt=""
+          draggable={false}
+          loading="eager"
+          decoding="async"
+          className={`
+            ${theme === 'dark' ? 'brightness-90' : 'brightness-110'}
+            absolute
+            inset-0
+            w-full
+            h-full
+            select-none
+            pointer-events-none
+            `}
+        />
+
+        {/* Poles */}
+
+        {poles.map((pole, index) => (
+          <div
+            key={index}
+            className="absolute"
+            style={{
+              left: pole.x,
+              top: pole.y,
+
+              transform: 'translate(-50%, -100%)',
+              transformOrigin: 'bottom center',
+            }}
+          >
+            <Pole height={pole.height} className={theme === 'dark' ? 'lamp-glow-intense' : ''} />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
