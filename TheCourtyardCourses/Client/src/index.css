@@ -18,6 +18,7 @@
   --color-error: #7a1f1f;
   --color-success: #4e5e44;
   --color-highlight: #2e3945;
+  --color-light: #f5eddf;
     --base-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem); /* 18px to 20px */
   --radius-min: 2px;
   --radius-max: 4px;
@@ -37,6 +38,7 @@
   --color-error: #7a1f1f;
   --color-success: #4e5e44;
   --color-highlight: #2e3945;
+  --color-light: #f5eddf;
   --base-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem); /* 18px to 20px */
   --radius-min: 2px;
   --radius-max: 4px;
@@ -55,6 +57,7 @@
   --color-error: #a63232;
   --color-success: #6b7d5f;
   --color-highlight: #2e3945;
+  --color-light: #f5eddf;
 }
 
 html {
@@ -146,7 +149,13 @@ label {
   border-radius: var(--radius-min);
   padding: 15px 35px;
   /* clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); */
-  transition: all 0.3s ease;
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
   font-family: var(--font-heading);
   font-size: clamp(0.875rem, 0.85rem + 0.2vw, 1rem);
   font-weight: 600;
@@ -162,7 +171,35 @@ label {
   border-radius: var(--radius-min);
   padding: 15px 35px;
   /* clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); */
-  transition: all 0.3s ease;
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
+  font-family: var(--font-heading);
+  font-size: clamp(0.875rem, 0.85rem + 0.2vw, 1rem);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+}
+
+.btnThird {
+  color: var(--color-bg);
+  background-color: var(--color-text-primary);
+  border: 2px solid var(--color-text-primary);
+  border-radius: var(--radius-min);
+  padding: 15px 35px;
+  /* clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); */
+  transition:
+    transform 0.25s ease,
+    filter 0.25s ease,
+    box-shadow 0.25s ease,
+    background-color 0.25s ease,
+    color 0.25s ease,
+    border-color 0.25s ease;
   font-family: var(--font-heading);
   font-size: clamp(0.875rem, 0.85rem + 0.2vw, 1rem);
   font-weight: 600;
@@ -172,12 +209,26 @@ label {
 }
 
 .btnPrimary:hover,
-.btnSecondary:hover {
+.btnSecondary:hover,
+.btnThird:hover {
   transform: translateY(-3px);
-  box-shadow: 0 5px 15px color-mix(in srgb, var(--color-surface) 20%, transparent 80%);
-  filter: brightness(1.1);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-border) 60%, transparent),
+    0 8px 18px color-mix(in srgb, var(--color-highlight) 18%, transparent);
+  filter: brightness(1.05);
 }
+.btnPrimary:active,
+.btnSecondary:active,
+.btnThird:active {
+  transform: translateY(0);
+}
+.btnPrimary:focus-visible,
+.btnSecondary:focus-visible,
+.btnThird:focus-visible {
+  outline: none;
 
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 50%, transparent);
+}
 /* Mobile specific */
 @media (max-width: 768px) {
   .btnPrimary,
@@ -218,13 +269,16 @@ body {
 }
 
 .lamp-wrapper {
+  --glow-strength: 1;
   position: relative;
   /* Ensure the wrapper doesn't clip the glow */
   overflow: visible;
+  transition: --glow-strength 0.35s ease;
   will-change: transform, filter;
 }
 
 .lamp-wrapper::before {
+  opacity: calc(1 * var(--glow-strength));
   content: "";
   position: absolute;
   background: radial-gradient(
@@ -235,7 +289,8 @@ body {
     transparent 75% /* Smooth exit to transparent */
   );
   left: 50%;
-  transform: translateX(-50%);
+
+  transform: translateX(-50%) scale(calc(1 * var(--glow-strength)));
   top: calc(var(--pole-height, 600px) * -0.09);
   height: calc(var(--pole-height, 600px) * 0.42);
   width: calc(var(--pole-height, 600px) * 0.42);
@@ -246,14 +301,30 @@ body {
   mix-blend-mode: screen;
 
   /* Soften the edges */
-  filter: blur(8px);
-
+  filter: blur(calc(8px * var(--glow-strength)));
   /* Keep glow behind the lamp vector */
   z-index: -1;
 
   /* Organic flicker animation */
   animation: lampFlicker var(--lamp-duration, 5s) infinite;
   animation-delay: var(--lamp-delay, 0s);
+}
+.lampBoost .lamp-wrapper {
+  --glow-strength: 1.2;
+}
+
+.loginContainer::after {
+  content: "";
+  position: absolute;
+  inset: -25px;
+  background: radial-gradient(circle, rgba(201, 168, 106, 0.08), transparent 70%);
+  opacity: 0;
+  transition: 0.35s;
+  pointer-events: none;
+}
+
+.loginContainer:hover::after {
+  opacity: 1;
 }
 
 @keyframes lampFlicker {
@@ -388,4 +459,72 @@ body {
   pointer-events: none;
 
   -webkit-user-drag: none;
+}
+
+/*  Toast -------------> */
+/* •          Toast */
+
+.victorian-toast {
+  font-family: var(--font-heading) !important;
+  font-size: 0.875rem !important;
+  letter-spacing: 0.05em !important;
+  border-radius: var(--radius-min) !important;
+  /* border: 1px solid var(--color-border) !important; */
+  border: none !important;
+  background: var(--color-surface) !important;
+  color: var(--color-light) !important;
+}
+
+/* Success - Fern */
+.toast-success {
+  border-left: 3px solid var(--color-light) !important;
+  background: var(--color-success) !important;
+  box-shadow: -16px 0 0 0 var(--color-success) !important;
+}
+
+/* Error - Burgundy */
+.toast-error {
+  border-left: 3px solid var(--color-light) !important;
+  background: var(--color-error) !important;
+  box-shadow: -16px 0 0 0 var(--color-error) !important;
+}
+
+/* Warning - Gold */
+.toast-warning {
+  border-left: 3px solid var(--color-light) !important;
+  background: var(--color-accent) !important;
+  box-shadow: -16px 0 0 0 var(--color-accent) !important;
+}
+
+/* Info - Naval */
+.toast-info {
+  border-left: 3px solid var(--color-light) !important;
+  background: var(--color-highlight) !important;
+  box-shadow: -16px 0 0 0 var(--color-highlight) !important;
+}
+
+/***********************/
+/*    Form & Input    */
+/**********************/
+.fieldError {
+  color: var(--color-error);
+  font-family: var(--font-body);
+  font-size: 0.8rem;
+  font-style: italic;
+  letter-spacing: 0.03em;
+  margin-top: 4px;
+  display: block;
+}
+
+.inputField {
+  width: full;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border: 2px solid var(--color-border);
+  border-radius: 2px;
+}
+
+.inputField:focus-within {
+  outline: 2px solid var(--color-highlight);
+  box-shadow: 0 0 18px rgba(201, 168, 106, 0.18);
 }

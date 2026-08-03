@@ -34,7 +34,7 @@ const poles = [
   { x: 1060, y: 778, height: 50 },
 ];
 
-export default function CourtyardBackground() {
+export default function CourtyardBackground({ className }: { className?: string }) {
   const theme = useAppSelector((state) => state.theme.mode);
 
   const Pole = theme === 'dark' ? NightPole : DayPole;
@@ -64,7 +64,7 @@ export default function CourtyardBackground() {
   }, [viewport]);
 
   return (
-    <div className="fixed inset-0 overflow-hidden z-10">
+    <div className={`${className} fixed inset-0 overflow-hidden z-10 bg-surface`}>
       {/* Camera */}
 
       {theme === 'dark' && <Fog />}
@@ -92,7 +92,7 @@ export default function CourtyardBackground() {
           loading="eager"
           decoding="async"
           className={`
-            ${theme === 'dark' ? 'brightness-90' : 'brightness-110'}
+            ${theme === 'dark' ? 'brightness-90' : 'opacity-60'}
             absolute
             inset-0
             w-full
@@ -103,7 +103,6 @@ export default function CourtyardBackground() {
         />
 
         {/* Poles */}
-
         {poles.map((pole, index) => (
           <div
             key={index}
