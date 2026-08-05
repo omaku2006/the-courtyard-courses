@@ -5,10 +5,12 @@ import Navbar from './components/common/Navbar';
 import Footer from './components/common/Footer';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import CoursesPage from './pages/CoursesPage';
-import LoginPage from './pages/LoginPage';
+import AuthPage from './pages/auth/AuthPage';
 import { Toaster } from 'sonner';
+import { useAutoHideScrollbar } from './hooks/useScrollbar';
 
 const App = () => {
+  useAutoHideScrollbar();
   const theme = useAppSelector((state) => state.theme.mode);
   useEffect(() => {
     const html = document.documentElement;
@@ -26,7 +28,7 @@ const App = () => {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/login" element={<AuthPage />} />
         </Routes>
         <Toaster
           position="top-right"

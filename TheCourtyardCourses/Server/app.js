@@ -3,8 +3,15 @@ import { connect } from './config/db.js';
 import userRouter from './routes/user.router.js';
 import courseRouter from './routes/course.router.js';
 import communityRouter from './routes/community.router.js';
+import cors from 'cors';
 
 const app = express();
+app.use(
+  cors({
+    origin: 'http://localhost:5173', // Tamaro Vite/React port
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 connect();

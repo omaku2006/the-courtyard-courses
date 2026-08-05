@@ -76,7 +76,7 @@ body {
 
 h1,
 h2 {
-  font-family: var(--main-headline);
+  font-family: var(--font-main-headline);
   font-weight: 700;
   line-height: 1.2;
   text-transform: uppercase;
@@ -474,6 +474,14 @@ body {
   background: var(--color-surface) !important;
   color: var(--color-light) !important;
 }
+.victorian-toast [data-description] {
+  color: var(--color-light) !important;
+  opacity: 1 !important; /* Fading hatai didhi */
+  font-family: var(--font-heading) !important; /* Body font rakhvo jethi readable hoy */
+  font-size: 0.875rem !important; /* Title jetli size */
+  letter-spacing: 0.02em !important;
+  margin-top: 4px !important;
+}
 
 /* Success - Fern */
 .toast-success {
@@ -527,4 +535,50 @@ body {
 .inputField:focus-within {
   outline: 2px solid var(--color-highlight);
   box-shadow: 0 0 18px rgba(201, 168, 106, 0.18);
+}
+
+/* ==========================================
+   VICTORIAN CUSTOM SCROLLBAR
+   ========================================== */
+
+/* ==========================================
+   1. FIREFOX & STANDARD SCROLLBAR
+   ========================================== */
+html {
+  /* Patalu (thin) ane Transparent (Auto-hide look) */
+  scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+
+/* Jyare body par 'is-scrolling' class hase tyare Gold color aavse */
+body.is-scrolling {
+  scrollbar-color: var(--color-primary) transparent;
+  transition: scrollbar-color 0.3s ease;
+}
+
+/* ==========================================
+   2. CHROME, SAFARI, EDGE (WebKit)
+   ========================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: transparent; /* Default hidden */
+  border-radius: 0; /* Sharp edges */
+  transition: background-color 0.3s ease;
+}
+
+/* Visible when scrolling */
+body.is-scrolling::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+}
+
+body.is-scrolling::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-cta);
 }
