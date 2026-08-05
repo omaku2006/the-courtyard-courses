@@ -1,13 +1,13 @@
 import { useEffect } from 'react';
 import HomePage from './pages/HomePage';
 import { useAppSelector } from './app/hooks';
-import Navbar from './components/common/Navbar';
-import Footer from './components/common/Footer';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import CoursesPage from './pages/CoursesPage';
 import AuthPage from './pages/auth/AuthPage';
 import { Toaster } from 'sonner';
 import { useAutoHideScrollbar } from './hooks/useScrollbar';
+import PublicLayout from './layouts/PublicLayout';
+import DashboardLayout from './layouts/DashboardLayout';
 
 const App = () => {
   useAutoHideScrollbar();
@@ -23,29 +23,35 @@ const App = () => {
 
   return (
     <BrowserRouter>
-      <Navbar />
       <main>
         <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/courses" element={<CoursesPage />} />
-          <Route path="/login" element={<AuthPage />} />
+          {/* Public */}
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/login" element={<AuthPage />} />
+          </Route>
+
+          {/* Dashboard */}
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<HomePage />} />
+          </Route>
         </Routes>
-        <Toaster
-          position="top-right"
-          richColors={false}
-          className="z-50"
-          toastOptions={{
-            classNames: {
-              toast: 'victorian-toast',
-              success: 'toast-success',
-              error: 'toast-error',
-              warning: 'toast-warning',
-              info: 'toast-info',
-            },
-          }}
-        />
       </main>
-      <Footer />
+      <Toaster
+        position="top-right"
+        richColors={false}
+        className="z-50"
+        toastOptions={{
+          classNames: {
+            toast: 'victorian-toast',
+            success: 'toast-success',
+            error: 'toast-error',
+            warning: 'toast-warning',
+            info: 'toast-info',
+          },
+        }}
+      />
     </BrowserRouter>
   );
 };

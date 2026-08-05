@@ -30,7 +30,7 @@ const AuthPage = () => {
       <CourtyardBackground className={hover ? 'lampBoost' : ''} />
       <div
         id="loginContainer"
-        className={`loginContainer fixed top-1/2 left-1/2 -translate-1/2 z-40 bg-surface w-120 max-[600px]:w-[95vw] p-8 h-[80vh] overflow-y-scroll overflow-x-hidden rounded-[4px] border-3 border-accent-hover`}
+        className={`loginContainer fixed top-1/2 left-1/2 -translate-1/2 z-40 bg-surface w-120 max-[600px]:w-[95vw] p-8 h-[80vh] max-h-[1000px] overflow-y-scroll overflow-x-hidden rounded-[4px] border-3 border-accent-hover`}
         onMouseEnter={() => setHover(true)}
         onMouseLeave={() => setHover(false)}
         ref={formContainer}

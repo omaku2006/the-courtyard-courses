@@ -247,10 +247,10 @@ label {
 
 /* Body fix */
 html {
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 body {
-  overflow-x: hidden;
+  overflow-x: clip;
   color: var(--color-text-primary);
   background-color: var(--color-bg);
 }

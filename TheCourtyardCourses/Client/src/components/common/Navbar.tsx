@@ -11,7 +11,7 @@ const Navbar = () => {
 
   return (
     <>
-      <nav className="relative h-28 border-2 border-accent flex justify-between md:justify-evenly items-center">
+      <nav className="relative h-28 border-2 border-accent flex justify-between md:justify-evenly items-center z-10">
         <div
           id="hamburger"
           className="menu md:hidden absolute top-1/2 -translate-y-1/2 p-2 sm:px-2 md:px-5"
