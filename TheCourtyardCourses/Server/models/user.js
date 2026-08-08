@@ -22,12 +22,25 @@ const userSchema = new mongoose.Schema(
       immutable: true,
     },
     avatarImage: {
-      type: String,
-      default: null,
+      url: {
+        type: String,
+        default: null,
+      },
+      publicId: {
+        type: String,
+        default: null,
+      },
     },
+
     headerImage: {
-      type: String,
-      default: null,
+      url: {
+        type: String,
+        default: '',
+      },
+      publicId: {
+        type: String,
+        default: '',
+      },
     },
     password: {
       type: String,

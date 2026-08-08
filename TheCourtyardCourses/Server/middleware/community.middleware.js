@@ -1,3 +1,6 @@
+import slugify from 'slugify';
+import Community from '../models/community.js';
+
 export const checkValidInputForCreateCommunity = (req, res, next) => {
   const { name, description, isPrivate, canEveryOneMessage } = req.body;
 

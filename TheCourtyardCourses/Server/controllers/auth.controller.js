@@ -3,19 +3,10 @@ import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
 
 export const registerUser = async (req, res) => {
-  const {
-    name,
-    email,
-    username,
-    avatarImage,
-    headerImage,
-    password,
-    role,
-    occupation,
-    experience,
-    subjects,
-    description,
-  } = req.body;
+  const { name, email, username, password, role, occupation, experience, subjects, description } =
+    req.body;
+
+  const { avatarImage, headerImage } = req.cloudinaryImages;
 
   if (!['teacher', 'student'].includes(role)) {
     return res.status(400).json({

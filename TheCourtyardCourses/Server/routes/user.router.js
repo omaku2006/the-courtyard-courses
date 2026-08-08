@@ -1,4 +1,5 @@
 import express from 'express';
+import multer from 'multer';
 import {
   registerUser,
   loginUser,
@@ -14,11 +15,23 @@ import {
   checkValidInputForLogin,
   verifyToken,
 } from '../middleware/auth.middleware.js';
+import { uploadImage } from '../middleware/registrationImageUpload.js';
 
 const userRouter = express.Router();
 
+const upload = multer({ dest: 'upload/' });
+
 // Auth
-userRouter.post('/auth/register', checkValidInputForRegistration, registerUser);
+userRouter.post(
+  '/auth/register',
+  upload.fields([
+    { name: 'avatarImage', maxCount: 1 },
+    { name: 'headerImage', maxCount: 1 },
+  ]),
+  checkValidInputForRegistration,
+  uploadImage,
+  registerUser
+);
 userRouter.post('/auth/login', checkValidInputForLogin, loginUser);
 
 // Profile
