@@ -7,14 +7,15 @@ interface RegisterFormData {
   name: string;
   email: string;
   username: string;
+  description?: string;
   avatarImage?: FileList;
   headerImage?: FileList;
   password: string;
   checkPassword: string;
-  role: 'student' | 'teacher' | 'admin';
+  role: 'student' | 'teacher';
   occupation?: string;
-  experience?: number;
-  subject?: string[];
+  experience?: string;
+  subject?: string;
 }
 
 const RegistrationForm = ({
@@ -46,12 +47,25 @@ const RegistrationForm = ({
   // Submit Funtions
   const { mutate: registerMutate, isPending } = useRegister();
   const onSubmit: SubmitHandler<RegisterFormData> = (data) => {
-    const payload = {
-      ...data,
-      avatarImage: data.avatarImage?.[0] ? data.avatarImage[0].name : '',
-      headerImage: data.headerImage?.[0] ? data.headerImage[0].name : '',
-    };
-    registerMutate(payload);
+    const fd = new FormData();
+    fd.append('name', data.name);
+    fd.append('email', data.email);
+    fd.append('username', data.username);
+    fd.append('password', data.password);
+    fd.append('role', data.role);
+    if (data.occupation) fd.append('occupation', data.occupation);
+    if (data.experience) fd.append('experience', data.experience);
+    if (data.description) fd.append('description', data.description);
+    (data.subject ?? '')
+      .split(',')
+      .map((sub) => sub.trim())
+      .filter(Boolean)
+      .forEach((sub) => fd.append('subjects', sub));
+
+    if (data.avatarImage?.[0]) fd.append('avatarImage', data.avatarImage[0]);
+    if (data.headerImage?.[0]) fd.append('headerImage', data.headerImage[0]);
+
+    registerMutate(fd);
   };
 
   const selectedRole = watch('role');
@@ -140,6 +154,17 @@ const RegistrationForm = ({
         {errors.checkPassword && (
           <span className="text-error text-sm italic">{errors.checkPassword.message}</span>
         )}
+      </div>
+
+      <div className="inputContainer">
+        <label htmlFor="description">Description</label>
+        <textarea
+          className="inputField w-full h-20 resize-none"
+          id="description"
+          placeholder="e.g., I'm an ...."
+          {...register('description')}
+        />
+        {errors.email && <span className="text-error text-sm italic">{errors.email.message}</span>}
       </div>
       {/* Role */}
       <div className="inputContainer">

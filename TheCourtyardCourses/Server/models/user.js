@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema(
       lowercase: true,
       immutable: true,
     },
+    description: {
+      type: String,
+      default: null,
+    },
     avatarImage: {
       url: {
         type: String,

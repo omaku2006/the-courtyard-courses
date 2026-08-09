@@ -6,25 +6,18 @@ export const authServices = {
     return res.data;
   },
 
-  register: async (data: {
-    name: string;
-    email: string;
-    username: string;
-    avatarImage: string;
-    headerImage: string;
-    password: string;
-    role: string;
-    occupation: string;
-    experience: number;
-    subjects: string;
-    description: string;
-  }) => {
+  register: async (data: FormData) => {
     const res = await api.post('/auth/register', data);
     return res.data;
   },
 
   fetchMyProfile: async () => {
     const res = await api.get('/users/me/profile');
+    return res.data;
+  },
+
+  updateProfile: async (username: string, data: FormData) => {
+    const res = await api.put(`/users/${username}`, data);
     return res.data;
   },
 };

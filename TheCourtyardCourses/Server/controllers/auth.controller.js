@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
+import { deleteFromCloudinary } from '../utils/uploadToCloudinary.js';
 
 export const registerUser = async (req, res) => {
   const { name, email, username, password, role, occupation, experience, subjects, description } =
@@ -112,14 +113,22 @@ export const updateUser = async (req, res) => {
     });
   }
 
-  const { name, avatarImage, headerImage, occupation, experience, subjects, description } =
-    req.body;
+  const { name, occupation, experience, subjects, description } = req.body;
 
+  const { avatarImage, headerImage } = req.cloudinaryImages;
   try {
+    const user = await User.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({
+        message: 'User not found',
+      });
+    }
+
     const updateData = {};
     if (name !== undefined) updateData.name = name;
-    if (avatarImage !== undefined) updateData.avatarImage = avatarImage;
-    if (headerImage !== undefined) updateData.headerImage = headerImage;
+    if (avatarImage) updateData.avatarImage = avatarImage;
+    if (headerImage) updateData.headerImage = headerImage;
     if (occupation !== undefined) updateData.occupation = occupation;
     if (experience !== undefined) updateData.experience = experience;
     if (subjects !== undefined) updateData.subjects = subjects;
@@ -129,6 +138,15 @@ export const updateUser = async (req, res) => {
 
     if (result.matchedCount === 0) {
       return res.status(404).json({ message: 'User not found' });
+    }
+
+    // DELETE OLD IMAGES ONLY AFTER NEW ONES WERE SUCCESSFULLY UPLOADED
+    if (avatarImage && user.avatarImage?.publicId) {
+      await deleteFromCloudinary(user.avatarImage.publicId);
+    }
+
+    if (headerImage && user.headerImage?.publicId) {
+      await deleteFromCloudinary(user.headerImage.publicId);
     }
 
     return res.status(200).json({

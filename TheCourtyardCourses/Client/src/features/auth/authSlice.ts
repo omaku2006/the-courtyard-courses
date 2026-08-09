@@ -1,17 +1,23 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
 
+export interface ImageRef {
+  url: string | null;
+  publicId: string | null;
+}
+
 export interface User {
   name: string;
   email: string;
   username: string;
-  avatarImage: string;
-  headerImage: string;
+  avatarImage: ImageRef | null;
+  headerImage: ImageRef | null;
   password: string;
   role: string;
   occupation: string;
   experience: number;
-  subjects: string;
+  subjects: string[];
   description: string;
+  badges?: string[];
 }
 
 interface AuthState {

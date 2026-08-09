@@ -37,7 +37,16 @@ userRouter.post('/auth/login', checkValidInputForLogin, loginUser);
 // Profile
 userRouter.get('/users/me/profile', verifyToken, fetchMyProfile); // Private
 userRouter.get('/users/:username', fetchProfile); // Public
-userRouter.put('/users/:username', verifyToken, updateUser);
+userRouter.put(
+  '/users/:username',
+  upload.fields([
+    { name: 'avatarImage', maxCount: 1 },
+    { name: 'headerImage', maxCount: 1 },
+  ]),
+  verifyToken,
+  uploadImage,
+  updateUser
+);
 userRouter.delete('/users/:username', verifyToken, deleteUser);
 
 // User Data

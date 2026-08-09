@@ -20,6 +20,12 @@ app.use('/api', userRouter);
 app.use('/api/course', courseRouter);
 app.use('/api/community', communityRouter);
 
+// Error handler (keep last)
+app.use((err, req, res, next) => {
+  console.error('ERROR:', err?.message || err?.name || err);
+  res.status(err?.status || 500).json({ message: err?.message || 'Something went wrong!' });
+});
+
 app.listen(3000, () => {
   console.log('Server Running : http://localhost:3000/');
 });

@@ -1,13 +1,10 @@
-import { useMutation } from '@tanstack/react-query';
-import { useDispatch, useSelector } from 'react-redux';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
-import { setCredentials } from './authSlice';
+import type { AxiosError } from 'axios';
+import { setCredentials, logout } from './authSlice';
 import { authServices } from '../../services/authServices';
-import type { AppDispatch } from '../../app/store';
 import { toast } from 'sonner';
-
-export const useAppDispatch = () => useDispatch<AppDispatch>();
-export const useAppSelect = () => useSelector;
+import { useAppDispatch, useAppSelector } from '../../app/hooks';
 
 export const useLogin = () => {
   const dispatch = useAppDispatch();
@@ -24,8 +21,9 @@ export const useLogin = () => {
     },
     onError: (error) => {
       console.error('Courtyard access denied:', error.message);
+      const message = (error as AxiosError<{ message?: string }>).response?.data?.message;
       toast.error('Entry Denied.', {
-        description: error?.response?.data?.message || 'Something went wrong!',
+        description: message || 'Something went wrong!',
       });
     },
   });
@@ -48,10 +46,51 @@ export const useRegister = () => {
     },
     onError: (error) => {
       console.error('Courtyard access denied:', error.message);
+      const message =
+        (error as AxiosError<{ message?: string }>).response?.data?.message || error?.message;
       toast.error('Registration failed. Pray, try again with a different moniker or email.', {
-        description:
-          error?.response?.data?.message || error?.message || 'An Unknown Error Occurred!',
+        description: message || 'An Unknown Error Occurred!',
       });
     },
   });
+};
+
+export const useFetchMyProfile = () => {
+  const token = useAppSelector((state) => state.auth.token);
+  return useQuery({ queryKey: ['user'], queryFn: authServices.fetchMyProfile, enabled: !!token });
+};
+
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation<unknown, AxiosError, { username: string; formData: FormData }>({
+    mutationFn: ({ username, formData }) => authServices.updateProfile(username, formData),
+    onSuccess: () => {
+      toast.success('Profile Updated!', {
+        description: 'Your Details Have Been Inscribed Anew.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['user'] });
+    },
+    onError: (error) => {
+      console.error('Profile update failed:', error.message);
+      const message = (error as AxiosError<{ message?: string }>).response?.data?.message;
+      toast.error('Profile Update Failed.', {
+        description: message || 'Something went wrong!',
+      });
+    },
+  });
+};
+
+export const useLogout = () => {
+  const dispatch = useAppDispatch();
+  const queryClient = useQueryClient();
+
+  return () => {
+    dispatch(logout());
+    queryClient.removeQueries({ queryKey: ['user'] });
+
+    toast.success('Departed the Courtyard.', {
+      description: 'Your session has been safely closed.',
+    });
+  };
 };

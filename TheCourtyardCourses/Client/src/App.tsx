@@ -8,12 +8,9 @@ import { Toaster } from 'sonner';
 import { useAutoHideScrollbar } from './hooks/useScrollbar';
 import PublicLayout from './layouts/PublicLayout';
 import DashboardLayout from './layouts/DashboardLayout';
-import SystemBase from './pages/system/SystemBase';
-import LoadingPage from './pages/system/LoadingPage';
 import NotFoundPage from './pages/system/NotFoundPage';
-import MaintenancePage from './pages/system/MaintenancePage';
-import ServerErrorPage from './pages/system/ServerErrorPage';
-import UnauthorizedPage from './pages/system/UnauthorizedPage';
+import FetchMe from './pages/FetchMe';
+import RequireAuth from './pages/auth/RequireAuth';
 
 const App = () => {
   useAutoHideScrollbar();
@@ -26,13 +23,6 @@ const App = () => {
       html.setAttribute('data-theme', '');
     }
   }, [theme]);
-  // if (isPending) {
-  //    return <LoadingPage />;
-  //  }
-  //
-  //  if (isError) {
-  //    return <ServerErrorPage />;
-  //  }
 
   return (
     <BrowserRouter>
@@ -46,10 +36,12 @@ const App = () => {
           </Route>
 
           {/* Dashboard */}
-          <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<HomePage />} />
+          <Route element={<RequireAuth />}>
+            <Route element={<DashboardLayout />}>
+              <Route path="/dashboard" element={<HomePage />} />
+              <Route path="/dashboard/me" element={<FetchMe />} />
+            </Route>
           </Route>
-
           {/*No Layout*/}
           <Route>
             <Route path="*" element={<NotFoundPage />} />

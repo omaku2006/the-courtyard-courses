@@ -139,6 +139,9 @@ label {
   line-height: 1.5;
   cursor: pointer;
 }
+p.other {
+  margin: 0;
+}
 
 /* Button fix - alag classes */
 .btnPrimary {
@@ -581,4 +584,13 @@ body.is-scrolling::-webkit-scrollbar-thumb {
 
 body.is-scrolling::-webkit-scrollbar-thumb:hover {
   background-color: var(--color-cta);
+}
+/* globals.css */
+
+.hide-scrollbar {
+  scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
 }
