@@ -4,6 +4,7 @@ import {
   fetchCourses,
   fetchCourse,
   updateCourse,
+  publishCourse,
   deleteCourse,
   enrollCourse,
   updateRatingsCourse,
@@ -12,17 +13,25 @@ import {
   fetchMyCourses,
   fetchEnrolledCourses,
 } from '../controllers/course.controller.js';
-
+import multer from 'multer';
 import { verifyToken, isTeacher, isStudent } from '../middleware/auth.middleware.js';
+import { uploadCourseAssets } from '../middleware/imageUpload.js';
 const courseRouter = express.Router();
 
+// any() -> chapter files na dynamic field names handle karva (fields() "Unexpected field" error faake)
+const upload = multer({
+  dest: 'upload/',
+  limits: { fileSize: 10 * 1024 * 1024, files: 50 },
+});
+
 // CRUD
-courseRouter.post('/', verifyToken, isTeacher, createCourse);
+courseRouter.post('/', verifyToken, isTeacher, upload.any(), uploadCourseAssets, createCourse);
 courseRouter.get('/', fetchCourses);
 courseRouter.get('/me/courses', verifyToken, isTeacher, fetchMyCourses);
 courseRouter.get('/me/enrolled', verifyToken, fetchEnrolledCourses);
 courseRouter.get('/:slug', fetchCourse);
 courseRouter.put('/:courseId', verifyToken, isTeacher, updateCourse);
+courseRouter.patch('/:courseId/publish', verifyToken, isTeacher, publishCourse);
 courseRouter.delete('/:courseId', verifyToken, isTeacher, deleteCourse);
 
 // Enrollment

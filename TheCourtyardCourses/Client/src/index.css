@@ -540,6 +540,17 @@ body {
   box-shadow: 0 0 18px rgba(201, 168, 106, 0.18);
 }
 
+.inputField[type="number"]::-webkit-outer-spin-button,
+.inputField[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.inputField[type="number"] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
 /* ==========================================
    VICTORIAN CUSTOM SCROLLBAR
    ========================================== */
@@ -593,4 +604,36 @@ body.is-scrolling::-webkit-scrollbar-thumb:hover {
 
 .hide-scrollbar::-webkit-scrollbar {
   display: none;
+}
+
+/*//************************/
+/*    Chapter Form    */
+/**********************/
+
+.chapterForm .chapterContent {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 500ms ease;
+}
+
+.chapterForm.expanded .chapterContent {
+  grid-template-rows: 1fr;
+}
+
+.chapterContent > div {
+  overflow: hidden;
+}
+
+.chapterHr {
+  opacity: 0;
+  margin: 8px 0;
+  transition: opacity 300ms ease;
+}
+
+.chapterForm.expanded .chapterHr {
+  opacity: 1;
+}
+
+.no-margin {
+  margin: 0;
 }

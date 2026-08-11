@@ -4,8 +4,9 @@ import User from '../models/user.js';
 import Enrollment from '../models/enrollment.js';
 
 export const createCourse = async (req, res) => {
-  const { title, description, category, tags, level, language, chapters, price } = req.body;
+  const { title, description, category, tags, level, language, chapters, price, badges } = req.body;
 
+  const { thumbnail, coverImage } = req.cloudinaryImages;
   if (req.user.role !== 'teacher') {
     return res.status(403).json({
       message: 'Only teachers can create courses!',
@@ -14,6 +15,13 @@ export const createCourse = async (req, res) => {
 
   const username = req.user.username;
   const creatorId = req.user.id;
+
+  const parseList = (value) =>
+    typeof value === 'string'
+      ? value.split(',').map((s) => s.trim()).filter(Boolean)
+      : Array.isArray(value)
+        ? value
+        : [];
 
   const baseSlug = slugify(title, {
     lower: true,
@@ -35,12 +43,25 @@ export const createCourse = async (req, res) => {
       description,
       slug: finalSlug,
       creator: creatorId,
+      thumbnail,
+      coverImage,
       category,
-      tags: tags || [],
+      tags: parseList(tags),
       level: level || 'beginner',
       language: language || 'English',
-      chapters: chapters || [],
-      price: price || 0,
+      chapters: (chapters ?? []).map((c) => ({
+        title: c.title,
+        description: c.description,
+        duration: c.duration,
+        typeOfChapter: c.typeOfChapter,
+        videoUrl: c.videoUrl,
+        videoId: c.videoId,
+        resources: c.resources ?? [],
+        order: Number(c.order ?? 0),
+        demo: c.demo === 'true' || c.demo === true,
+      })),
+      price: Number(price) || 0,
+      badges: parseList(badges),
     });
 
     return res.status(201).json({
@@ -288,6 +309,46 @@ export const updateCourse = async (req, res) => {
   }
 };
 
+export const publishCourse = async (req, res) => {
+  const { courseId } = req.params;
+  const teacherId = req.user.id;
+  const { publishedAt } = req.body;
+
+  try {
+    const course = await Course.findById(courseId);
+
+    if (!course) {
+      return res.status(404).json({ message: 'Course not found!' });
+    }
+
+    if (course.creator.toString() !== teacherId) {
+      return res.status(403).json({
+        message: "You cannot publish someone else's course!",
+      });
+    }
+
+    // undefined/omit -> publish now | null -> draft | date -> schedule
+    let value;
+    if (publishedAt === null) value = null;
+    else if (publishedAt) value = new Date(publishedAt);
+    else value = new Date();
+
+    course.publishedAt = value;
+    await course.save();
+
+    return res.status(200).json({
+      message: 'Course publish status updated!',
+      publishedAt: course.publishedAt,
+    });
+  } catch (e) {
+    console.error('Publish Course Error:', e.message);
+    return res.status(500).json({
+      message: 'Error updating publish status!',
+      error: e.message,
+    });
+  }
+};
+
 export const deleteCourse = async (req, res) => {
   const { courseId } = req.params;
   const teacherId = req.user.id;
@@ -378,8 +439,8 @@ export const updateRatingsCourse = async (req, res) => {
     // 2. Check karo ke user enrolled chhe ke nahi
     // (Faktu enrolled students j rate kari shake)
     if (!course.students.includes(userId)) {
-      return res.status(403).json({ 
-        message: 'You must be enrolled in this course to rate it!' 
+      return res.status(403).json({
+        message: 'You must be enrolled in this course to rate it!',
       });
     }
 
@@ -414,26 +475,25 @@ export const updateRatingsCourse = async (req, res) => {
       averageRating: course.averageRating,
       totalRatings: course.ratings.length,
     });
-
   } catch (e) {
     console.error('Update Rating Error:', e.message);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Error submitting rating!',
-      error: e.message 
+      error: e.message,
     });
   }
 };
 
-export const fetchRatingsCourse = async (req, res) => { // ✅ async add karyu
+export const fetchRatingsCourse = async (req, res) => {
+  // ✅ async add karyu
   const { courseId } = req.params;
-  
+
   try {
     // ✅ Sahi syntax + Populate (User ni details lakva mate)
-    const course = await Course.findById(courseId)
-      .populate({
-        path: 'ratings.user',
-        select: 'name username avatarImage' // ✅ Faktu aa 3 fields lakho
-      });
+    const course = await Course.findById(courseId).populate({
+      path: 'ratings.user',
+      select: 'name username avatarImage', // ✅ Faktu aa 3 fields lakho
+    });
 
     // ✅ Null check
     if (!course) {
@@ -444,9 +504,8 @@ export const fetchRatingsCourse = async (req, res) => { // ✅ async add karyu
     return res.status(200).json({
       ratings: course.ratings,
       averageRating: course.averageRating, // ✅ Bonus: Average rating pan mokli do
-      totalRatings: course.ratings.length  // ✅ Bonus: Total reviews count
+      totalRatings: course.ratings.length, // ✅ Bonus: Total reviews count
     });
-
   } catch (e) {
     console.error('Fetch Course Ratings Error:', e.message); // ✅ Typo fix karyo
     return res.status(500).json({ message: 'Internal Server Error!' });
@@ -460,26 +519,24 @@ export const fetchCertificate = async (req, res) => {
   try {
     // 1. Course shodho (Faktu jaruri fields lakho for speed)
     const course = await Course.findById(courseId).select('title certificate students');
-    
+
     if (!course) {
       return res.status(404).json({ message: 'Course not found!' });
     }
 
     // 2. Check karo: Course ma certificate enabled chhe ke nahi?
     if (!course.certificate || !course.certificate.enabled) {
-      return res.status(400).json({ 
-        message: 'Certificate is not available for this course.' 
+      return res.status(400).json({
+        message: 'Certificate is not available for this course.',
       });
     }
 
     // 3. Check karo: User enrolled chhe ke nahi?
-    const isEnrolled = course.students.some(
-      (studentId) => studentId.toString() === userId
-    );
+    const isEnrolled = course.students.some((studentId) => studentId.toString() === userId);
 
     if (!isEnrolled) {
-      return res.status(403).json({ 
-        message: 'You must be enrolled in this course to get the certificate!' 
+      return res.status(403).json({
+        message: 'You must be enrolled in this course to get the certificate!',
       });
     }
 
@@ -487,8 +544,8 @@ export const fetchCertificate = async (req, res) => {
     // Jo tame Enrollment model banavyu hoy toh:
     const enrollment = await Enrollment.findOne({ student: userId, course: courseId });
     if (!enrollment || enrollment.progress < 100) {
-      return res.status(403).json({ 
-        message: 'Please complete 100% of the course to unlock the certificate!' 
+      return res.status(403).json({
+        message: 'Please complete 100% of the course to unlock the certificate!',
       });
     }
 
@@ -505,14 +562,13 @@ export const fetchCertificate = async (req, res) => {
         template: course.certificate.template, // PDF/Image URL
         issuedAt: new Date().toISOString().split('T')[0], // Aaj ni date (YYYY-MM-DD)
         courseId: course._id,
-      }
+      },
     });
-
   } catch (e) {
     console.error('Fetch Certificate Error:', e.message);
-    return res.status(500).json({ 
+    return res.status(500).json({
       message: 'Internal Server Error!',
-      error: e.message 
+      error: e.message,
     });
   }
 };

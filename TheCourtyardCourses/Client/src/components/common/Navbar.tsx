@@ -3,11 +3,18 @@ import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../app/hooks';
 import { toggleTheme } from '../../features/themes/themeSlice';
 import { Link, NavLink } from 'react-router-dom';
+import { useFetchMyProfile } from '../../features/auth/useAuth';
+import LoadingPage from '../../pages/system/LoadingPage';
+import ServerErrorPage from '../../pages/system/ServerErrorPage';
 
 const Navbar = () => {
+  const { data, isError, isLoading } = useFetchMyProfile();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const theme = useAppSelector((state) => state.theme.mode);
   const dispatch = useAppDispatch();
+
+  if (isLoading) return <LoadingPage />;
+  if (isError) return <ServerErrorPage />;
 
   return (
     <>
@@ -127,9 +134,20 @@ const Navbar = () => {
           >
             {theme === 'dark' ? <MoonIcon weight="fill" /> : <SunIcon weight="fill" />}
           </button>
-          <Link to="/login" className="btnPrimary">
-            Login
-          </Link>
+          {data.user ? (
+            <Link
+              to={'/dashboard/me'}
+              className="p-4 border bg-highlight hover:-translate-y-1 duration-300"
+            >
+              {data.user.name.split(' ').map((word: string) => {
+                return word.charAt(0).toUpperCase();
+              })}
+            </Link>
+          ) : (
+            <Link to="/login" className="btnPrimary">
+              Login
+            </Link>
+          )}
         </div>
       </nav>
     </>

@@ -19,12 +19,24 @@ const courseSchema = new mongoose.Schema(
       immutable: true,
     },
     thumbnail: {
-      type: String,
-      default: '',
+      url: {
+        type: String,
+        default: '',
+      },
+      publicId: {
+        type: String,
+        default: '',
+      },
     },
     coverImage: {
-      type: String,
-      default: '',
+      url: {
+        type: String,
+        default: '',
+      },
+      publicId: {
+        type: String,
+        default: '',
+      },
     },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
@@ -68,10 +80,22 @@ const courseSchema = new mongoose.Schema(
             return this.typeOfChapter === 'video';
           },
         },
-        resources: {
-          type: [String],
-          default: [],
+        videoId: {
+          type: String,
+          default: '',
         },
+        resources: [
+          {
+            url: {
+              type: String,
+              default: '',
+            },
+            publicId: {
+              type: String,
+              default: '',
+            },
+          },
+        ],
         order: {
           type: Number,
           default: 0,
@@ -86,7 +110,7 @@ const courseSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-      students: [
+    students: [
       {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',

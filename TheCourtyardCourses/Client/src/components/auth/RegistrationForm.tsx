@@ -1,5 +1,5 @@
 import { ArrowLeftIcon, ArrowLineUpIcon } from '@phosphor-icons/react';
-import type { RefObject } from 'react';
+import { useEffect, useMemo, type RefObject } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { useRegister } from '../../features/auth/useAuth';
 
@@ -40,9 +40,21 @@ const RegistrationForm = ({
   const avatarFile = watch('avatarImage');
   const headerFile = watch('headerImage');
 
-  // Preview URLs banaviye
-  const avatarPreview = avatarFile?.[0] ? URL.createObjectURL(avatarFile[0]) : null;
-  const headerPreview = headerFile?.[0] ? URL.createObjectURL(headerFile[0]) : null;
+  // Preview URLs (only created when the file changes, revoked on cleanup)
+  const avatarPreview = useMemo(
+    () => (avatarFile?.[0] ? URL.createObjectURL(avatarFile[0]) : null),
+    [avatarFile]
+  );
+  const headerPreview = useMemo(
+    () => (headerFile?.[0] ? URL.createObjectURL(headerFile[0]) : null),
+    [headerFile]
+  );
+
+  useEffect(() => {
+    return () => {
+      [avatarPreview, headerPreview].forEach((p) => p && URL.revokeObjectURL(p));
+    };
+  }, [avatarPreview, headerPreview]);
 
   // Submit Funtions
   const { mutate: registerMutate, isPending } = useRegister();
@@ -82,7 +94,7 @@ const RegistrationForm = ({
           placeholder="Enter your full name"
           {...register('name', { required: 'Pray, tell us your name.' })}
         />
-        {errors.name && <span className="text-error text-sm italic">{errors.name.message}</span>}
+        {errors.name && <span className="fieldError">{errors.name?.message}</span>}
       </div>
 
       {/* Username */}
@@ -93,10 +105,16 @@ const RegistrationForm = ({
           type="text"
           id="username"
           placeholder="Choose a scholar ID"
-          {...register('username', { required: 'A moniker is required for entry.' })}
+          {...register('username', {
+            required: 'A moniker is required for entry.',
+            pattern: {
+              value: /^[a-z0-9_]+$/,
+              message: 'Lowercase letters, numbers, and underscores only.',
+            },
+          })}
         />
         {errors.username && (
-          <span className="text-error text-sm italic">{errors.username.message}</span>
+          <span className="fieldError">{errors.username?.message}</span>
         )}
       </div>
 
@@ -108,9 +126,15 @@ const RegistrationForm = ({
           type="email"
           id="email"
           placeholder="e.g., scholar@courtyard.uk"
-          {...register('email', { required: 'We require your email.' })}
+          {...register('email', {
+            required: 'We require your email.',
+            pattern: {
+              value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+              message: 'That is not a valid electronic correspondence.',
+            },
+          })}
         />
-        {errors.email && <span className="text-error text-sm italic">{errors.email.message}</span>}
+        {errors.email && <span className="fieldError">{errors.email?.message}</span>}
       </div>
 
       {/* Password */}
@@ -130,7 +154,7 @@ const RegistrationForm = ({
           })} // ❌ Pehla 'email' hatu, ✅ 'password' karyu
         />
         {errors.password && (
-          <span className="text-error text-sm italic">{errors.password.message}</span>
+          <span className="fieldError">{errors.password?.message}</span>
         )}
       </div>
 
@@ -152,7 +176,7 @@ const RegistrationForm = ({
           })}
         />
         {errors.checkPassword && (
-          <span className="text-error text-sm italic">{errors.checkPassword.message}</span>
+          <span className="fieldError">{errors.checkPassword?.message}</span>
         )}
       </div>
 
@@ -164,13 +188,16 @@ const RegistrationForm = ({
           placeholder="e.g., I'm an ...."
           {...register('description')}
         />
-        {errors.email && <span className="text-error text-sm italic">{errors.email.message}</span>}
+        {errors.description && (
+          <span className="fieldError">{errors.description.message}</span>
+        )}
       </div>
       {/* Role */}
       <div className="inputContainer">
         <label htmlFor="role">Your Station</label>
         <select
-          className="w-full px-4 py-4 border-2 border-accent bg-transparent"
+          id="role"
+          className="inputField w-full"
           {...register('role')}
         >
           <option value="student">Student</option>

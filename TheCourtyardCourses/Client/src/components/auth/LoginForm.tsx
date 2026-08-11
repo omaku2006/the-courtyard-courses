@@ -43,7 +43,9 @@ const LoginForm = ({
             required: 'Enter your Scholar ID or Email.',
           })}
         />
-        <span className="fieldError">{errors && errors.identifier?.message}</span>
+        {errors.identifier && (
+          <span className="fieldError">{errors.identifier.message}</span>
+        )}
       </div>
       <div className="inputContainer">
         <label htmlFor="password">Secret Phrase</label>
@@ -55,7 +57,7 @@ const LoginForm = ({
           {...register('password', { required: 'Please enter your Secret Phrase.' })}
         />
 
-        <span className="fieldError">{errors && errors.password?.message}</span>
+        {errors.password && <span className="fieldError">{errors.password.message}</span>}
 
         <div className="group relative forgotPass my-5">
           <span className="relative italic cursor-pointer">

@@ -15,7 +15,7 @@ import {
   checkValidInputForLogin,
   verifyToken,
 } from '../middleware/auth.middleware.js';
-import { uploadImage } from '../middleware/registrationImageUpload.js';
+import { uploadImage } from '../middleware/imageUpload.js';
 
 const userRouter = express.Router();
 
