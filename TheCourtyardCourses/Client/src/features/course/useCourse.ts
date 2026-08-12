@@ -49,3 +49,10 @@ export const usePublishCourse = () => {
     },
   });
 };
+
+export const useFetchCourse = (slug: string) => {
+  return useQuery({
+    queryKey: ['course', slug],
+    queryFn: () => courseServices.fetchCourse({ slug }),
+  });
+};

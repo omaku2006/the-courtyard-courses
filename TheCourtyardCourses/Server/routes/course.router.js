@@ -29,6 +29,7 @@ courseRouter.post('/', verifyToken, isTeacher, upload.any(), uploadCourseAssets,
 courseRouter.get('/', fetchCourses);
 courseRouter.get('/me/courses', verifyToken, isTeacher, fetchMyCourses);
 courseRouter.get('/me/enrolled', verifyToken, fetchEnrolledCourses);
+// courseRouter.get('/me/whishlist', verifyToken, fetchWishlistCourses);
 courseRouter.get('/:slug', fetchCourse);
 courseRouter.put('/:courseId', verifyToken, isTeacher, updateCourse);
 courseRouter.patch('/:courseId/publish', verifyToken, isTeacher, publishCourse);

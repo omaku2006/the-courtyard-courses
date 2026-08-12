@@ -17,4 +17,9 @@ export const courseServices = {
     });
     return res.data;
   },
+
+  fetchCourse: async ({ slug }: { slug: string }) => {
+    const res = await api.get(`/course/${slug}`);
+    return res.data;
+  },
 };

@@ -285,7 +285,7 @@ const FetchMe = () => {
       <HrWrapper name="⚜" />
 
       <div className="grid gap-6 md:grid-cols-2">
-        <div className="rounded-[4px] border-2 border-accent bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent-hover">
+        <div className="rounded-[4px] border-2 border-accent bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent-hover h-[60vh] overflow-y-scroll">
           <div className="mb-4 flex items-center gap-2">
             <FeatherIcon size={20} weight="fill" className="text-accent-hover" />
             <h4 className="m-0 underline underline-offset-4">Description</h4>
@@ -293,7 +293,7 @@ const FetchMe = () => {
           {isEditing ? (
             <textarea
               id="description"
-              className="inputField h-24 w-full resize-none"
+              className="inputField h-full w-full resize-none"
               placeholder="Inscribe a few words about thyself..."
               {...register('description')}
             />
@@ -304,7 +304,7 @@ const FetchMe = () => {
           )}
         </div>
 
-        <div className="rounded-[4px] border-2 border-accent bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent-hover">
+        <div className="rounded-[4px] border-2 border-accent bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent-hover h-[60vh] overflow-y-scroll">
           <div className="mb-4 flex items-center gap-2">
             <RoleIcon size={20} weight="fill" className="text-accent-hover" />
             <h4 className="m-0 underline underline-offset-4">

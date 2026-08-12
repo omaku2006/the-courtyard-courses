@@ -637,3 +637,71 @@ body.is-scrolling::-webkit-scrollbar-thumb:hover {
 .no-margin {
   margin: 0;
 }
+
+.capitalize {
+  text-transform: capitalize;
+}
+
+/*//*******************************/
+/*  View Course Grid System  */
+/*****************************/
+
+#course {
+  display: grid;
+  width: 100%;
+  height: 100vh;
+  box-sizing: border-box;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto 1fr 1fr 1fr;
+  grid-template-areas:
+    "header header header"
+    "courseTeacher courseVideo courseReview"
+    "chapterInfo courseVideo courseProgress"
+    "community courseDescription courseProgress";
+}
+#courseTeacher,
+#chapterInfo,
+#courseCommunity,
+#courseVideo,
+#courseReview,
+#courseDescription,
+#courseChapterProgress {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  border-radius: 2px;
+  border: 1px solid var(--color-border);
+}
+#courseHeadline {
+  grid-area: header;
+  border-radius: 2px;
+  border: 1px solid var(--color-border);
+}
+
+#courseTeacher {
+  grid-area: courseTeacher;
+}
+
+#chapterInfo {
+  grid-area: chapterInfo;
+}
+
+#courseCommunity {
+  grid-area: community;
+}
+
+#courseVideo {
+  grid-area: courseVideo;
+}
+
+#courseChapterProgress {
+  grid-area: courseProgress;
+}
+
+#courseReview {
+  grid-area: courseReview;
+}
+
+#courseDescription {
+  grid-area: courseDescription;
+}

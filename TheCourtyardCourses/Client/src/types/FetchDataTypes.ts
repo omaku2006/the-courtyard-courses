@@ -1,0 +1,85 @@
+export interface ImageRef {
+  url?: string | null;
+  publicId?: string | null;
+}
+
+export interface Creator {
+  _id: string;
+  name: string;
+  username: string;
+  avatarImage?: ImageRef | null;
+  description?: string | null;
+  occupation?: string | null;
+}
+
+export interface Community {
+  _id: string;
+  name: string;
+  thumbnail?: string | ImageRef | null;
+  memberCount?: number;
+}
+
+export interface Chapter {
+  _id?: string;
+  title: string;
+  description?: string;
+  duration?: string;
+  typeOfChapter: 'video' | 'resource';
+  videoUrl?: string;
+  videoId?: string;
+  resources?: ImageRef[];
+  order?: number;
+  demo?: boolean;
+}
+
+export interface Rating {
+  user: string;
+  stars: number;
+  description?: string;
+  createdAt?: string;
+}
+
+export interface Course {
+  _id: string;
+  title: string;
+  description: string;
+  slug: string;
+  thumbnail: ImageRef | null;
+  coverImage: ImageRef | null;
+  creator: Creator | string;
+  category: string;
+  tags: string[];
+  level: 'beginner' | 'intermediate' | 'advanced';
+  language: string;
+  chapters: Chapter[];
+  price: number;
+  students?: string[];
+  studentCount?: number;
+  publishedAt?: string | null;
+  community?: Community | string | null;
+  badges?: string[];
+  certificate?: {
+    enabled?: boolean;
+    template?: string | null;
+  };
+  ratings?: Rating[];
+  averageRating?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FetchCourseResponse {
+  courseDetails: Course;
+}
+
+export interface FetchMyCoursesResponse {
+  courses: Course[];
+  pagination?: {
+    currentPage: number;
+    totalPages: number;
+    totalCourses: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    limit: number;
+  };
+}

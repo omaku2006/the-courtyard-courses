@@ -12,6 +12,7 @@ import NotFoundPage from './pages/system/NotFoundPage';
 import FetchMe from './pages/FetchMe';
 import RequireAuth from './pages/auth/RequireAuth';
 import MyCourses from './pages/MyCourses';
+import ViewCourse from './components/course/ViewCourse';
 
 const App = () => {
   useAutoHideScrollbar();
@@ -42,6 +43,7 @@ const App = () => {
               <Route path="/dashboard" element={<HomePage />} />
               <Route path="/dashboard/me" element={<FetchMe />} />
               <Route path="/dashboard/my-courses" element={<MyCourses />} />
+              <Route path="/dashboard/:slug" element={<ViewCourse />} />
             </Route>
           </Route>
           {/*No Layout*/}

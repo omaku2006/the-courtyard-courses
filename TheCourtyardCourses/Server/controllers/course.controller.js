@@ -18,7 +18,10 @@ export const createCourse = async (req, res) => {
 
   const parseList = (value) =>
     typeof value === 'string'
-      ? value.split(',').map((s) => s.trim()).filter(Boolean)
+      ? value
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
       : Array.isArray(value)
         ? value
         : [];
@@ -221,7 +224,7 @@ export const fetchCourse = async (req, res) => {
     const courseDetails = await Course.findOne({ slug })
       .populate({
         path: 'creator',
-        select: 'name username avatarImage occupation',
+        select: 'name username avatarImage occupation description',
       })
       .populate({
         path: 'community',
