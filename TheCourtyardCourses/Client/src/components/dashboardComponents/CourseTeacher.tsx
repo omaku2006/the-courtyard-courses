@@ -9,39 +9,58 @@ const getInitials = (name: string) => {
 
 const CourseTeacher = ({ course }: { course: Course }) => {
   const creator = course.creator as Creator | string;
+
+  // ✅ Fix: Agar creator object nathi to null return karo
   if (typeof creator !== 'object' || creator === null) return null;
 
   const avatar = imageUrl(creator.avatarImage);
 
   return (
-    <div id="courseTeacher" className="bg-surface p-4">
-      <div className="topPart flex gap-5">
-        <div className="avatar">
+    <div id="courseTeacher" className="bg-surface p-5 flex flex-col gap-4">
+      {/* ✅ Polish: Responsive layout for top part */}
+      <div className="topPart flex flex-col sm:flex-row items-center sm:items-start gap-4">
+        {/* Avatar with Victorian Gold Frame */}
+        <div className="avatar shrink-0">
           {avatar ? (
             <img
               src={avatar}
               alt={creator.name}
-              className="block w-20 h-20 object-cover object-center"
+              className="block w-24 h-24 object-cover object-center border-2 border-primary rounded-sm shadow-sm"
             />
           ) : (
-            <p className="w-20 h-20 flex items-center justify-center">
+            // ✅ Polish: Fallback initials in a Gold framed box
+            <div className="w-24 h-24 flex items-center justify-center border-2 border-primary rounded-sm bg-background font-heading text-3xl text-primary">
               {getInitials(creator.name)}
-            </p>
+            </div>
           )}
         </div>
-        <div className="info flex flex-col justify-center relative overflow-x-hidden">
-          <h5 className="min-w-0 truncate">{creator.name}</h5>
-          <h6>{creator.username}</h6>
+
+        {/* Info Block */}
+        <div className="info flex flex-col justify-center text-center sm:text-left flex-1 min-w-0 gap-1">
+          <h5 className="font-heading text-lg text-text truncate m-0">{creator.name}</h5>
+          <h6 className="font-body italic text-sm text-text-secondary truncate m-0">
+            @{creator.username}
+          </h6>
+
+          {/* ✅ Polish: Uncommented & styled Occupation as an engraved badge */}
+          {creator.occupation && (
+            <div className="occupation mt-2 self-center sm:self-start bg-background border border-border px-3 py-1 max-w-full overflow-hidden">
+              <h6 className="font-heading text-[10px] uppercase tracking-widest text-primary truncate m-0">
+                {creator.occupation}
+              </h6>
+            </div>
+          )}
         </div>
-        {/*creator.occupation && (
-          <div className="occupation ml-auto self-center bg-bg px-4 py-2 max-w-45 overflow-x-hidden">
-            <h6 className="min-w-0 truncate">{creator.occupation}</h6>
-          </div>
-        )*/}
       </div>
+
       <HrWrapper name="⚜" />
-      <div className="description overflow-y-scroll scroll-smooth hide-scrollbar">
-        <p className="text-justify">{creator.description}</p>
+
+      {/* ✅ Polish: overflow-scroll -> overflow-y-auto, added fallback text */}
+      <div className="description overflow-y-auto hide-scrollbar max-h-40 pr-2">
+        <p className="text-justify text-sm text-text-secondary leading-relaxed font-body italic">
+          {creator.description ||
+            'The master has chosen to remain enigmatic regarding their history and scholarly pursuits.'}
+        </p>
       </div>
     </div>
   );

@@ -41,6 +41,14 @@ export const uploadImage = async (req, res, next) => {
   }
 };
 const CHAPTER_FILE = /^chapters\[(\d+)\]\[(video|resources)\]$/;
+const ALLOWED_RESOURCE_MIME =
+  /^(image\/|application\/pdf|text\/|application\/msword|application\/vnd\.ms-|application\/vnd\.openxmlformats-officedocument\.)/;
+
+const resourceTypeFor = (mimetype) => {
+  if (mimetype.startsWith('image/')) return 'image';
+  if (mimetype.startsWith('video/')) return 'video';
+  return 'raw';
+};
 
 export const uploadCourseAssets = async (req, res, next) => {
   try {
@@ -54,9 +62,23 @@ export const uploadCourseAssets = async (req, res, next) => {
     for (const file of req.files ?? []) {
       const m = file.fieldname.match(CHAPTER_FILE);
       if (m) {
+        if (m[2] === 'video' && !file.mimetype.startsWith('video/')) {
+          const err = new Error(`"${file.originalname}" is not a video file!`);
+          err.status = 400;
+          throw err;
+        }
+        if (m[2] === 'resources' && !ALLOWED_RESOURCE_MIME.test(file.mimetype)) {
+          const err = new Error(`"${file.originalname}" has an unsupported file type!`);
+          err.status = 400;
+          throw err;
+        }
         const idx = Number(m[1]);
         const chapter = chapters[idx] ?? {};
-        const uploaded = await uploadToCloudinary(file.path);
+        const uploaded = await uploadToCloudinary(file.path, {
+          resourceType:
+            m[2] === 'video' ? 'video' : resourceTypeFor(file.mimetype),
+          filename: file.originalname,
+        });
         if (m[2] === 'video') {
           chapter.videoUrl = uploaded.url;
           chapter.videoId = uploaded.publicId;

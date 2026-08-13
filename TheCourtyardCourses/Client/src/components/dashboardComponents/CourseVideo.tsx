@@ -9,17 +9,22 @@ const toEmbedUrl = (url?: string): string => {
 };
 
 const CourseVideo = ({ course, selectedChapter }: { course?: Course; selectedChapter: number }) => {
-  const videoUrl = toEmbedUrl(course?.chapters[selectedChapter]?.videoUrl);
+  const chapter = course?.chapters?.[selectedChapter];
+  const videoUrl = chapter ? toEmbedUrl(chapter.videoUrl) : '';
   return (
-    <div id="courseVideo" className="bg-surface">
+    <div id="courseVideo" className="bg-surface flex flex-col overflow-hidden">
       {videoUrl ? (
-        <iframe
-          src={videoUrl}
-          title={course?.chapters[selectedChapter].title}
-          className="w-full h-full"
-          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-          allowFullScreen
-        />
+        videoUrl.includes('cloudinary') ? (
+          <video src={videoUrl} controls className="w-full h-full flex-1 min-h-90 object-cover" />
+        ) : (
+          <iframe
+            src={videoUrl}
+            title={chapter?.title ?? 'Course video'}
+            className="w-full h-full flex-1 min-h-90"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowFullScreen
+          />
+        )
       ) : (
         <p className="p-4">No video available for this chapter.</p>
       )}

@@ -2,6 +2,15 @@ import slugify from 'slugify';
 import Course from '../models/course.js';
 import User from '../models/user.js';
 import Enrollment from '../models/enrollment.js';
+import { extractYouTubeId, youtubeDuration } from '../utils/youtubeDuration.js';
+
+const withYoutubeDuration = async (c) => {
+  if (c.duration || c.typeOfChapter !== 'video') return c;
+  const id = extractYouTubeId(c.videoUrl);
+  if (!id) return c;
+  const duration = await youtubeDuration(id);
+  return duration ? { ...c, duration } : c;
+};
 
 export const createCourse = async (req, res) => {
   const { title, description, category, tags, level, language, chapters, price, badges } = req.body;
@@ -52,17 +61,22 @@ export const createCourse = async (req, res) => {
       tags: parseList(tags),
       level: level || 'beginner',
       language: language || 'English',
-      chapters: (chapters ?? []).map((c) => ({
-        title: c.title,
-        description: c.description,
-        duration: c.duration,
-        typeOfChapter: c.typeOfChapter,
-        videoUrl: c.videoUrl,
-        videoId: c.videoId,
-        resources: c.resources ?? [],
-        order: Number(c.order ?? 0),
-        demo: c.demo === 'true' || c.demo === true,
-      })),
+      chapters: await Promise.all(
+        (chapters ?? []).map(async (c) => {
+          const enriched = await withYoutubeDuration(c);
+          return {
+            title: enriched.title,
+            description: enriched.description,
+            duration: enriched.duration,
+            typeOfChapter: enriched.typeOfChapter,
+            videoUrl: enriched.videoUrl,
+            videoId: enriched.videoId,
+            resources: enriched.resources ?? [],
+            order: Number(enriched.order ?? 0),
+            demo: enriched.demo === 'true' || enriched.demo === true,
+          };
+        })
+      ),
       price: Number(price) || 0,
       badges: parseList(badges),
     });
@@ -252,8 +266,6 @@ export const updateCourse = async (req, res) => {
   const {
     title,
     description,
-    thumbnail,
-    coverImage,
     category,
     tags,
     level,
@@ -264,6 +276,16 @@ export const updateCourse = async (req, res) => {
     badges,
     certificate,
   } = req.body;
+
+  const parseList = (value) =>
+    typeof value === 'string'
+      ? value
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean)
+      : Array.isArray(value)
+        ? value
+        : [];
 
   try {
     const course = await Course.findById(courseId);
@@ -281,17 +303,47 @@ export const updateCourse = async (req, res) => {
     const updateData = {};
     if (title !== undefined) updateData.title = title;
     if (description !== undefined) updateData.description = description;
-    if (thumbnail !== undefined) updateData.thumbnail = thumbnail;
-    if (coverImage !== undefined) updateData.coverImage = coverImage;
     if (category !== undefined) updateData.category = category;
-    if (tags !== undefined) updateData.tags = tags;
+    if (tags !== undefined) updateData.tags = parseList(tags);
     if (level !== undefined) updateData.level = level;
     if (language !== undefined) updateData.language = language;
-    if (chapters !== undefined) updateData.chapters = chapters;
-    if (price !== undefined) updateData.price = price;
+    if (price !== undefined) updateData.price = Number(price) || 0;
     if (community !== undefined) updateData.community = community;
-    if (badges !== undefined) updateData.badges = badges;
+    if (badges !== undefined) updateData.badges = parseList(badges);
     if (certificate !== undefined) updateData.certificate = certificate;
+    if (chapters !== undefined) {
+      updateData.chapters = await Promise.all(
+        chapters.map(async (c) => {
+          let existingResources = [];
+          if (c.existingResources) {
+            try {
+              existingResources = JSON.parse(c.existingResources);
+            } catch {
+              existingResources = [];
+            }
+          }
+          const enriched = await withYoutubeDuration(c);
+          return {
+            title: enriched.title,
+            description: enriched.description,
+            duration: enriched.duration,
+            typeOfChapter: enriched.typeOfChapter,
+            videoUrl: enriched.videoUrl,
+            videoId: enriched.videoId,
+            resources: [...existingResources, ...(enriched.resources ?? [])],
+            order: Number(enriched.order ?? 0),
+            demo: enriched.demo === 'true' || enriched.demo === true,
+          };
+        })
+      );
+    }
+
+    if (req.cloudinaryImages?.thumbnail) {
+      updateData.thumbnail = req.cloudinaryImages.thumbnail;
+    }
+    if (req.cloudinaryImages?.coverImage) {
+      updateData.coverImage = req.cloudinaryImages.coverImage;
+    }
 
     const updatedCourse = await Course.findOneAndUpdate(
       { _id: courseId },

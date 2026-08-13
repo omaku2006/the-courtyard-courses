@@ -20,6 +20,10 @@ interface ChapterFormProps {
   isExpanded: boolean;
   onToggle: () => void;
   onRemove: () => void;
+  hasExistingResources?: boolean;
+  existingResources?: { url?: string | null; publicId?: string | null }[];
+  removedResourceKeys?: string[];
+  onToggleResource?: (key: string) => void;
 }
 
 const formatDuration = (seconds: number) => {
@@ -37,17 +41,23 @@ const ChapterForm = ({
   isExpanded,
   onToggle,
   onRemove,
+  hasExistingResources = false,
+  existingResources = [],
+  removedResourceKeys = [],
+  onToggleResource,
 }: ChapterFormProps) => {
   const videoSource = useWatch({ control, name: `chapters.${index}.videoSource` });
   const title = useWatch({ control, name: `chapters.${index}.title` });
+  const typeOfChapter = useWatch({ control, name: `chapters.${index}.typeOfChapter` });
 
   const titleError = errors?.chapters?.[index]?.title;
   const videoUrlError = errors?.chapters?.[index]?.videoUrl;
   const videoError = errors?.chapters?.[index]?.video;
+  const resourcesError = errors?.chapters?.[index]?.resources;
 
   const videoFileRegister = register(`chapters.${index}.video`, {
     validate: (value) =>
-      videoSource === 'file'
+      typeOfChapter === 'video' && videoSource === 'file'
         ? value && value.length
           ? true
           : 'Please! Select video file!'
@@ -162,7 +172,9 @@ const ChapterForm = ({
                 placeholder="Paste YouTube / Google Drive link!"
                 {...register(`chapters.${index}.videoUrl`, {
                   validate: (value) =>
-                    videoSource === 'url' && !value ? 'Please! Enter video URL!' : true,
+                    typeOfChapter === 'video' && videoSource === 'url' && !value
+                      ? 'Please! Enter video URL!'
+                      : true,
                 })}
               />
               {videoUrlError && <span className="fieldError">{videoUrlError.message}</span>}
@@ -175,6 +187,7 @@ const ChapterForm = ({
                 type="file"
                 accept="video/*"
                 className="inputField w-full"
+                {...videoFileRegister}
                 onChange={handleVideoFile}
               />
               {videoError && <span className="fieldError">{videoError.message}</span>}
@@ -188,9 +201,46 @@ const ChapterForm = ({
               type="file"
               multiple
               className="inputField w-full"
-              {...register(`chapters.${index}.resources`)}
+              {...register(`chapters.${index}.resources`, {
+                validate: (value) =>
+                  typeOfChapter === 'resource' &&
+                  !hasExistingResources &&
+                  !(value && value.length)
+                    ? 'Please! Add at least one resource file!'
+                    : true,
+              })}
             />
+            {resourcesError && (
+              <span className="fieldError">{resourcesError.message}</span>
+            )}
           </div>
+
+          {existingResources.length > 0 && (
+            <div className="flex flex-col gap-1 mb-2">
+              <span className="text-xs text-text-muted">Uploaded resources:</span>
+              {existingResources.map((r) => {
+                const key = r.publicId ?? r.url ?? '';
+                const removed = removedResourceKeys.includes(key);
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => onToggleResource?.(key)}
+                    className={`flex items-center justify-between gap-2 rounded-[2px] border px-2 py-1 text-left text-xs ${
+                      removed
+                        ? 'border-error/50 bg-error/10 text-error line-through'
+                        : 'border-border hover:border-error'
+                    }`}
+                  >
+                    <span className="truncate">{key.split('/').pop()}</span>
+                    <span className="shrink-0">
+                      {removed ? 'Undo' : 'Remove'}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          )}
 
           <div className="flex items-center gap-2">
             <Controller

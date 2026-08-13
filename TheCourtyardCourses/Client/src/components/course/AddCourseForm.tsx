@@ -3,7 +3,9 @@ import HrWrapper from '../ui/HrWrapper';
 import { ArrowLineUpIcon, PlusIcon } from '@phosphor-icons/react';
 import { useEffect, useMemo, useState } from 'react';
 import ChapterForm from '../ui/ChapterForm';
-import { createCourse } from '../../features/course/useCourse';
+import { useCreateCourse, useUpdateCourse } from '../../features/course/useCourse';
+import type { Course } from '../../types/FetchDataTypes';
+import { imageUrl } from '../../utils/imageUrl';
 
 export interface ChapterFormData {
   title: string;
@@ -17,11 +19,11 @@ export interface ChapterFormData {
   demo: boolean;
 }
 
-interface CourseFormData {
+export interface CourseFormData {
   title: string;
   description: string;
-  thumbnail: FileList;
-  coverImage: FileList;
+  thumbnail?: FileList;
+  coverImage?: FileList;
   category: string;
   tags: string;
   level: 'beginner' | 'intermediate' | 'advanced';
@@ -32,14 +34,78 @@ interface CourseFormData {
   chapters: ChapterFormData[];
 }
 
-const AddCourseForm = () => {
+interface AddCourseFormProps {
+  course?: Course | null;
+  onSaved?: () => void;
+}
+
+const AddCourseForm = ({ course, onSaved }: AddCourseFormProps) => {
+  const isEditing = !!course;
+
+  const defaultValues = useMemo<CourseFormData>(() => {
+    if (!course) {
+      return {
+        title: '',
+        description: '',
+        thumbnail: undefined,
+        coverImage: undefined,
+        category: '',
+        tags: '',
+        level: 'beginner',
+        language: '',
+        priceType: 'free',
+        price: 0,
+        badges: '',
+        chapters: [],
+      };
+    }
+    return {
+      title: course.title,
+      description: course.description,
+      thumbnail: undefined,
+      coverImage: undefined,
+      category: course.category,
+      tags: Array.isArray(course.tags) ? course.tags.join(', ') : '',
+      level: course.level ?? 'beginner',
+      language: course.language ?? '',
+      priceType: course.price > 0 ? 'paid' : 'free',
+      price: course.price ?? 0,
+      badges: Array.isArray(course.badges) ? course.badges.join(', ') : '',
+      chapters: (course.chapters ?? []).map((chapter) => ({
+        title: chapter.title,
+        description: chapter.description ?? '',
+        duration: chapter.duration ?? '',
+        typeOfChapter: chapter.typeOfChapter,
+        videoSource: chapter.videoUrl ? 'url' : 'file',
+        videoUrl: chapter.videoUrl ?? '',
+        demo: !!chapter.demo,
+      })),
+    };
+  }, [course]);
+
   const { register, watch, setValue, handleSubmit, formState, control } = useForm<CourseFormData>({
-    defaultValues: { priceType: 'free', price: 0, chapters: [] },
+    defaultValues,
   });
 
   const { fields, append, remove } = useFieldArray({ control, name: 'chapters' });
 
   const [expandedIndex, setExpandedIndex] = useState<number | null>(null);
+  const [removedResources, setRemovedResources] = useState<Record<number, string[]>>({});
+
+  const getResourceKey = (r: { url?: string | null; publicId?: string | null }) =>
+    r.publicId ?? r.url ?? '';
+
+  const handleToggleResource = (index: number, key: string) => {
+    setRemovedResources((prev) => {
+      const current = prev[index] ?? [];
+      return {
+        ...prev,
+        [index]: current.includes(key)
+          ? current.filter((k) => k !== key)
+          : [...current, key],
+      };
+    });
+  };
 
   const handleToggleChapter = (index: number) => {
     setExpandedIndex((prev) => (prev === index ? null : index));
@@ -64,7 +130,9 @@ const AddCourseForm = () => {
   const title = watch('title');
   const priceType = watch('priceType');
 
-  const { mutate, isPending } = createCourse();
+  const { mutate, isPending } = useCreateCourse();
+  const updateMutation = useUpdateCourse();
+  const submitPending = isPending || updateMutation.isPending;
 
   useEffect(() => {
     if (priceType === 'free') {
@@ -72,7 +140,7 @@ const AddCourseForm = () => {
     }
   }, [priceType, setValue]);
 
-  const onSubmit = (data: CourseFormData) => {
+  const buildCourseFormData = (data: CourseFormData) => {
     const fd = new FormData();
 
     if (data.thumbnail?.[0]) fd.append('thumbnail', data.thumbnail[0]);
@@ -101,34 +169,57 @@ const AddCourseForm = () => {
         fd.append(`chapters[${index}][video]`, chapter.video[0]);
       }
 
+      const existingResources = (course?.chapters?.[index]?.resources ?? []).filter(
+        (r) => !(removedResources[index] ?? []).includes(getResourceKey(r))
+      );
+      if (existingResources.length) {
+        fd.append(`chapters[${index}][existingResources]`, JSON.stringify(existingResources));
+      }
+
       Array.from(chapter.resources ?? []).forEach((file) => {
         fd.append(`chapters[${index}][resources]`, file);
       });
     });
 
+    return fd;
+  };
+
+  const onSubmit = (data: CourseFormData) => {
+    const fd = buildCourseFormData(data);
+
+    if (course) {
+      updateMutation.mutate(
+        { courseId: course._id, slug: course.slug, data: fd },
+        { onSuccess: () => onSaved?.() }
+      );
+      return;
+    }
+
     mutate(fd);
   };
 
-  const thumbnailPreview = useMemo(
+  const thumbnailObjectUrl = useMemo(
     () => (thumbnail?.[0] ? URL.createObjectURL(thumbnail[0]) : null),
     [thumbnail]
   );
-  const coverImagePreview = useMemo(
+  const coverImageObjectUrl = useMemo(
     () => (coverImage?.[0] ? URL.createObjectURL(coverImage[0]) : null),
     [coverImage]
   );
+  const thumbnailPreview = thumbnailObjectUrl ?? (course ? imageUrl(course.thumbnail) : '');
+  const coverImagePreview = coverImageObjectUrl ?? (course ? imageUrl(course.coverImage) : '');
   useEffect(() => {
     return () => {
-      [thumbnailPreview, coverImagePreview].forEach((preview) => {
+      [thumbnailObjectUrl, coverImageObjectUrl].forEach((preview) => {
         if (preview) URL.revokeObjectURL(preview);
       });
     };
-  }, [thumbnailPreview, coverImagePreview]);
+  }, [thumbnailObjectUrl, coverImageObjectUrl]);
 
   return (
     <div className="formWrapper flex flex-col p-4 w-full max-w-7xl mx-auto">
       <div className="heading flex flex-wrap gap-x-5 gap-y-1 mt-1.5 items-center">
-        <h3>Add New Course -</h3>
+        <h3>{isEditing ? 'Update Course -' : 'Add New Course -'}</h3>
         <h3 className={`italic truncate min-w-0 flex-1 mr-9 ${!title && 'opacity-50'}`}>
           {title ? title : 'Title'}
         </h3>
@@ -325,6 +416,14 @@ const AddCourseForm = () => {
               isExpanded={expandedIndex === index}
               onToggle={() => handleToggleChapter(index)}
               onRemove={() => handleRemoveChapter(index)}
+              existingResources={course?.chapters?.[index]?.resources ?? []}
+              removedResourceKeys={removedResources[index] ?? []}
+              onToggleResource={(key) => handleToggleResource(index, key)}
+              hasExistingResources={
+                (course?.chapters?.[index]?.resources ?? []).some(
+                  (r) => !(removedResources[index] ?? []).includes(getResourceKey(r))
+                )
+              }
             />
           ))}
           <button
@@ -339,10 +438,16 @@ const AddCourseForm = () => {
         {/* SUBMIT BUTTON: Mobile col-span-1, Desktop col-span-2 */}
         <button
           type="submit"
-          disabled={isPending}
+          disabled={submitPending}
           className="btnPrimary col-span-1 min-[600px]:col-span-2 mt-3 w-full justify-center disabled:opacity-60"
         >
-          {isPending ? 'Publishing...' : 'Submit Course'}
+          {submitPending
+            ? isEditing
+              ? 'Saving...'
+              : 'Publishing...'
+            : isEditing
+              ? 'Update Course'
+              : 'Submit Course'}
         </button>
       </form>
     </div>

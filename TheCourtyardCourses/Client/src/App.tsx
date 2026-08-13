@@ -13,6 +13,7 @@ import FetchMe from './pages/FetchMe';
 import RequireAuth from './pages/auth/RequireAuth';
 import MyCourses from './pages/MyCourses';
 import ViewCourse from './components/course/ViewCourse';
+import CourtyardBackground from './components/ui/CourtyardBackground';
 
 const App = () => {
   useAutoHideScrollbar();
@@ -35,6 +36,7 @@ const App = () => {
             <Route path="/" element={<HomePage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/login" element={<AuthPage />} />
+            <Route path="/background" element={<CourtyardBackground />} />
           </Route>
 
           {/* Dashboard */}
