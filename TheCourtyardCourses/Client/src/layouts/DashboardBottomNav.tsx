@@ -19,7 +19,6 @@ type MenuTab = {
 }[];
 
 const DashboardBottomNav = ({ className }: { className: string }) => {
-  const [width, setWidth] = useState<number>(window.innerWidth);
   const [tabRender, setTabRender] = useState<number>(0);
   const [otherTabsOpen, setOtherTabsOpen] = useState<boolean>(false);
 
@@ -35,7 +34,6 @@ const DashboardBottomNav = ({ className }: { className: string }) => {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      setWidth(width);
       setTabRender(Math.floor(width / 130));
     };
     handleResize();

@@ -126,7 +126,9 @@ export const fetchCourses = async (req, res) => {
     const totalPages = Math.ceil(totalCourses / limit);
 
     const courses = await Course.find(filter)
-      .select('title description thumbnail price averageRating creator category level publishedAt')
+      .select(
+        'title description slug thumbnail coverImage price averageRating creator category level language tags duration publishedAt'
+      )
       .populate('creator', 'name username avatarImage')
       .skip(skip)
       .limit(limit)
@@ -195,7 +197,7 @@ export const fetchEnrolledCourses = async (req, res) => {
 
     const user = await User.findById(userId).populate({
       path: 'courses',
-      select: 'title description thumbnail category level averageRating publishedAt',
+      select: 'title description slug thumbnail category level averageRating publishedAt',
       populate: {
         path: 'creator',
         select: 'name username avatarImage',

@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom';
 import type { Course, Creator } from '../../types/FetchDataTypes';
 import { imageUrl } from '../../utils/imageUrl';
 import HrWrapper from '../ui/HrWrapper';
@@ -9,7 +10,7 @@ const getInitials = (name: string) => {
 
 const CourseTeacher = ({ course }: { course: Course }) => {
   const creator = course.creator as Creator | string;
-
+  const navigate = useNavigate();
   // ✅ Fix: Agar creator object nathi to null return karo
   if (typeof creator !== 'object' || creator === null) return null;
 
@@ -18,7 +19,12 @@ const CourseTeacher = ({ course }: { course: Course }) => {
   return (
     <div id="courseTeacher" className="bg-surface p-5 flex flex-col gap-4">
       {/* ✅ Polish: Responsive layout for top part */}
-      <div className="topPart flex flex-col sm:flex-row items-center sm:items-start gap-4">
+      <div
+        className="topPart flex flex-col sm:flex-row items-center sm:items-start gap-4 cursor-pointer"
+        onClick={() => {
+          navigate(`/dashboard/users/${creator.username}`);
+        }}
+      >
         {/* Avatar with Victorian Gold Frame */}
         <div className="avatar shrink-0">
           {avatar ? (

@@ -20,4 +20,9 @@ export const authServices = {
     const res = await api.put(`/users/${username}`, data);
     return res.data;
   },
+
+  fetchProfile: async (username: string) => {
+    const res = await api.get(`/users/${username}`);
+    return res.data;
+  },
 };

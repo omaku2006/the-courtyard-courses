@@ -94,3 +94,11 @@ export const useLogout = () => {
     });
   };
 };
+
+export const useFetchProfile = (username: string) => {
+  return useQuery({
+    queryKey: ['user', username],
+    queryFn: () => authServices.fetchProfile(username),
+    enabled: !!username,
+  });
+};

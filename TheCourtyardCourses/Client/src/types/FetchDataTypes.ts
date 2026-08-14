@@ -51,6 +51,7 @@ export interface Course {
   tags: string[];
   level: 'beginner' | 'intermediate' | 'advanced';
   language: string;
+  duration?: string;
   chapters: Chapter[];
   price: number;
   students?: string[];

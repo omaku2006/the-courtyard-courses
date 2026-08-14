@@ -120,3 +120,10 @@ export const useUpdateRating = () => {
     },
   });
 };
+
+export const useFetchCourses = () => {
+  return useQuery({
+    queryKey: ['courses'],
+    queryFn: courseServices.fetchCourses,
+  });
+};

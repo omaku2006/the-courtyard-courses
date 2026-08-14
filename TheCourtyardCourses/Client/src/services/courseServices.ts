@@ -23,6 +23,11 @@ export const courseServices = {
     return res.data;
   },
 
+  fetchCourses: async () => {
+    const res = await api.get('/course/');
+    return res.data;
+  },
+
   fetchCourse: async ({ slug }: { slug: string }) => {
     const res = await api.get(`/course/${slug}`);
     return res.data;

@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import HomePage from './pages/HomePage';
 import { useAppSelector } from './app/hooks';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import CoursesPage from './pages/CoursesPage';
 import AuthPage from './pages/auth/AuthPage';
 import { Toaster } from 'sonner';
 import { useAutoHideScrollbar } from './hooks/useScrollbar';
@@ -14,6 +13,8 @@ import RequireAuth from './pages/auth/RequireAuth';
 import MyCourses from './pages/MyCourses';
 import ViewCourse from './components/course/ViewCourse';
 import CourtyardBackground from './components/ui/CourtyardBackground';
+import PublicCoursePage from './pages/PublicCoursePage';
+import PublicProfilePage from './pages/PublicProfilePage';
 
 const App = () => {
   useAutoHideScrollbar();
@@ -34,7 +35,8 @@ const App = () => {
           {/* Public */}
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/courses" element={<CoursesPage />} />
+            <Route path="/courses" element={<PublicCoursePage />} />
+            <Route path="/user/:username" element={<PublicProfilePage />} />
             <Route path="/login" element={<AuthPage />} />
             <Route path="/background" element={<CourtyardBackground />} />
           </Route>
@@ -44,8 +46,10 @@ const App = () => {
             <Route element={<DashboardLayout />}>
               <Route path="/dashboard" element={<HomePage />} />
               <Route path="/dashboard/me" element={<FetchMe />} />
+              <Route path="/dashboard/courses" element={<PublicCoursePage />} />
               <Route path="/dashboard/my-courses" element={<MyCourses />} />
               <Route path="/dashboard/:slug" element={<ViewCourse />} />
+              <Route path="/dashboard/users/:username" element={<PublicProfilePage />} />
             </Route>
           </Route>
           {/*No Layout*/}

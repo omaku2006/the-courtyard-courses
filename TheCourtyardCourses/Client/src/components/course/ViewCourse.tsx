@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
 import { useFetchCourse, usePublishCourse } from '../../features/course/useCourse';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
@@ -56,6 +56,8 @@ const ViewCourse = () => {
     !!course.creator?._id &&
     profile?.user?._id === course.creator._id;
 
+  const isEnrolled = !!profile?.user?._id && !!course?.students?.includes(profile.user._id);
+
   if (isLoading) return <LoadingPage />;
   if (isError || !course) return <ServerErrorPage />;
 
@@ -71,7 +73,29 @@ const ViewCourse = () => {
       id="course"
       className={`gap-4 p-4 content-start ${isTeacherOwner ? 'h-[130vh]' : 'h-screen'}`}
     >
-      <CourseHeadline title={course.title} />
+      <div style={{ gridArea: 'header' }} className="flex flex-col gap-3">
+        <CourseHeadline title={course.title} />
+        {!isTeacherOwner && !isEnrolled && (
+          <div className="flex items-center justify-center rounded-[2px] border border-border bg-surface p-4">
+            {profile?.user ? (
+              <button type="button" className="btnPrimary w-full">
+                Enroll in this Course
+              </button>
+            ) : (
+              <p className="m-0 italic text-text-secondary">
+                Pray,{' '}
+                <Link
+                  to="/login"
+                  className="font-heading underline decoration-accent underline-offset-4 text-text-primary transition-colors hover:text-accent-hover"
+                >
+                  sign in
+                </Link>{' '}
+                to enrol in this curriculum.
+              </p>
+            )}
+          </div>
+        )}
+      </div>
       <CourseTeacher course={course} />
       <CourseChapterInfo
         course={course}

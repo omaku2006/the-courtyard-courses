@@ -40,6 +40,7 @@ const facultyData = [
   {
     id: 1,
     initials: 'A',
+    username: 'arthur_blackwood',
     name: 'Prof. Arthur Pendelton',
     designation: 'Dean of Antiquities',
     bio: 'A renowned scholar of medieval history and feudal systems, holding a doctorate from the Royal College. He has spent two decades deciphering the lineage of forgotten noble houses.',
@@ -48,6 +49,7 @@ const facultyData = [
   {
     id: 2,
     initials: 'E',
+    username: 'eleanor_whitmore',
     name: 'Dr. Eleanor Vance',
     designation: 'Master of Letters',
     bio: 'A specialist in 19th-century gothic revival poetry and the intricate social dynamics of the Victorian era. Her lectures breathe life into the foggy streets of old London.',
@@ -56,6 +58,7 @@ const facultyData = [
   {
     id: 3,
     initials: 'T',
+    username: 'ravi_chandra',
     name: 'Thomas Sterling',
     designation: 'Surveyor of Architecture',
     bio: "An architect by trade, Thomas has spent thirty years documenting the restoration of Britain's grandest estates. He teaches the mathematical perfection of imperial design.",
@@ -128,7 +131,7 @@ const HomePage = () => {
                 <FacultyCard.Designation designation={data.designation} />
                 <hr className="w-full h-1 rounded-[2px] border-accent my-6" />
                 <FacultyCard.Bio>{data.bio}</FacultyCard.Bio>
-                <FacultyCard.Button />
+                <FacultyCard.Button username={data.username} />
               </FacultyCard>
             );
           })}

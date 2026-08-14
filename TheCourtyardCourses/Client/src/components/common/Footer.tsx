@@ -18,17 +18,9 @@ const Footer = () => {
         {theme === 'dark' && <Fog />}
         <section id="footerLogo" className="flex justify-center items-center my-10">
           {theme === 'dark' ? (
-            <img
-              src="../src/assets/TheCourtyardCourses(Dark).Plain.Stroke.svg"
-              alt="The Courtyard Courses"
-              className="h-80 m-2"
-            />
+            <img src="/TheCourtyardCourses(Dark).Plain.Stroke.svg" alt="" />
           ) : (
-            <img
-              src="../src/assets/TheCourtyardCourses(Light).Stroke.Plain.svg"
-              alt="The Courtyard Courses"
-              className="h-80 m-2"
-            />
+            <img src="/TheCourtyardCourses(Light).Stroke.Plain.svg" alt="" />
           )}
         </section>
         <div className="pole xl:relative absolute lg:left-0 md:-left-10 -left-50">
