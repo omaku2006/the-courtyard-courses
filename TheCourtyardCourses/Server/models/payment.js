@@ -17,6 +17,10 @@ const paymentSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    orderId: {
+      type: String,
+      default: null,
+    },
     paymentMethod: {
       type: String,
       enum: ['razorpay', 'stripe', 'paypal', 'free'],

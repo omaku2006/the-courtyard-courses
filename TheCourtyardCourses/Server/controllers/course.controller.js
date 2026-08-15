@@ -3,6 +3,9 @@ import Course from '../models/course.js';
 import User from '../models/user.js';
 import Enrollment from '../models/enrollment.js';
 import { extractYouTubeId, youtubeDuration } from '../utils/youtubeDuration.js';
+import razorpay from '../config/razorpay';
+import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils';
+import Payment from '../models/payment.js';
 
 const withYoutubeDuration = async (c) => {
   if (c.duration || c.typeOfChapter !== 'video') return c;
@@ -439,40 +442,123 @@ export const deleteCourse = async (req, res) => {
 
 // TODO: Razor pay Implementation
 
+const completeEnrollment = async (course, studentId) => {
+  if (course.students.includes(studentId)) return { alreadyEnrolled: true };
+
+  course.students.push(studentId);
+  course.studentCount += 1;
+  await course.save();
+
+  await User.findByIdAndUpdate(studentId, { $addToSet: { courses: course._id } });
+
+  await Enrollment.create({ student: studentId, course: course._id });
+
+  return { alreadyEnrolled: false };
+};
+
 export const enrollCourse = async (req, res) => {
   const { courseId } = req.params;
   const studentId = req.user.id;
 
   try {
-    // 1. Course shodho
     const course = await Course.findById(courseId);
     if (!course) return res.status(404).json({ message: 'Course not found!' });
 
-    // 2. Check karo ke already enrolled toh nathi
     if (course.students.includes(studentId)) {
       return res.status(400).json({ message: 'Already enrolled!' });
     }
 
-    // 3. Student ne course ma add karo
-    course.students.push(studentId);
-    course.studentCount += 1;
-    await course.save();
+    // Free course -> turant enroll
+    if (!course.price || course.price <= 0) {
+      await completeEnrollment(course, studentId);
 
-    // 4. User na courses ma add karo
-    await User.findByIdAndUpdate(studentId, {
-      $push: { courses: courseId },
+      await Payment.create({
+        user: studentId,
+        course: courseId,
+        amount: 0,
+        paymentMethod: 'free',
+        orderId: null,
+        transactionId: `FREE-${Date.now()}-${studentId}`,
+        status: 'completed',
+      });
+
+      return res.status(200).json({ enrolled: true, message: 'Enrolled successfully!' });
+    }
+
+    // Paid course -> Razorpay order banao (amount paise ma, INR 100x)
+    const order = await razorpay.orders.create({
+      amount: course.price * 100,
+      currency: 'INR',
+      receipt: `course_${course._id}_${Date.now()}`,
+      notes: { courseId: course._id.toString(), studentId: studentId.toString() },
     });
 
-    // 5. Enrollment record banao (progress tracking mate)
-    await Enrollment.create({
-      student: studentId,
-      course: courseId,
+    return res.status(200).json({
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      keyId: process.env.RAZORPAY_KEY_ID,
     });
-
-    return res.status(200).json({ message: 'Enrolled successfully!' });
   } catch (e) {
     console.error('Enroll Error:', e.message);
-    return res.status(500).json({ message: 'Error enrolling!' });
+    return res.status(500).json({ message: 'Error initiating enrollment!' });
+  }
+};
+
+export const verifyPayment = async (req, res) => {
+  const { courseId, orderId, paymentId, signature } = req.body;
+  const studentId = req.user.id;
+
+  if (!courseId || !orderId || !paymentId || !signature) {
+    return res.status(400).json({ message: 'Missing payment details!' });
+  }
+
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found!' });
+
+    // 1. Signature verify karo (tampering/forgery rokava mate)
+    const valid = validatePaymentVerification(
+      { order_id: orderId, payment_id: paymentId },
+      signature,
+      process.env.RAZORPAY_KEY_SECRET
+    );
+
+    if (!valid) {
+      return res.status(400).json({ message: 'Payment verification failed!' });
+    }
+
+    // 2. Order ne Razorpay pase thi fetch kari amount/status confirm karo
+    const order = await razorpay.orders.fetch(orderId);
+    if (order.status !== 'paid') {
+      return res.status(400).json({ message: 'Payment not completed!' });
+    }
+    if (order.amount !== course.price * 100) {
+      return res.status(400).json({ message: 'Payment amount mismatch!' });
+    }
+
+    // 3. Enrollment complete karo (idempotent)
+    const { alreadyEnrolled } = await completeEnrollment(course, studentId);
+
+    // 4. Payment record: { amount, orderId, transactionId }
+    await Payment.create({
+      user: studentId,
+      course: courseId,
+      amount: course.price,
+      paymentMethod: 'razorpay',
+      orderId,
+      transactionId: paymentId,
+      status: 'completed',
+    });
+
+    return res.status(200).json({
+      enrolled: true,
+      alreadyEnrolled,
+      message: alreadyEnrolled ? 'Already enrolled!' : 'Enrolled successfully!',
+    });
+  } catch (e) {
+    console.error('Verify Payment Error:', e.message);
+    return res.status(500).json({ message: 'Error completing enrollment!' });
   }
 };
 

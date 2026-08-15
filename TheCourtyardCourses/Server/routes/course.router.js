@@ -7,6 +7,7 @@ import {
   publishCourse,
   deleteCourse,
   enrollCourse,
+  verifyPayment,
   updateRatingsCourse,
   fetchRatingsCourse,
   fetchCertificate,
@@ -43,6 +44,7 @@ courseRouter.patch('/:courseId/publish', verifyToken, isTeacher, publishCourse);
 courseRouter.delete('/:courseId', verifyToken, isTeacher, deleteCourse);
 
 // Enrollment
+courseRouter.post('/payment/verify', verifyToken, isStudent, verifyPayment);
 courseRouter.post('/:courseId/enroll', verifyToken, isStudent, enrollCourse);
 
 // Ratings

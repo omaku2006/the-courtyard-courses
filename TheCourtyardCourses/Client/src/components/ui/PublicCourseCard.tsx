@@ -2,14 +2,13 @@ import type { ReactNode } from 'react';
 import HrWrapper from './HrWrapper';
 import { FleurDeLis } from './FleurDeLis';
 import { imageUrl } from '../../utils/imageUrl';
-import { motion } from 'framer-motion'; // framer-motion import karyu
+import { motion } from 'framer-motion';
 
-// ✅ Fix: Removed AnimatePresence from inside the card. Parent page has it.
 const PublicCourseCard = ({ children }: { children: ReactNode }) => {
   return (
     <motion.article
-      layout // ✅ Magic: layout prop helps grid items adjust smoothly
-      className="h-full flex flex-col gap-3 rounded-sm border-2 border-border bg-surface p-5 shadow-[4px_4px_0_var(--color-border)] transition-all duration-300 hover:shadow-[6px_6px_0_var(--color-border)] hover:-translate-y-1 hover:border-accent"
+      layout
+      className="h-full flex flex-col gap-3 rounded-sm border-2 border-border bg-surface p-5 shadow-[4px_4px_0_var(--color-border)] transition-all duration-300 hover:shadow-[6px_6px_0_var(--color-border)] hover:-translate-y-1 hover:border-primary"
     >
       {children}
     </motion.article>
@@ -20,7 +19,6 @@ PublicCourseCard.CoverImage = ({ url, name }: { url: string; name: string }) => 
   if (!url) return null;
   return (
     <div className="overflow-hidden rounded-sm border border-border">
-      {/* ✅ Polish: Subtle zoom on hover */}
       <img
         src={url}
         alt={name}
@@ -31,8 +29,7 @@ PublicCourseCard.CoverImage = ({ url, name }: { url: string; name: string }) => 
 };
 
 PublicCourseCard.Title = ({ title }: { title: string }) => {
-  // ✅ Fix: theme ma text-text nathi, text-text-primary che
-  return <h4 className="font-heading text-lg text-text-primary leading-tight mt-2 m-0">{title}</h4>;
+  return <h4 className="font-heading text-lg text-text leading-tight mt-2 m-0">{title}</h4>;
 };
 
 PublicCourseCard.Hr = ({ name }: { name: string }) => {
@@ -60,10 +57,32 @@ PublicCourseCard.Description = ({
       <span className="font-heading text-[10px] uppercase tracking-widest text-text-secondary">
         Level: {level} · {language}
       </span>
-      {/* ✅ Fix: Replaced max-h-50 with line-clamp-3 for perfect ellipsis (...) truncation */}
       <p className="m-0 text-text-muted italic font-body leading-relaxed pt-2 line-clamp-3 text-justify">
         {description}
       </p>
+    </div>
+  );
+};
+
+// ✅ NEW: Price Tag Component
+PublicCourseCard.Price = ({ priceType, price }: { priceType: 'free' | 'paid'; price: number }) => {
+  return (
+    <div className="flex items-center gap-2 mt-1">
+      {priceType === 'paid' && price > 0 ? (
+        <>
+          <span className="font-heading text-[10px] uppercase tracking-widest text-text-muted">
+            Tuition Fee:
+          </span>
+          <span className="font-heading text-sm text-text-primary">₹{price}</span>
+        </>
+      ) : (
+        <>
+          <span className="font-heading text-[10px] uppercase tracking-widest text-text-muted">
+            Access:
+          </span>
+          <span className="font-heading text-sm text-accent">Complimentary</span>
+        </>
+      )}
     </div>
   );
 };
@@ -78,7 +97,6 @@ PublicCourseCard.Creator = ({
   username: string;
 }) => {
   const avatar = imageUrl(avatarImage);
-  // ✅ Polish: Safer initials function (crash prevention)
   const initials = name
     .trim()
     .split(/\s+/)
@@ -89,12 +107,11 @@ PublicCourseCard.Creator = ({
 
   return (
     <div className="flex items-center gap-3 mt-2 pt-3 border-t border-border">
-      {/* ✅ Fix: bg-background/border-primary theme ma nathi -> bg-bg/border-accent */}
-      <div className="h-9 w-9 shrink-0 rounded-sm overflow-hidden border border-accent flex items-center justify-center bg-bg">
+      <div className="h-9 w-9 shrink-0 rounded-sm overflow-hidden border border-primary flex items-center justify-center bg-background">
         {avatar ? (
           <img src={avatar} alt={username} className="h-full w-full object-cover" />
         ) : (
-          <span className="font-heading text-sm text-accent">{initials || '?'}</span>
+          <span className="font-heading text-sm text-primary">{initials || '?'}</span>
         )}
       </div>
       <div className="flex flex-col leading-tight overflow-hidden">
@@ -115,8 +132,7 @@ PublicCourseCard.Rating = ({ ratings }: { ratings: number }) => {
       {Array.from({ length: 5 }).map((_, i) => (
         <FleurDeLis key={i} size={16} {...(i < filled ? FILLED : EMPTY)} />
       ))}
-      {/* ✅ Fix: text-text theme ma nathi -> text-text-primary */}
-      <span className="ml-1 text-xs font-heading text-text-primary">
+      <span className="ml-1 text-xs font-heading text-text">
         {ratings ? ratings.toFixed(1) : '—'}
       </span>
     </div>

@@ -1,6 +1,6 @@
 import { Link, useParams } from 'react-router-dom';
 import { useState } from 'react';
-import { useFetchCourse, usePublishCourse } from '../../features/course/useCourse';
+import { useFetchCourse, usePublishCourse, useEnrollCourse } from '../../features/course/useCourse';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
 import LoadingPage from '../../pages/system/LoadingPage';
 import ServerErrorPage from '../../pages/system/ServerErrorPage';
@@ -50,6 +50,7 @@ const ViewCourse = () => {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [schedule, setSchedule] = useState(toLocalInputValue(course?.publishedAt));
   const publishMutation = usePublishCourse();
+  const { enroll, isPending: enrollPending } = useEnrollCourse();
 
   const isTeacherOwner =
     typeof course?.creator === 'object' &&
@@ -75,24 +76,63 @@ const ViewCourse = () => {
     >
       <div style={{ gridArea: 'header' }} className="flex flex-col gap-3">
         <CourseHeadline title={course.title} />
+
+        {/* ✅ POLISH: Enrollment Notice Board with Price */}
         {!isTeacherOwner && !isEnrolled && (
-          <div className="flex items-center justify-center rounded-[2px] border border-border bg-surface p-4">
-            {profile?.user ? (
-              <button type="button" className="btnPrimary w-full">
-                Enroll in this Course
-              </button>
-            ) : (
-              <p className="m-0 italic text-text-secondary">
-                Pray,{' '}
-                <Link
-                  to="/login"
-                  className="font-heading underline decoration-accent underline-offset-4 text-text-primary transition-colors hover:text-accent-hover"
-                >
-                  sign in
-                </Link>{' '}
-                to enrol in this curriculum.
+          <div className="flex flex-col items-center justify-between gap-4 rounded-sm border-2 border-accent bg-surface p-4 text-center md:flex-row md:text-left">
+            {/* Left Side: Text */}
+            <div className="flex flex-col">
+              <h4 className="font-heading text-text-primary m-0 text-lg">Awaiting your Enrollment</h4>
+              <p className="m-0 italic text-text-muted font-body text-sm">
+                Join the Courtyard to access all video manuscripts, chapters, and community
+                discussions.
               </p>
-            )}
+            </div>
+
+            {/* Right Side: Price + Action */}
+            <div className="flex flex-col items-center justify-center gap-4 md:flex-row md:gap-6">
+              {/* ✅ Price Tag (Victorian Style) */}
+              <div className="text-center md:text-right border-r-2 border-border pr-0 md:pr-6">
+                {course.price > 0 ? (
+                  <>
+                    <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                      Tuition Fee
+                    </span>
+                    <span className="font-heading text-2xl text-text-primary">₹{course.price}</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                      Access
+                    </span>
+                    <span className="font-heading text-xl text-accent">Complimentary</span>
+                  </>
+                )}
+              </div>
+
+              {/* Action Button / Login Link */}
+              {profile?.user ? (
+                <button
+                  type="button"
+                  onClick={() => enroll({ _id: course._id, title: course.title })}
+                  disabled={enrollPending}
+                  className="btnPrimary shrink-0 w-full md:w-auto disabled:pointer-events-none disabled:opacity-60"
+                >
+                  {enrollPending ? 'Inscribing...' : course.price > 0 ? 'Enroll Now' : 'Enroll Free'}
+                </button>
+              ) : (
+                <p className="m-0 italic text-text-secondary font-body text-sm">
+                  Pray,{' '}
+                  <Link
+                    to="/login"
+                    className="font-heading underline decoration-accent underline-offset-4 text-text-primary transition-colors hover:text-accent-hover"
+                  >
+                    sign in
+                  </Link>{' '}
+                  to enrol.
+                </p>
+              )}
+            </div>
           </div>
         )}
       </div>

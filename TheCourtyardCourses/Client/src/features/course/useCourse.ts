@@ -127,3 +127,107 @@ export const useFetchCourses = () => {
     queryFn: courseServices.fetchCourses,
   });
 };
+
+const loadRazorpayScript = () =>
+  new Promise<void>((resolve, reject) => {
+    if ((window as any).Razorpay) return resolve();
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.onload = () => resolve();
+    script.onerror = () => reject(new Error('Failed to load Razorpay checkout'));
+    document.body.appendChild(script);
+  });
+
+type RazorpayResponse = {
+  razorpay_order_id: string;
+  razorpay_payment_id: string;
+  razorpay_signature: string;
+};
+
+export const useEnrollCourse = () => {
+  const queryClient = useQueryClient();
+
+  const createOrder = useMutation({
+    mutationFn: (courseId: string) => courseServices.enrollCourse(courseId),
+  });
+  const verify = useMutation({
+    mutationFn: (payload: {
+      courseId: string;
+      orderId: string;
+      paymentId: string;
+      signature: string;
+    }) => courseServices.verifyPayment(payload),
+    onSuccess: () => {
+      toast.success('Welcome to the Course!', {
+        description: 'Your enrollment has been inscribed in the Courtyard records.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['course'] });
+      queryClient.invalidateQueries({ queryKey: ['myCourses'] });
+      queryClient.invalidateQueries({ queryKey: ['me'] });
+    },
+    onError: (error: any) => {
+      toast.error('Enrollment Interrupted', {
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          'A complication has arisen. Pray, try again.',
+      });
+    },
+  });
+
+  const enroll = async (course: { _id: string; title: string }) => {
+    try {
+      const data = await createOrder.mutateAsync(course._id);
+
+      // Free course -> server turant enroll kari de che
+      if (data.enrolled) {
+        toast.success('Welcome to the Course!', {
+          description: 'Your enrollment has been inscribed in the Courtyard records.',
+        });
+        queryClient.invalidateQueries({ queryKey: ['course'] });
+        queryClient.invalidateQueries({ queryKey: ['myCourses'] });
+        queryClient.invalidateQueries({ queryKey: ['me'] });
+        return;
+      }
+
+      // Paid course -> Razorpay Checkout kholo
+      await loadRazorpayScript();
+
+      const rzp = new (window as any).Razorpay({
+        key: data.keyId,
+        amount: data.amount,
+        currency: data.currency,
+        order_id: data.orderId,
+        name: 'The Courtyard Courses',
+        description: course.title,
+        handler: (response: RazorpayResponse) => {
+          verify.mutate({
+            courseId: course._id,
+            orderId: response.razorpay_order_id,
+            paymentId: response.razorpay_payment_id,
+            signature: response.razorpay_signature,
+          });
+        },
+        modal: {
+          ondismiss: () => {
+            toast.info('Payment Secluded', {
+              description: 'No amount was charged. The course remains unclaimed.',
+            });
+          },
+        },
+        theme: { color: '#c9a86a' },
+      });
+
+      rzp.open();
+    } catch (error: any) {
+      toast.error('Enrollment Interrupted', {
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          'A complication has arisen. Pray, try again.',
+      });
+    }
+  };
+
+  return { enroll, isPending: createOrder.isPending || verify.isPending };
+};

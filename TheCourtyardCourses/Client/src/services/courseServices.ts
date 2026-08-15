@@ -42,4 +42,19 @@ export const courseServices = {
     const res = await api.post(`/course/${courseId}/ratings`, { stars });
     return res.data;
   },
+
+  enrollCourse: async (courseId: string) => {
+    const res = await api.post(`/course/${courseId}/enroll`);
+    return res.data;
+  },
+
+  verifyPayment: async (payload: {
+    courseId: string;
+    orderId: string;
+    paymentId: string;
+    signature: string;
+  }) => {
+    const res = await api.post('/course/payment/verify', payload);
+    return res.data;
+  },
 };
