@@ -659,7 +659,7 @@ body.is-scrolling::-webkit-scrollbar-thumb:hover {
   grid-template-areas:
     "header header header"
     "courseTeacher courseVideo courseReview"
-    "chapterInfo courseVideo courseProgress"
+    "chapterInfo courseVideo courseReview"
     "community courseDescription courseProgress";
 }
 #courseTeacher,

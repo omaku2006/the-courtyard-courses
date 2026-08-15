@@ -134,10 +134,10 @@ const Navbar = () => {
           >
             {theme === 'dark' ? <MoonIcon weight="fill" /> : <SunIcon weight="fill" />}
           </button>
-          {data.user ? (
+          {data?.user ? (
             <Link
               to={'/dashboard/me'}
-              className="p-4 border bg-highlight hover:-translate-y-1 duration-300"
+              className="p-4 border bg-surface hover:-translate-y-1 duration-300"
             >
               {data.user.name.split(' ').map((word: string) => {
                 return word.charAt(0).toUpperCase();

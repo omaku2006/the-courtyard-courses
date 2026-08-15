@@ -1,5 +1,6 @@
 import PublicCourseCard from '../components/ui/PublicCourseCard';
 import { useFetchCourses } from '../features/course/useCourse';
+import { useFetchMyProfile } from '../features/auth/useAuth';
 import { imageUrl } from '../utils/imageUrl';
 import type { Course } from '../types/FetchDataTypes';
 import LoadingPage from './system/LoadingPage';
@@ -11,6 +12,8 @@ import { useNavigate } from 'react-router-dom';
 
 const PublicCoursePage = () => {
   const { data, isError, isLoading } = useFetchCourses();
+  const { data: profile } = useFetchMyProfile();
+  const userId = profile?.user?._id;
   const courses: Course[] = data?.courses ?? [];
 
   const [search, setSearch] = useState('');
@@ -194,6 +197,7 @@ const PublicCoursePage = () => {
           <AnimatePresence mode="popLayout">
             {filteredCourses.map((course) => {
               const creator = typeof course.creator === 'object' ? course.creator : null;
+              const isEnrolled = !!userId && !!course.students?.includes(userId);
               return (
                 <motion.div
                   key={course._id}
@@ -206,10 +210,13 @@ const PublicCoursePage = () => {
                   onClick={() => navigate(`/dashboard/${course.slug}`)}
                 >
                   <PublicCourseCard>
-                    <PublicCourseCard.CoverImage
-                      url={imageUrl(course.coverImage)}
-                      name={course.title}
-                    />
+                    <div className="relative">
+                      <PublicCourseCard.CoverImage
+                        url={imageUrl(course.coverImage)}
+                        name={course.title}
+                      />
+                      {isEnrolled && <PublicCourseCard.EnrolledBadge />}
+                    </div>
                     <PublicCourseCard.Title title={course.title} />
                     <PublicCourseCard.Hr name={course.category} />
                     <PublicCourseCard.Description

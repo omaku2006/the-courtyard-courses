@@ -28,6 +28,15 @@ PublicCourseCard.CoverImage = ({ url, name }: { url: string; name: string }) => 
   );
 };
 
+// ✅ NEW: Enrolled badge — already-inscribed courses par overlay
+PublicCourseCard.EnrolledBadge = () => {
+  return (
+    <div className="absolute top-3 right-3 z-10 rounded-sm border border-accent bg-accent/90 px-2 py-1 font-heading text-[10px] uppercase tracking-widest text-light shadow-[2px_2px_0_var(--color-border)]">
+      Inscribed
+    </div>
+  );
+};
+
 PublicCourseCard.Title = ({ title }: { title: string }) => {
   return <h4 className="font-heading text-lg text-text leading-tight mt-2 m-0">{title}</h4>;
 };

@@ -106,6 +106,47 @@ const STUDENTS = [
   { name: 'Lucas Fischer', username: 'lucas_fischer', email: 'lucas.fischer@courtyard.dev', occupation: 'Student' },
 ];
 
+const REVIEW_COMMENTS = {
+  5: [
+    'A masterwork of instruction — every lesson left me longing for the next.',
+    'Exquisite teaching. The Courtyard has outdone itself.',
+    'I finished it in a single sitting and felt enriched beyond measure.',
+    'Glorious detail, generous pacing, and wisdom on every page.',
+    'The finest course I have yet taken within these walls.',
+    'Truly transformative. I have recommended it to every scholar I know.',
+  ],
+  4: [
+    'Delightful throughout, though I wished for a few more examples.',
+    'Rich in charm and insight. A most enjoyable sojourn.',
+    'Beautifully presented — a little more depth and it would be perfect.',
+    'A lovely course; the early chapters especially were a joy.',
+  ],
+  3: [
+    'Well crafted, though a few chapters felt rather rushed.',
+    'Solid foundations, yet I craved greater depth in places.',
+    'Pleasant enough, but it did not quite capture my imagination.',
+  ],
+  2: [
+    'A decent effort, but the middle chapters lost my attention.',
+    'Promising start that never quite fulfilled its promise.',
+  ],
+  1: ['Not what I had hoped — the pacing lost me early on.'],
+};
+
+const pickStars = (rnd) => {
+  const r = rnd();
+  if (r < 0.5) return 5;
+  if (r < 0.75) return 4;
+  if (r < 0.9) return 3;
+  if (r < 0.96) return 2;
+  return 1;
+};
+
+const pickComment = (stars, rnd) => {
+  const pool = REVIEW_COMMENTS[stars];
+  return pool[Math.floor(rnd() * pool.length)];
+};
+
 const COURSE_PLANS = [
   {
     teacher: 'eleanor_whitmore',
@@ -434,8 +475,37 @@ const main = async () => {
     for (const course of targets) {
       await Enrollment.create({ student: student._id, course: course._id });
       await User.findByIdAndUpdate(student._id, { $addToSet: { courses: course._id } });
+      if (!course.students.some((id) => id.equals(student._id))) {
+        course.students.push(student._id);
+      }
       enrollmentCount++;
     }
+  }
+
+  // ---- Ratings & Comments (enrolled students par random) ----
+  let ratingCount = 0;
+  for (const student of students) {
+    const enrollments = await Enrollment.find({ student: student._id }).select('course');
+    for (const enr of enrollments) {
+      const course = allCourses.find((c) => c._id.equals(enr.course));
+      if (!course || !course.publishedAt) continue;
+      const stars = pickStars(rnd);
+      const hasComment = rnd() < 0.8;
+      course.ratings.push({
+        user: student._id,
+        stars,
+        description: hasComment ? pickComment(stars, rnd) : '',
+      });
+      ratingCount++;
+    }
+  }
+  for (const course of allCourses) {
+    course.studentCount = course.students.length;
+    if (course.ratings.length) {
+      const total = course.ratings.reduce((sum, r) => sum + r.stars, 0);
+      course.averageRating = (total / course.ratings.length).toFixed(1);
+    }
+    await course.save();
   }
 
   console.log('\n================= SEED COMPLETE =================');
@@ -443,6 +513,7 @@ const main = async () => {
   console.log(`Students : ${students.length}`);
   console.log(`Courses  : ${courseCount} (${publishedCount} published)`);
   console.log(`Enrollments: ${enrollmentCount}`);
+  console.log(`Ratings  : ${ratingCount}`);
   console.log(`Password for all seed users: ${PASSWORD}`);
   console.log('=================================================');
 

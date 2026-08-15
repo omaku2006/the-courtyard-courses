@@ -1,5 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useFetchCourse, usePublishCourse, useEnrollCourse } from '../../features/course/useCourse';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
 import LoadingPage from '../../pages/system/LoadingPage';
@@ -48,9 +48,14 @@ const ViewCourse = () => {
   const [selectedChapter, setSelectedChapter] = useState<number>(0);
   const [editOpen, setEditOpen] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [enrollConfirmOpen, setEnrollConfirmOpen] = useState(false);
   const [schedule, setSchedule] = useState(toLocalInputValue(course?.publishedAt));
-  const publishMutation = usePublishCourse();
   const { enroll, isPending: enrollPending } = useEnrollCourse();
+  const publishMutation = usePublishCourse();
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [course?._id]);
 
   const isTeacherOwner =
     typeof course?.creator === 'object' &&
@@ -82,7 +87,9 @@ const ViewCourse = () => {
           <div className="flex flex-col items-center justify-between gap-4 rounded-sm border-2 border-accent bg-surface p-4 text-center md:flex-row md:text-left">
             {/* Left Side: Text */}
             <div className="flex flex-col">
-              <h4 className="font-heading text-text-primary m-0 text-lg">Awaiting your Enrollment</h4>
+              <h4 className="font-heading text-text-primary m-0 text-lg">
+                Awaiting your Enrollment
+              </h4>
               <p className="m-0 italic text-text-muted font-body text-sm">
                 Join the Courtyard to access all video manuscripts, chapters, and community
                 discussions.
@@ -114,11 +121,15 @@ const ViewCourse = () => {
               {profile?.user ? (
                 <button
                   type="button"
-                  onClick={() => enroll({ _id: course._id, title: course.title })}
+                  onClick={() => setEnrollConfirmOpen(true)}
                   disabled={enrollPending}
                   className="btnPrimary shrink-0 w-full md:w-auto disabled:pointer-events-none disabled:opacity-60"
                 >
-                  {enrollPending ? 'Inscribing...' : course.price > 0 ? 'Enroll Now' : 'Enroll Free'}
+                  {enrollPending
+                    ? 'Inscribing...'
+                    : course.price > 0
+                      ? 'Enroll Now'
+                      : 'Enroll Free'}
                 </button>
               ) : (
                 <p className="m-0 italic text-text-secondary font-body text-sm">
@@ -145,7 +156,7 @@ const ViewCourse = () => {
       <CourseCommunity />
       <CourseVideo course={course} selectedChapter={selectedChapter} />
       <CourseDescription course={course} selectedChapter={selectedChapter} />
-      <CourseReview courseId={course._id} />
+      <CourseReview courseId={course._id} isEnrolled={isEnrolled} />
       <CourseChapterProgress />
 
       {isTeacherOwner && (
@@ -237,6 +248,24 @@ const ViewCourse = () => {
         isPending={publishMutation.isPending}
         onConfirm={handleConfirmPublish}
         onCancel={() => setConfirmOpen(false)}
+      />
+
+      <ConfirmModal
+        isOpen={enrollConfirmOpen}
+        title={course.price > 0 ? 'Confirm Enrolment' : 'Confirm Enrolment'}
+        message={
+          course.price > 0
+            ? `Enrol in "${course.title}" for ₹${course.price}? Your payment shall be processed securely through Razorpay, and access granted upon completion.`
+            : `Enrol in "${course.title}"? This curriculum is complimentary — access shall be granted immediately.`
+        }
+        confirmLabel={course.price > 0 ? 'Proceed to Pay' : 'Enrol Free'}
+        cancelLabel="Hold On"
+        isPending={enrollPending}
+        onConfirm={() => {
+          setEnrollConfirmOpen(false);
+          enroll({ _id: course._id, title: course.title });
+        }}
+        onCancel={() => setEnrollConfirmOpen(false)}
       />
 
       {editOpen && (

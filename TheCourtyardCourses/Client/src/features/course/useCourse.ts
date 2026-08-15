@@ -102,8 +102,15 @@ export const useUpdateRating = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ courseId, stars }: { courseId: string; stars: number }) =>
-      courseServices.updateRating(courseId, stars),
+    mutationFn: ({
+      courseId,
+      stars,
+      description,
+    }: {
+      courseId: string;
+      stars: number;
+      description?: string;
+    }) => courseServices.updateRating(courseId, stars, description),
     onSuccess: (_data, variables) => {
       toast.success('Verdict Recorded!', {
         description: 'Your review has been etched into the Courtyard records.',

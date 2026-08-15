@@ -130,7 +130,7 @@ export const fetchCourses = async (req, res) => {
 
     const courses = await Course.find(filter)
       .select(
-        'title description slug thumbnail coverImage price averageRating creator category level language tags duration publishedAt'
+        'title description slug thumbnail coverImage price averageRating creator category level language tags duration publishedAt students'
       )
       .populate('creator', 'name username avatarImage')
       .skip(skip)
@@ -451,7 +451,12 @@ const completeEnrollment = async (course, studentId) => {
 
   await User.findByIdAndUpdate(studentId, { $addToSet: { courses: course._id } });
 
-  await Enrollment.create({ student: studentId, course: course._id });
+  // ✅ Idempotent upsert — double-fire/race par E11000 na faake
+  await Enrollment.findOneAndUpdate(
+    { student: studentId, course: course._id },
+    { $setOnInsert: { student: studentId, course: course._id } },
+    { upsert: true, new: true }
+  );
 
   return { alreadyEnrolled: false };
 };
@@ -537,19 +542,35 @@ export const verifyPayment = async (req, res) => {
       return res.status(400).json({ message: 'Payment amount mismatch!' });
     }
 
-    // 3. Enrollment complete karo (idempotent)
+    // 3. Payment pehle thi processed? (handler double-fire / retry guard)
+    const existingPayment = await Payment.findOne({ transactionId: paymentId });
+    if (existingPayment) {
+      return res.status(200).json({
+        enrolled: true,
+        alreadyEnrolled: true,
+        message: 'Already enrolled!',
+      });
+    }
+
+    // 4. Enrollment complete karo (idempotent)
     const { alreadyEnrolled } = await completeEnrollment(course, studentId);
 
-    // 4. Payment record: { amount, orderId, transactionId }
-    await Payment.create({
-      user: studentId,
-      course: courseId,
-      amount: course.price,
-      paymentMethod: 'razorpay',
-      orderId,
-      transactionId: paymentId,
-      status: 'completed',
-    });
+    // 5. Payment record: { amount, orderId, transactionId }
+    try {
+      await Payment.create({
+        user: studentId,
+        course: courseId,
+        amount: course.price,
+        paymentMethod: 'razorpay',
+        orderId,
+        transactionId: paymentId,
+        status: 'completed',
+      });
+    } catch (err) {
+      // Race condition: be call saath maa aa record banavva koshish kare
+      // to duplicate (E11000) na faake — payment pehle thi record thay chhe to success game
+      if (err?.code !== 11000) throw err;
+    }
 
     return res.status(200).json({
       enrolled: true,

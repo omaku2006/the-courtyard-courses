@@ -38,8 +38,8 @@ export const courseServices = {
     return res.data;
   },
 
-  updateRating: async (courseId: string, stars: number) => {
-    const res = await api.post(`/course/${courseId}/ratings`, { stars });
+  updateRating: async (courseId: string, stars: number, description?: string) => {
+    const res = await api.post(`/course/${courseId}/ratings`, { stars, description });
     return res.data;
   },
 
