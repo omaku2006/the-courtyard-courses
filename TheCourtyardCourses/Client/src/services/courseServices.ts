@@ -6,8 +6,13 @@ export const courseServices = {
     return res.data;
   },
 
-  fetchMyCourses: async () => {
-    const res = await api.get('/course/me/courses');
+  fetchMyCourses: async (page = 1, limit = 9) => {
+    const res = await api.get('/course/me/courses', { params: { page, limit } });
+    return res.data;
+  },
+
+  fetchEnrolledCourses: async (page = 1, limit = 9) => {
+    const res = await api.get('/course/me/enrolled', { params: { page, limit } });
     return res.data;
   },
 
@@ -23,8 +28,8 @@ export const courseServices = {
     return res.data;
   },
 
-  fetchCourses: async () => {
-    const res = await api.get('/course/');
+  fetchCourses: async (page = 1, limit = 9) => {
+    const res = await api.get('/course/', { params: { page, limit } });
     return res.data;
   },
 
@@ -55,6 +60,26 @@ export const courseServices = {
     signature: string;
   }) => {
     const res = await api.post('/course/payment/verify', payload);
+    return res.data;
+  },
+
+  fetchWishlistStatus: async (courseId: string) => {
+    const res = await api.get(`/course/${courseId}/wishlist`);
+    return res.data;
+  },
+
+  toggleWishlist: async (courseId: string) => {
+    const res = await api.post(`/course/${courseId}/wishlist`);
+    return res.data;
+  },
+
+  fetchCourseProgress: async (courseId: string) => {
+    const res = await api.get(`/course/${courseId}/progress`);
+    return res.data;
+  },
+
+  toggleChapterProgress: async (courseId: string, chapterIndex: number) => {
+    const res = await api.post(`/course/${courseId}/progress`, { chapterIndex });
     return res.data;
   },
 };

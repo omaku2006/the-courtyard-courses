@@ -1,6 +1,11 @@
 import { Link, useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { useFetchCourse, usePublishCourse, useEnrollCourse } from '../../features/course/useCourse';
+import {
+  useFetchCourse,
+  usePublishCourse,
+  useEnrollCourse,
+  useCourseProgress,
+} from '../../features/course/useCourse';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
 import LoadingPage from '../../pages/system/LoadingPage';
 import ServerErrorPage from '../../pages/system/ServerErrorPage';
@@ -14,6 +19,7 @@ import CourseReview from '../dashboardComponents/CourseReview';
 import CourseChapterProgress from '../dashboardComponents/CourseChapterProgress';
 import AddCourseForm from './AddCourseForm';
 import ConfirmModal from '../ui/ConfirmModal';
+import WishlistToggle from '../ui/WishlistToggle';
 import { XIcon } from '@phosphor-icons/react';
 
 type CourseStatus = 'Draft' | 'Scheduled' | 'Published';
@@ -53,16 +59,19 @@ const ViewCourse = () => {
   const { enroll, isPending: enrollPending } = useEnrollCourse();
   const publishMutation = usePublishCourse();
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [course?._id]);
-
   const isTeacherOwner =
     typeof course?.creator === 'object' &&
     !!course.creator?._id &&
     profile?.user?._id === course.creator._id;
 
   const isEnrolled = !!profile?.user?._id && !!course?.students?.includes(profile.user._id);
+
+  const progressQuery = useCourseProgress(course?._id ?? '', isEnrolled && !!profile?.user);
+  const completedChapters = progressQuery.data?.completedChapters ?? [];
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [course?._id]);
 
   if (isLoading) return <LoadingPage />;
   if (isError || !course) return <ServerErrorPage />;
@@ -75,68 +84,84 @@ const ViewCourse = () => {
   };
 
   return (
-    <section
-      id="course"
-      className={`gap-4 p-4 content-start ${isTeacherOwner ? 'h-[130vh]' : 'h-screen'}`}
-    >
+    <section id="course" className={`gap-4 p-4 content-start min-h-screen max-h-[130vh]`}>
       <div style={{ gridArea: 'header' }} className="flex flex-col gap-3">
         <CourseHeadline title={course.title} />
 
-        {/* ✅ POLISH: Enrollment Notice Board with Price */}
-        {!isTeacherOwner && !isEnrolled && (
-          <div className="flex flex-col items-center justify-between gap-4 rounded-sm border-2 border-accent bg-surface p-4 text-center md:flex-row md:text-left">
-            {/* Left Side: Text */}
-            <div className="flex flex-col">
-              <h4 className="font-heading text-text-primary m-0 text-lg">
-                Awaiting your Enrollment
-              </h4>
-              <p className="m-0 italic text-text-muted font-body text-sm">
-                Join the Courtyard to access all video manuscripts, chapters, and community
-                discussions.
-              </p>
+        {/* ✅ FIX: Removed !isEnrolled condition so enrolled users see the block too */}
+        {!isTeacherOwner && (
+          <div className="flex flex-col items-center justify-between gap-4 rounded-sm border-2 border-primary bg-surface p-4 text-center md:flex-row md:text-left ">
+            {/* Left Side: Text (Changes based on enrollment status) */}
+            <div className="flex flex-1 flex-col">
+              {isEnrolled ? (
+                <>
+                  <h4 className="font-heading text-text m-0 text-lg">You are Enrolled</h4>
+                  <p className="m-0 italic text-text-muted font-body text-sm">
+                    Your journey through this curriculum has begun. Proceed to the first chapter.
+                  </p>
+                </>
+              ) : (
+                <>
+                  <h4 className="font-heading text-text m-0 text-lg">Awaiting your Enrollment</h4>
+                  <p className="m-0 italic text-text-muted font-body text-sm">
+                    Join the Courtyard to access all video manuscripts, chapters, and community
+                    discussions.
+                  </p>
+                </>
+              )}
             </div>
 
-            {/* Right Side: Price + Action */}
+            {/* Right Side: Price (Hidden if already enrolled) + Action + Wishlist */}
             <div className="flex flex-col items-center justify-center gap-4 md:flex-row md:gap-6">
-              {/* ✅ Price Tag (Victorian Style) */}
-              <div className="text-center md:text-right border-r-2 border-border pr-0 md:pr-6">
-                {course.price > 0 ? (
-                  <>
-                    <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
-                      Tuition Fee
-                    </span>
-                    <span className="font-heading text-2xl text-text-primary">₹{course.price}</span>
-                  </>
-                ) : (
-                  <>
-                    <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
-                      Access
-                    </span>
-                    <span className="font-heading text-xl text-accent">Complimentary</span>
-                  </>
-                )}
-              </div>
+              {/* Price Tag (Only show if NOT enrolled) */}
+              {!isEnrolled && (
+                <div className="text-center md:text-right border-r-2 border-border pr-0 md:pr-6">
+                  {course.price > 0 ? (
+                    <>
+                      <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                        Tuition Fee
+                      </span>
+                      <span className="font-heading text-2xl text-text">₹{course.price}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                        Access
+                      </span>
+                      <span className="font-heading text-xl text-primary">Complimentary</span>
+                    </>
+                  )}
+                </div>
+              )}
 
-              {/* Action Button / Login Link */}
+              {/* Actions: Enroll / Continue Learning & Wishlist together */}
               {profile?.user ? (
-                <button
-                  type="button"
-                  onClick={() => setEnrollConfirmOpen(true)}
-                  disabled={enrollPending}
-                  className="btnPrimary shrink-0 w-full md:w-auto disabled:pointer-events-none disabled:opacity-60"
-                >
-                  {enrollPending
-                    ? 'Inscribing...'
-                    : course.price > 0
-                      ? 'Enroll Now'
-                      : 'Enroll Free'}
-                </button>
+                <div className="flex items-center gap-3">
+                  {/* If already enrolled, show Continue Learning button */}
+                  {!isEnrolled && (
+                    <button
+                      type="button"
+                      onClick={() => setEnrollConfirmOpen(true)}
+                      disabled={enrollPending}
+                      className="btnPrimary shrink-0 w-full md:w-auto disabled:pointer-events-none disabled:opacity-60"
+                    >
+                      {enrollPending
+                        ? 'Inscribing...'
+                        : course.price > 0
+                          ? 'Enroll Now'
+                          : 'Enroll Free'}
+                    </button>
+                  )}
+
+                  {/* Wishlist toggle remains visible for enrolled users too */}
+                  <WishlistToggle courseId={course._id} variant="button" />
+                </div>
               ) : (
                 <p className="m-0 italic text-text-secondary font-body text-sm">
                   Pray,{' '}
                   <Link
                     to="/login"
-                    className="font-heading underline decoration-accent underline-offset-4 text-text-primary transition-colors hover:text-accent-hover"
+                    className="font-heading underline decoration-primary underline-offset-4 text-text transition-colors hover:text-primary"
                   >
                     sign in
                   </Link>{' '}
@@ -147,41 +172,51 @@ const ViewCourse = () => {
           </div>
         )}
       </div>
+
       <CourseTeacher course={course} />
       <CourseChapterInfo
         course={course}
         selectChapter={selectedChapter}
         setSelectChapter={setSelectedChapter}
+        completedChapters={completedChapters}
       />
       <CourseCommunity />
       <CourseVideo course={course} selectedChapter={selectedChapter} />
       <CourseDescription course={course} selectedChapter={selectedChapter} />
       <CourseReview courseId={course._id} isEnrolled={isEnrolled} />
-      <CourseChapterProgress />
+      <CourseChapterProgress
+        course={course}
+        courseId={course._id}
+        selectedChapter={selectedChapter}
+        isEnrolled={isEnrolled}
+        progressData={progressQuery.data}
+      />
 
+      {/* Teacher Manage Panel */}
       {isTeacherOwner && (
         <div
           id="courseManage"
-          className="col-span-full bg-surface p-4 flex flex-col gap-4 border-2 border-border"
+          className="col-span-full bg-surface p-6 flex flex-col gap-4 border-2 border-border shadow-[4px_4px_0_var(--color-border)]"
         >
-          <div className="flex items-center justify-between gap-3">
-            <h3>Manage Curriculum</h3>
+          <div className="flex items-center justify-between gap-3 border-b border-border pb-4">
+            <h3 className="font-heading text-xl text-text m-0">Manage Curriculum</h3>
             <span
-              className={`shrink-0 rounded-[2px] px-2 py-1 text-[10px] font-heading uppercase tracking-widest ${STATUS_STYLES[status]}`}
+              className={`shrink-0 rounded-sm px-3 py-1 text-[10px] font-heading uppercase tracking-widest ${STATUS_STYLES[status]}`}
             >
               {status}
             </span>
           </div>
-          <div className="courseManageContainer flex flex-row flex-wrap items-start gap-4">
+
+          <div className="courseManageContainer flex flex-col md:flex-row flex-wrap items-start gap-4 pt-2">
             <button
               type="button"
-              className="btnPrimary flex-1 min-w-50"
+              className="btnPrimary flex-1 min-w-[200px]"
               onClick={() => setEditOpen(true)}
             >
               Update Course
             </button>
 
-            <div className="flex flex-1 min-w-65 flex-col gap-3 border-l-2 border-border pl-4">
+            <div className="flex flex-1 min-w-[260px] flex-col gap-3 md:border-l-2 border-border md:pl-4">
               <div className="flex items-center gap-2">
                 <input
                   type="datetime-local"
@@ -228,7 +263,7 @@ const ViewCourse = () => {
                   </button>
                 )}
               </div>
-              <p className="no-margin text-xs text-text-muted italic">
+              <p className="m-0 text-xs text-text-muted italic">
                 {status === 'Draft' && 'Currently secluded from the scholars.'}
                 {status === 'Scheduled' &&
                   `Scholars may anticipate its arrival on ${formatDate(course.publishedAt)}.`}
@@ -238,6 +273,8 @@ const ViewCourse = () => {
           </div>
         </div>
       )}
+
+      {/* ❌ REMOVED: Bottom Wishlist Block */}
 
       <ConfirmModal
         isOpen={confirmOpen}
@@ -252,7 +289,7 @@ const ViewCourse = () => {
 
       <ConfirmModal
         isOpen={enrollConfirmOpen}
-        title={course.price > 0 ? 'Confirm Enrolment' : 'Confirm Enrolment'}
+        title="Confirm Enrolment"
         message={
           course.price > 0
             ? `Enrol in "${course.title}" for ₹${course.price}? Your payment shall be processed securely through Razorpay, and access granted upon completion.`
@@ -268,14 +305,15 @@ const ViewCourse = () => {
         onCancel={() => setEnrollConfirmOpen(false)}
       />
 
+      {/* ✅ FIX: Modal Z-Index z-10 -> z-50 */}
       {editOpen && (
-        <div className="fixed inset-0 z-10 flex items-center justify-center bg-black/60 p-4">
-          <div className="relative flex h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-[4px] bg-surface">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="relative flex h-[90vh] w-full max-w-7xl flex-col overflow-hidden rounded-sm border-2 border-border bg-surface shadow-[6px_6px_0_var(--color-border)]">
             <button
               type="button"
               onClick={() => setEditOpen(false)}
               aria-label="Close"
-              className="absolute right-3 top-3 z-20 rounded-[4px] border-2 border-accent bg-surface p-2 text-text-primary transition-colors hover:bg-accent hover:text-light"
+              className="absolute right-3 top-3 z-50 rounded-sm border-2 border-primary bg-surface p-2 text-text transition-colors hover:bg-primary hover:text-background"
             >
               <XIcon size={20} weight="bold" />
             </button>

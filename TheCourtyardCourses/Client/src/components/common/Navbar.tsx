@@ -7,6 +7,38 @@ import { useFetchMyProfile } from '../../features/auth/useAuth';
 import LoadingPage from '../../pages/system/LoadingPage';
 import ServerErrorPage from '../../pages/system/ServerErrorPage';
 
+// ✅ Fix & Polish: Reusable Navlink component for cleaner code
+// ✅ Polished NavTab with Stronger Hover & Active States
+const NavTab = ({ to, label, onClick }: { to: string; label: string; onClick?: () => void }) => (
+  <li className="w-full md:w-auto text-center">
+    <NavLink
+      to={to}
+      onClick={onClick}
+      className={({ isActive }) =>
+        `relative block px-4 py-2 font-heading text-sm uppercase tracking-widest transition-all duration-300 group rounded-sm ${
+          isActive
+            ? 'bg-surface text-primary border-b-2 border-accent' // ✅ Active: Gold text, light bg, gold bottom border
+            : 'text-text hover:text-primary hover:bg-surface/50 border-b-2 border-transparent' // ✅ Hover: Gold text, subtle bg
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          {label}
+          {/* Animated Underline (Runs on Hover) */}
+          <span
+            className={`absolute bottom-0 left-1/2 h-[2px] bg-primary -translate-x-1/2 transition-all duration-300 ease-in-out ${
+              isActive
+                ? 'w-full opacity-100'
+                : 'w-0 opacity-0 group-hover:w-full group-hover:opacity-100'
+            }`}
+          />
+        </>
+      )}
+    </NavLink>
+  </li>
+);
+
 const Navbar = () => {
   const { data, isError, isLoading } = useFetchMyProfile();
   const [isOpen, setIsOpen] = useState<boolean>(false);
@@ -16,141 +48,109 @@ const Navbar = () => {
   if (isLoading) return <LoadingPage />;
   if (isError) return <ServerErrorPage />;
 
+  // ✅ Fix: Initials array comma bug fixed
+  const getInitials = (name: string) => {
+    return (
+      name
+        .split(' ')
+        .map((word) => word.charAt(0).toUpperCase())
+        .join('')
+        .substring(0, 2) || '?'
+    );
+  };
+
   return (
-    <>
-      <nav className="relative h-28 border-2 border-accent flex justify-between md:justify-evenly items-center z-10">
-        <div
-          id="hamburger"
-          className="menu md:hidden absolute top-1/2 -translate-y-1/2 p-2 sm:px-2 md:px-5"
-          onClick={() => setIsOpen(!isOpen)}
-        >
-          <ListIcon />
-        </div>
-        <div id="navLeft" className="md:m-0 md:mx-0 ml-10">
-          {theme === 'dark' ? (
+    <nav className="sticky bg-bg top-0 z-50 w-full bg-background border-b-2 border-border shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 md:px-8 flex justify-between items-center h-20">
+        {/* Left Side: Hamburger (Mobile) + Logo */}
+        <div className="flex items-center gap-4">
+          <button
+            className="md:hidden p-2 text-text hover:text-primary transition-colors"
+            onClick={() => setIsOpen(!isOpen)}
+            aria-label="Toggle menu"
+          >
+            {isOpen ? <XIcon size={24} weight="bold" /> : <ListIcon size={24} weight="bold" />}
+          </button>
+
+          <Link to="/">
             <img
-              src="../src/assets/TheCourtyardCourses(Dark).Plain.Stroke.svg"
+              src={
+                theme === 'dark'
+                  ? '/TheCourtyardCourses(Dark).Plain.Stroke.svg'
+                  : '/TheCourtyardCourses(Light).Stroke.Plain.svg'
+              }
               alt="The Courtyard Courses"
-              className="h-24 m-2"
+              className="h-12 md:h-16 object-contain"
             />
-          ) : (
-            <img
-              src="../src/assets/TheCourtyardCourses(Light).Stroke.Plain.svg"
-              alt="The Courtyard Courses"
-              className="h-24 m-2"
-            />
-          )}
+          </Link>
         </div>
-        <div
-          id="navMiddle"
-          className={`absolute top-0 ${isOpen ? 'right-0' : 'right-full'}  transition-all duration-500 flex justify-center items-center md:right-0 md:relative md:h-fit md:w-fit h-[100vh] w-full`}
-        >
-          <ul className="tabContainer flex flex-col items-center justify-center h-full w-full gap-3 md:gap-0 absolute left-0 top-0 bg-surface md:bg-transparent md:relative md:flex-row md:h-fit md:w-fit lg:gap-6 ">
-            <li className="menu md:hidden absolute left-5 top-5" onClick={() => setIsOpen(!isOpen)}>
-              <XIcon />
-            </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
-              <NavLink
-                to="/"
-                className={({ isActive }) =>
-                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
-                }
-              >
-                Home
-              </NavLink>
-              <span
-                className="absolute bottom-0 left-1/2 w-0 h-0.5
-                   bg-accent -translate-x-1/2
-                   group-hover:w-full
-                   transition-all duration-500 ease-in-out"
-              />
-            </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
-              <NavLink
-                to="/courses"
-                className={({ isActive }) =>
-                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
-                }
-              >
-                Courses
-              </NavLink>
-              <span
-                className="absolute bottom-0 left-1/2 w-0 h-0.5
-                   bg-accent -translate-x-1/2
-                   group-hover:w-full
-                   transition-all duration-500 ease-in-out"
-              />
-            </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all max-[860px]:hidden">
-              <NavLink
-                to="/communities"
-                className={({ isActive }) =>
-                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
-                }
-              >
-                Communities
-              </NavLink>
-              <span
-                className="absolute bottom-0 left-1/2 w-0 h-0.5
-                   bg-accent -translate-x-1/2
-                   group-hover:w-full
-                   transition-all duration-500 ease-in-out"
-              />
-            </li>
-            <li className="tabs relative group font-heading w-full md:w-32 text-center hover:bg-surface duration-300 transition-all">
-              <NavLink
-                to="/about"
-                className={({ isActive }) =>
-                  `block w-full h-full p-2 duration-300 transition-all ${isActive ? 'bg-surface' : ''}`
-                }
-              >
-                About Us
-              </NavLink>
-              <span
-                className="absolute bottom-0 left-1/2 w-0 h-0.5
-                   bg-accent -translate-x-1/2
-                   group-hover:w-full
-                   transition-all duration-500 ease-in-out"
-              />
-            </li>
+
+        {/* Center: Desktop Menu */}
+        <div className="hidden md:flex items-center gap-6">
+          <ul className="flex items-center gap-2">
+            <NavTab to="/" label="Home" />
+            <NavTab to="/courses" label="Courses" />
+            {data?.user && <NavTab to="/dashboard" label="Dashboard" />}
+            <NavTab to="/communities" label="Communities" />
+            <NavTab to="/about" label="About Us" />
           </ul>
         </div>
-        <div id="navRight" className="md:m-0 lg:mx-10 md:mx-5 mx-3 flex items-center">
+
+        {/* Right Side: Theme Toggle + Auth */}
+        <div className="flex items-center gap-3">
           <button
-            className="btnSecondary m-3 lg:flex items-center lg:visible hidden"
-            onClick={() => {
-              dispatch(toggleTheme());
-            }}
+            className="p-2 text-text hover:text-primary transition-colors"
+            onClick={() => dispatch(toggleTheme())}
+            aria-label="Toggle theme"
           >
-            {theme === 'dark' ? <MoonIcon weight="fill" /> : <SunIcon weight="fill" />} &nbsp;
-            &nbsp;
-            {theme === 'dark' ? 'Dark' : 'Light'}
+            {theme === 'dark' ? (
+              <MoonIcon size={24} weight="fill" />
+            ) : (
+              <SunIcon size={24} weight="fill" />
+            )}
           </button>
-          <button
-            className="btnSecondary m-3 flex items-center justify-center visible lg:hidden"
-            onClick={() => {
-              dispatch(toggleTheme());
-            }}
-          >
-            {theme === 'dark' ? <MoonIcon weight="fill" /> : <SunIcon weight="fill" />}
-          </button>
+
           {data?.user ? (
             <Link
-              to={'/dashboard/me'}
-              className="p-4 border bg-surface hover:-translate-y-1 duration-300"
+              to="/dashboard/me"
+              className="h-10 w-10 flex items-center justify-center border-2 border-primary text-primary font-heading text-sm hover:bg-primary hover:text-background transition-colors rounded-sm"
+              title={data.user.name}
             >
-              {data.user.name.split(' ').map((word: string) => {
-                return word.charAt(0).toUpperCase();
-              })}
+              {getInitials(data.user.name)}
             </Link>
           ) : (
-            <Link to="/login" className="btnPrimary">
+            <Link to="/login" className="btnPrimary hidden sm:block">
               Login
             </Link>
           )}
         </div>
-      </nav>
-    </>
+      </div>
+
+      {/* Mobile Menu Drawer (Slides down) */}
+      {isOpen && (
+        <div className="md:hidden absolute top-20 left-0 w-full h-[calc(100vh-5rem)] bg-surface border-t-2 border-border flex flex-col items-center justify-center gap-6 animate-slide-down">
+          <ul className="flex flex-col items-center gap-4 w-full px-4">
+            <NavTab to="/" label="Home" onClick={() => setIsOpen(false)} />
+            <NavTab to="/courses" label="Courses" onClick={() => setIsOpen(false)} />
+            {data?.user && (
+              <NavTab to="/dashboard" label="Dashboard" onClick={() => setIsOpen(false)} />
+            )}
+            <NavTab to="/communities" label="Communities" onClick={() => setIsOpen(false)} />
+            <NavTab to="/about" label="About Us" onClick={() => setIsOpen(false)} />
+          </ul>
+
+          {!data?.user && (
+            <Link
+              to="/login"
+              className="btnPrimary w-3/4 text-center"
+              onClick={() => setIsOpen(false)}
+            >
+              Login
+            </Link>
+          )}
+        </div>
+      )}
+    </nav>
   );
 };
 

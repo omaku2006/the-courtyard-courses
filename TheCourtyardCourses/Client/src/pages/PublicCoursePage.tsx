@@ -1,4 +1,5 @@
 import PublicCourseCard from '../components/ui/PublicCourseCard';
+import WishlistToggle from '../components/ui/WishlistToggle';
 import { useFetchCourses } from '../features/course/useCourse';
 import { useFetchMyProfile } from '../features/auth/useAuth';
 import { imageUrl } from '../utils/imageUrl';
@@ -9,12 +10,19 @@ import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import { MagnifyingGlassIcon } from '@phosphor-icons/react';
 import { useNavigate } from 'react-router-dom';
+import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 
 const PublicCoursePage = () => {
-  const { data, isError, isLoading } = useFetchCourses();
+  const { data, isError, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useFetchCourses();
   const { data: profile } = useFetchMyProfile();
   const userId = profile?.user?._id;
-  const courses: Course[] = data?.courses ?? [];
+  const courses: Course[] = data?.pages.flatMap((p) => p.courses) ?? [];
+
+  const loadMoreRef = useInfiniteScroll<HTMLDivElement>(
+    () => fetchNextPage(),
+    !!hasNextPage && !isFetchingNextPage,
+  );
 
   const [search, setSearch] = useState('');
   const [language, setLanguage] = useState('all');
@@ -215,6 +223,7 @@ const PublicCoursePage = () => {
                         url={imageUrl(course.coverImage)}
                         name={course.title}
                       />
+                      <WishlistToggle courseId={course._id} variant="bookmark" />
                       {isEnrolled && <PublicCourseCard.EnrolledBadge />}
                     </div>
                     <PublicCourseCard.Title title={course.title} />
@@ -246,6 +255,14 @@ const PublicCoursePage = () => {
               );
             })}
           </AnimatePresence>
+
+          {hasNextPage && (
+            <div ref={loadMoreRef} className="col-span-full py-4 text-center">
+              <span className="font-heading text-xs uppercase tracking-widest text-text-muted">
+                {isFetchingNextPage ? 'Summoning more courses...' : 'Scroll for more'}
+              </span>
+            </div>
+          )}
         </motion.div>
       )}
     </section>

@@ -25,4 +25,9 @@ export const authServices = {
     const res = await api.get(`/users/${username}`);
     return res.data;
   },
+
+  fetchMyWishlist: async (page = 1, limit = 9) => {
+    const res = await api.get('/users/me/wishlist', { params: { page, limit } });
+    return res.data;
+  },
 };

@@ -198,9 +198,19 @@ export const fetchEnrolledCourses = async (req, res) => {
     const limit = parseInt(req.query.limit) || 30;
     const skip = (page - 1) * limit;
 
+    const total = await User.findById(userId).select('courses');
+
+    if (!total) {
+      return res.status(404).json({ message: 'User not found!' });
+    }
+
+    const totalCourses = total.courses.length;
+    const totalPages = Math.ceil(totalCourses / limit);
+
     const user = await User.findById(userId).populate({
       path: 'courses',
-      select: 'title description slug thumbnail category level averageRating publishedAt',
+      select:
+        'title description slug coverImage thumbnail category level language duration price averageRating publishedAt',
       populate: {
         path: 'creator',
         select: 'name username avatarImage',
@@ -211,13 +221,6 @@ export const fetchEnrolledCourses = async (req, res) => {
         sort: { publishedAt: -1 },
       },
     });
-
-    if (!user) {
-      return res.status(404).json({ message: 'User not found!' });
-    }
-
-    const totalCourses = user.courses.length;
-    const totalPages = Math.ceil(totalCourses / limit);
 
     return res.status(200).json({
       courses: user.courses,
@@ -734,5 +737,198 @@ export const fetchCertificate = async (req, res) => {
       message: 'Internal Server Error!',
       error: e.message,
     });
+  }
+};
+
+export const fetchWishlistCourses = async (req, res) => {
+  const { courseId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findById(userId).select('wishlist');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found!' });
+    }
+
+    const isWishlisted = user.wishlist.some((id) => id.toString() === courseId);
+
+    return res.status(200).json({ isWishlisted });
+  } catch (e) {
+    console.error('Fetch Wishlist Status Error:', e.message);
+    return res.status(500).json({
+      message: 'Internal Server Error!',
+      error: e.message,
+    });
+  }
+};
+
+export const updateWishlistCourses = async (req, res) => {
+  const { courseId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const user = await User.findById(userId).select('wishlist');
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found!' });
+    }
+
+    const already = user.wishlist.some((id) => id.toString() === courseId);
+
+    if (already) {
+      await User.findByIdAndUpdate(userId, { $pull: { wishlist: courseId } });
+    } else {
+      await User.findByIdAndUpdate(userId, { $addToSet: { wishlist: courseId } });
+    }
+
+    return res.status(200).json({
+      message: already ? 'Removed from wishlist.' : 'Added to wishlist.',
+      isWishlisted: !already,
+    });
+  } catch (e) {
+    console.error('Update Wishlist Error:', e.message);
+    return res.status(500).json({
+      message: 'Internal Server Error!',
+      error: e.message,
+    });
+  }
+};
+
+const parseDurationToMinutes = (duration) => {
+  if (!duration) return 0;
+  const s = String(duration).trim().toLowerCase();
+  if (!s) return 0;
+
+  // "14:10" (mm:ss) or "1:30:00" (hh:mm:ss)
+  if (s.includes(':')) {
+    const parts = s.split(':').map((p) => parseFloat(p) || 0);
+    let totalSeconds = 0;
+    for (const part of parts) totalSeconds = totalSeconds * 60 + part;
+    return totalSeconds / 60;
+  }
+
+  // "1hr", "1h 30m", "45min", "2h"
+  let minutes = 0;
+  const h = s.match(/(\d+(?:\.\d+)?)\s*h/);
+  const m = s.match(/(\d+(?:\.\d+)?)\s*m/);
+  if (h) minutes += parseFloat(h[1]) * 60;
+  if (m) minutes += parseFloat(m[1]);
+  return minutes;
+};
+
+const computeCourseProgress = (course, completedChapters) => {
+  const completedSet = new Set((completedChapters ?? []).map(Number));
+  let totalMinutes = 0;
+  let completedMinutes = 0;
+  course.chapters.forEach((chapter, index) => {
+    const minutes = parseDurationToMinutes(chapter.duration);
+    totalMinutes += minutes;
+    if (completedSet.has(index)) completedMinutes += minutes;
+  });
+
+  let progress;
+  if (totalMinutes > 0) {
+    progress = Math.round((completedMinutes / totalMinutes) * 100);
+  } else if (course.chapters.length > 0) {
+    progress = Math.round((completedSet.size / course.chapters.length) * 100);
+  } else {
+    progress = 0;
+  }
+
+  return { progress, totalMinutes, completedMinutes };
+};
+
+export const fetchCourseProgress = async (req, res) => {
+  const { courseId } = req.params;
+  const userId = req.user.id;
+
+  try {
+    const [course, enrollment] = await Promise.all([
+      Course.findById(courseId),
+      Enrollment.findOne({ student: userId, course: courseId }),
+    ]);
+
+    if (!course) return res.status(404).json({ message: 'Course not found!' });
+
+    const completedChapters = enrollment ? enrollment.completedChapters : [];
+    const { progress, totalMinutes, completedMinutes } = computeCourseProgress(
+      course,
+      completedChapters
+    );
+
+    return res.status(200).json({
+      progress,
+      completedChapters,
+      totalChapters: course.chapters.length,
+      totalDurationMinutes: Math.round(totalMinutes),
+      completedDurationMinutes: Math.round(completedMinutes),
+      completed: enrollment?.completed ?? false,
+    });
+  } catch (e) {
+    console.error('Fetch Course Progress Error:', e.message);
+    return res.status(500).json({ message: 'Internal Server Error!', error: e.message });
+  }
+};
+
+export const updateChapterCompletion = async (req, res) => {
+  const { courseId } = req.params;
+  const { chapterIndex } = req.body;
+  const userId = req.user.id;
+
+  if (chapterIndex === undefined || !Number.isInteger(Number(chapterIndex))) {
+    return res.status(400).json({ message: 'A valid chapter index is required!' });
+  }
+
+  try {
+    const course = await Course.findById(courseId);
+    if (!course) return res.status(404).json({ message: 'Course not found!' });
+
+    const index = Number(chapterIndex);
+    if (index < 0 || index >= course.chapters.length) {
+      return res.status(400).json({ message: 'Chapter index out of range!' });
+    }
+
+    const enrollment = await Enrollment.findOne({ student: userId, course: courseId });
+    if (!enrollment) {
+      return res.status(403).json({
+        message: 'You must be enrolled in this course to track progress!',
+      });
+    }
+
+    let completedChapters = enrollment.completedChapters ?? [];
+    if (completedChapters.includes(index)) {
+      completedChapters = completedChapters.filter((c) => c !== index);
+    } else {
+      completedChapters = [...completedChapters, index];
+    }
+    completedChapters.sort((a, b) => a - b);
+
+    const { progress, totalMinutes, completedMinutes } = computeCourseProgress(
+      course,
+      completedChapters
+    );
+
+    const allDone = progress >= 100;
+
+    enrollment.completedChapters = completedChapters;
+    enrollment.progress = progress;
+    enrollment.completed = allDone;
+    enrollment.completedAt = allDone ? enrollment.completedAt ?? new Date() : null;
+    enrollment.lastAccessedAt = new Date();
+    await enrollment.save();
+
+    return res.status(200).json({
+      message: 'Chapter progress updated!',
+      progress,
+      completedChapters,
+      totalChapters: course.chapters.length,
+      totalDurationMinutes: Math.round(totalMinutes),
+      completedDurationMinutes: Math.round(completedMinutes),
+      completed: allDone,
+    });
+  } catch (e) {
+    console.error('Update Chapter Progress Error:', e.message);
+    return res.status(500).json({ message: 'Internal Server Error!', error: e.message });
   }
 };

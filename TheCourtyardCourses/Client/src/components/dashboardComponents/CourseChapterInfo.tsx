@@ -1,16 +1,18 @@
 import { useState } from 'react';
 import { type Chapter, type Course } from '../../types/FetchDataTypes.ts';
-import { ArrowSquareOutIcon } from '@phosphor-icons/react';
+import { ArrowSquareOutIcon, CheckCircleIcon } from '@phosphor-icons/react';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
 
 const CourseChapterInfo = ({
   course,
   selectChapter,
   setSelectChapter,
+  completedChapters = [],
 }: {
   course: Course;
   selectChapter: number | null;
   setSelectChapter: (index: number) => void;
+  completedChapters?: number[];
 }) => {
   const [indexOpen, setIndexOpen] = useState<number | null>(null);
   const { data } = useFetchMyProfile();
@@ -27,7 +29,7 @@ const CourseChapterInfo = ({
         // ✅ Fix: key={index} add karyu
         <div
           key={index}
-          className="chapter border border-transparent transition-colors hover:border-border"
+          className="chapter group border border-transparent transition-colors hover:border-border"
         >
           <div
             className={`bg-background border flex items-center justify-between overflow-hidden relative pr-12 cursor-pointer transition-colors ${
@@ -41,8 +43,32 @@ const CourseChapterInfo = ({
           >
             <div className="flex items-center min-w-0 flex-1 p-3 gap-3">
               {/* ✅ Polish: Chapter number in Gold */}
-              <span className="font-heading text-primary font-bold text-sm">{index + 1}.</span>
-              <p className="truncate text-sm text-text no-margin">{chapter.title}</p>
+              <span className="font-heading text-primary font-bold text-sm shrink-0">
+                {index + 1}.
+              </span>
+              {/* ✅ Hover marquee: full title scroll thay (truncate no fix hoy to full name dekhatu nathi) */}
+              <div className="relative flex-1 min-w-0 overflow-hidden">
+                <div className="flex w-max marquee-on-hover">
+                  <p className="m-0 no-margin whitespace-nowrap pr-8 text-sm text-text">
+                    {chapter.title}
+                  </p>
+                  <p
+                    className="m-0 no-margin whitespace-nowrap pr-8 text-sm text-text"
+                    aria-hidden="true"
+                  >
+                    {chapter.title}
+                  </p>
+                </div>
+              </div>
+              {/* ✅ Progress: green tick on completed chapters */}
+              {completedChapters.includes(index) && (
+                <CheckCircleIcon
+                  size={18}
+                  weight="fill"
+                  className="shrink-0 text-success"
+                  aria-label="Chapter completed"
+                />
+              )}
             </div>
 
             {chapter.duration && (

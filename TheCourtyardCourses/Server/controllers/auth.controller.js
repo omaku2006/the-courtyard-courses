@@ -214,12 +214,36 @@ export const fetchMyCourses = async (req, res) => {
 
 export const fetchMyWishlist = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 30;
+    const skip = (page - 1) * limit;
+
+    const total = await User.findById(req.user.id).select('wishlist');
+
+    if (!total) {
+      return res.status(404).json({ message: 'User not found!' });
+    }
+
+    const totalWishlist = total.wishlist.length;
+    const totalPages = Math.ceil(totalWishlist / limit);
+
     const user = await User.findById(req.user.id).populate({
       path: 'wishlist',
       populate: { path: 'creator', select: 'name username avatarImage' },
+      options: { skip, limit, sort: { publishedAt: -1 } },
     });
 
-    return res.status(200).json({ wishlist: user.wishlist });
+    return res.status(200).json({
+      wishlist: user.wishlist,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        totalCourses: totalWishlist,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1,
+        limit,
+      },
+    });
   } catch (e) {
     console.error('Fetch My Wishlist Error:', e.message);
     return res.status(500).json({ message: 'Internal Server Error!' });

@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { courseServices } from '../../services/courseServices';
 import { toast } from 'sonner';
 
@@ -22,10 +22,25 @@ export const useCreateCourse = () => {
   });
 };
 
-export const useMyCourses = () => {
-  return useQuery({
+export const useMyCourses = (enabled = true) => {
+  return useInfiniteQuery({
     queryKey: ['myCourses'],
-    queryFn: courseServices.fetchMyCourses,
+    queryFn: ({ pageParam = 1 }) => courseServices.fetchMyCourses(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination?.hasNextPage ? lastPage.pagination.currentPage + 1 : undefined,
+    enabled,
+  });
+};
+
+export const useFetchEnrolledCourses = (enabled = true) => {
+  return useInfiniteQuery({
+    queryKey: ['enrolledCourses'],
+    queryFn: ({ pageParam = 1 }) => courseServices.fetchEnrolledCourses(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination?.hasNextPage ? lastPage.pagination.currentPage + 1 : undefined,
+    enabled,
   });
 };
 
@@ -129,9 +144,12 @@ export const useUpdateRating = () => {
 };
 
 export const useFetchCourses = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ['courses'],
-    queryFn: courseServices.fetchCourses,
+    queryFn: ({ pageParam = 1 }) => courseServices.fetchCourses(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination?.hasNextPage ? lastPage.pagination.currentPage + 1 : undefined,
   });
 };
 
@@ -237,4 +255,68 @@ export const useEnrollCourse = () => {
   };
 
   return { enroll, isPending: createOrder.isPending || verify.isPending };
+};
+
+export const useWishlistStatus = (courseId: string, enabled = true) => {
+  return useQuery({
+    queryKey: ['wishlistStatus', courseId],
+    queryFn: () => courseServices.fetchWishlistStatus(courseId),
+    enabled: !!courseId && enabled,
+  });
+};
+
+export const useToggleWishlist = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (courseId: string) => courseServices.toggleWishlist(courseId),
+    onSuccess: (data, courseId) => {
+      toast.success(data?.message ?? 'Wishlist Updated.');
+      queryClient.setQueryData(['wishlistStatus', courseId], (old: any) => ({
+        ...(old ?? {}),
+        isWishlisted: data.isWishlisted,
+      }));
+      queryClient.invalidateQueries({ queryKey: ['wishlist'] });
+    },
+    onError: (error: any) => {
+      toast.error('Wishlist Update Failed.', {
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          'A complication has arisen. Pray, try again.',
+      });
+    },
+  });
+};
+
+export const useCourseProgress = (courseId: string, enabled = true) => {
+  return useQuery({
+    queryKey: ['courseProgress', courseId],
+    queryFn: () => courseServices.fetchCourseProgress(courseId),
+    enabled: !!courseId && enabled,
+  });
+};
+
+export const useToggleChapterComplete = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ courseId, chapterIndex }: { courseId: string; chapterIndex: number }) =>
+      courseServices.toggleChapterProgress(courseId, chapterIndex),
+    onSuccess: (data, { courseId }) => {
+      toast.success('Chapter Progress Updated!', {
+        description: 'Your scholarly advancement has been recorded.',
+      });
+      queryClient.setQueryData(['courseProgress', courseId], data);
+      queryClient.invalidateQueries({ queryKey: ['courseProgress', courseId] });
+    },
+    onError: (error: any) => {
+      toast.error('Progress Update Failed.', {
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          'A complication has arisen. Pray, try again.',
+      });
+    },
+  });
 };

@@ -5,7 +5,7 @@ import DashboardBottomNav from './DashboardBottomNav';
 
 const DashboardLayout = () => {
   return (
-    <div className="flex flex-col min-h-[100dvh]">
+    <div className="flex flex-col min-h-[100dvh] pb-20 min-[512px]:pb-0">
       <div className="flex flex-1 max-[512px]:flex-col-reverse">
         <div className="sidebar max-[512px]:hidden">
           <DashboardSidebar />

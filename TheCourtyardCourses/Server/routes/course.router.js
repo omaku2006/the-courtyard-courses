@@ -13,6 +13,10 @@ import {
   fetchCertificate,
   fetchMyCourses,
   fetchEnrolledCourses,
+  fetchWishlistCourses,
+  updateWishlistCourses,
+  fetchCourseProgress,
+  updateChapterCompletion,
 } from '../controllers/course.controller.js';
 import multer from 'multer';
 import { verifyToken, isTeacher, isStudent } from '../middleware/auth.middleware.js';
@@ -50,6 +54,14 @@ courseRouter.post('/:courseId/enroll', verifyToken, isStudent, enrollCourse);
 // Ratings
 courseRouter.post('/:courseId/ratings', verifyToken, updateRatingsCourse);
 courseRouter.get('/:courseId/ratings', fetchRatingsCourse);
+
+// Progress
+courseRouter.get('/:courseId/progress', verifyToken, fetchCourseProgress);
+courseRouter.post('/:courseId/progress', verifyToken, isStudent, updateChapterCompletion);
+
+//wishlist
+courseRouter.get('/:courseId/wishlist', verifyToken, fetchWishlistCourses);
+courseRouter.post('/:courseId/wishlist', verifyToken, updateWishlistCourses);
 
 // Certificate
 courseRouter.get('/:courseId/certificate', verifyToken, fetchCertificate);

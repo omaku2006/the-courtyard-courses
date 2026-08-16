@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useAppSelector } from '../../app/hooks';
 import HrWrapper from '../ui/HrWrapper';
 import {
@@ -7,16 +8,20 @@ import {
   CalendarDotsIcon,
   ChartLineIcon,
   DotsNineIcon,
+  MoonIcon,
+  SunIcon,
   UsersThreeIcon,
 } from '@phosphor-icons/react';
 import { Link, NavLink } from 'react-router-dom';
 import LoadingPage from '../../pages/system/LoadingPage';
 import ServerErrorPage from '../../pages/system/ServerErrorPage';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
+import { toggleTheme } from '../../features/themes/themeSlice';
 import { imageUrl } from '../../utils/imageUrl';
 
 const DashboardSidebar = () => {
   const theme = useAppSelector((state) => state.theme.mode);
+  const dispatch = useDispatch();
   const { data, isError, isLoading } = useFetchMyProfile();
 
   const [isCollapsed, setIsCollapsed] = useState<boolean>(true);
@@ -31,12 +36,12 @@ const DashboardSidebar = () => {
 
   return (
     <nav
-      className="w-32 h-screen sticky top-0 bg-surface z-5 "
+      className="w-30 h-screen sticky top-0 bg-surface z-5 "
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
       <div
-        className={`relative p-4 bg-surface h-screen overflow-hidden flex flex-col border-r-3 border-r-accent-hover transition-all duration-500 ${isCollapsed ? 'w-32' : 'w-91'}`}
+        className={`relative p-4 bg-surface h-screen overflow-hidden flex flex-col border-r-3 border-r-accent-hover transition-all duration-500 ${isCollapsed ? 'w-30' : 'w-91'}`}
       >
         <div className="topPart flex items-center gap-5">
           <div className="logo shrink-0">
@@ -64,61 +69,76 @@ const DashboardSidebar = () => {
             to={'/dashboard'}
             end
             className={({ isActive }) =>
-              `h-21 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-21`
+              `h-16 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-16`
             }
           >
-            <DotsNineIcon size={48} weight="fill" className="mx-6 my-4" />
+            <DotsNineIcon size={40} weight="fill" className="mx-6" />
             <h5 className="italic text-nowrap">Dashboard</h5>
           </NavLink>
           <NavLink
             to={'/dashboard/my-courses'}
             className={({ isActive }) =>
-              `h-21 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-21`
+              `h-16 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-16`
             }
           >
-            <BookBookmarkIcon size={48} weight="fill" className="mx-6 my-4" />
+            <BookBookmarkIcon size={40} weight="fill" className="mx-6" />
             <h5 className="italic text-nowrap">My Courses</h5>
           </NavLink>
           <NavLink
             to={'/dashboard/courses'}
             className={({ isActive }) =>
-              `h-21 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-21`
+              `h-16 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-16`
             }
           >
-            <BooksIcon size={48} weight="fill" className="mx-6 my-4" />
+            <BooksIcon size={40} weight="fill" className="mx-6" />
             <h5 className="italic text-nowrap">Courses</h5>
           </NavLink>
           <NavLink
             to={'/dashboard/communities'}
             className={({ isActive }) =>
-              `h-21 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-21`
+              `h-16 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-16`
             }
           >
-            <UsersThreeIcon size={48} weight="fill" className="mx-6 my-4" />
+            <UsersThreeIcon size={40} weight="fill" className="mx-6" />
             <h5 className="italic text-nowrap">Communities</h5>
           </NavLink>
           {data.user.role === 'student' && (
             <NavLink
               to={'/dashboard/schedule'}
               className={({ isActive }) =>
-                `h-21 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-21`
+                `h-16 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-16`
               }
             >
-              <CalendarDotsIcon size={48} weight="fill" className="mx-6 my-4" />
+              <CalendarDotsIcon size={40} weight="fill" className="mx-6" />
               <h5 className="italic text-nowrap">Schedule</h5>
             </NavLink>
           )}
           <NavLink
             to={'/dashboard/analysis'}
             className={({ isActive }) =>
-              `h-21 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-21`
+              `h-16 ${isActive ? 'bg-bg' : ''} grid items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-16`
             }
           >
-            <ChartLineIcon size={48} weight="fill" className="mx-6 my-4" />
+            <ChartLineIcon size={40} weight="fill" className="mx-6" />
             <h5 className="italic text-nowrap">Analysis</h5>
           </NavLink>
         </div>
         <div className="bottomPartContainer mt-auto">
+          {/* ✅ Theme toggle tab — Profile divider ni upr, baki tabs jevu j look */}
+          <button
+            type="button"
+            onClick={() => dispatch(toggleTheme())}
+            className="h-16 grid w-full items-center grid-cols-[auto_1fr] overflow-hidden rounded-[2px] min-h-16 cursor-pointer bg-transparent text-left transition-colors hover:bg-bg"
+          >
+            <span className="mx-6">
+              {theme === 'dark' ? (
+                <MoonIcon size={40} weight="fill" />
+              ) : (
+                <SunIcon size={40} weight="fill" />
+              )}
+            </span>
+            <h6 className="italic text-nowrap">{theme === 'dark' ? 'Dark' : 'Light'} Mode</h6>
+          </button>
           <HrWrapper name="Profile" />
           <div className="bottomPart  flex gap-6">
             <div className="avatar bg-accent min-h-21 max-h-21 min-w-21 ml-1 rounded-[4px] overflow-hidden flex items-center justify-center">

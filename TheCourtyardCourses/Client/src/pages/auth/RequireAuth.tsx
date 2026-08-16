@@ -1,11 +1,11 @@
 import { useEffect, useRef } from 'react';
-import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import { useAppSelector } from '../../app/hooks';
 import { toast } from 'sonner';
+import UnauthorizedPage from '../system/UnauthorizedPage';
 
 const RequireAuth = () => {
   const token = useAppSelector((state) => state.auth.token);
-  const location = useLocation();
   const warnedRef = useRef(false);
 
   useEffect(() => {
@@ -22,7 +22,7 @@ const RequireAuth = () => {
   }, [token]);
 
   if (!token) {
-    return <Navigate to="/" replace state={{ from: location }} />;
+    return <UnauthorizedPage />;
   }
 
   return <Outlet />;

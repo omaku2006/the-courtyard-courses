@@ -1,4 +1,5 @@
 import {
+  ArrowRightIcon,
   AtIcon,
   BookOpenIcon,
   ChalkboardTeacherIcon,
@@ -16,7 +17,9 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
+import { Link } from 'react-router-dom';
 import HrWrapper from '../components/ui/HrWrapper';
+import { useMyCourses } from '../features/course/useCourse';
 import { useFetchMyProfile, useLogout, useUpdateProfile } from '../features/auth/useAuth';
 import { imageUrl } from '../utils/imageUrl';
 import LoadingPage from './system/LoadingPage';
@@ -40,11 +43,17 @@ const getInitials = (name: string): string =>
     .slice(0, 2)
     .join('') || '?';
 
+const showTeacherCourses = false; // atyare fkt "Explore More" button visible thaay evu j rakh
+
 const FetchMe = () => {
   const { data, isError, isLoading } = useFetchMyProfile();
   const { mutate: updateProfile, isPending } = useUpdateProfile();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+
+  const isTeacher = data?.user?.role === 'teacher';
+  const myCourses = useMyCourses(!!isTeacher);
+  const userLogout = useLogout();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -73,7 +82,6 @@ const FetchMe = () => {
   if (isLoading) return <LoadingPage />;
   if (isError) return <ServerErrorPage />;
 
-  const isTeacher = data.user.role === 'teacher';
   const roleLabel = isTeacher ? 'Tutor' : 'Scholar';
   const RoleIcon = isTeacher ? ChalkboardTeacherIcon : GraduationCapIcon;
   const subjects: string[] = Array.isArray(data.user.subjects)
@@ -89,8 +97,6 @@ const FetchMe = () => {
   const headerFile = watch('headerImage');
   const avatarPreview = avatarFile?.[0] ? URL.createObjectURL(avatarFile[0]) : null;
   const headerPreview = headerFile?.[0] ? URL.createObjectURL(headerFile[0]) : null;
-
-  const userLogout = useLogout();
 
   const resetFromProfile = () => {
     reset({
@@ -283,6 +289,53 @@ const FetchMe = () => {
       </div>
 
       <HrWrapper name="⚜" />
+
+      {isTeacher && (
+        <section className="rounded-[4px] border-2 border-accent bg-surface p-6">
+          <div className="mb-4 flex items-center gap-2">
+            <ChalkboardTeacherIcon size={20} weight="fill" className="text-accent-hover" />
+            <h4 className="m-0 underline underline-offset-4">Courses of Your Making</h4>
+          </div>
+          <div className="flex gap-6 overflow-x-auto pb-2">
+            {showTeacherCourses &&
+              myCourses.data?.pages
+                .flatMap((page) => page.courses)
+                .map((course) => (
+                  <Link
+                    key={course._id}
+                    to={`/dashboard/${course.slug}`}
+                    className="w-56 shrink-0 overflow-hidden rounded-[2px] border-2 border-border bg-bg transition-all duration-300 hover:-translate-y-1 hover:border-accent-hover"
+                  >
+                    {imageUrl(course.thumbnail) && (
+                      <div className="overflow-hidden border-b border-border">
+                        <img
+                          src={imageUrl(course.thumbnail)}
+                          alt={course.title}
+                          className="h-32 w-full object-cover"
+                        />
+                      </div>
+                    )}
+                    <div className="p-3">
+                      <h5 className="truncate font-heading text-sm text-text">{course.title}</h5>
+                      {course.category && (
+                        <p className="truncate text-xs italic text-text-muted">
+                          {course.category}
+                          {course.level ? ` · ${course.level}` : ''}
+                        </p>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+            <Link
+              to="/dashboard/my-courses"
+              className="btnSecondary inline-flex shrink-0 items-center justify-center gap-2 self-stretch"
+            >
+              Explore More
+              <ArrowRightIcon size={18} weight="bold" />
+            </Link>
+          </div>
+        </section>
+      )}
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-[4px] border-2 border-accent bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:border-accent-hover h-[60vh] overflow-y-scroll">

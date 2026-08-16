@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import { setCredentials, logout } from './authSlice';
@@ -100,5 +100,16 @@ export const useFetchProfile = (username: string) => {
     queryKey: ['user', username],
     queryFn: () => authServices.fetchProfile(username),
     enabled: !!username,
+  });
+};
+
+export const useFetchWishlist = (enabled = true) => {
+  return useInfiniteQuery({
+    queryKey: ['wishlist'],
+    queryFn: ({ pageParam = 1 }) => authServices.fetchMyWishlist(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) =>
+      lastPage.pagination?.hasNextPage ? lastPage.pagination.currentPage + 1 : undefined,
+    enabled,
   });
 };

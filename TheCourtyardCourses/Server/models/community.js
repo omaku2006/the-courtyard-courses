@@ -18,12 +18,33 @@ const communitySchema = new mongoose.Schema(
       immutable: true,
     },
     thumbnail: {
-      type: String,
-      default: '',
+      url: {
+        type: String,
+        default: '',
+      },
+      publicId: {
+        type: String,
+        default: '',
+      },
+    },
+    headerImage: {
+      url: {
+        type: String,
+        default: '',
+      },
+      publicId: {
+        type: String,
+        default: '',
+      },
     },
     creator: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+      required: true,
+    },
+    courses: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Course',
       required: true,
     },
     members: [
