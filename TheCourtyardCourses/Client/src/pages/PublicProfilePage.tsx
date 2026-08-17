@@ -165,7 +165,7 @@ const PublicProfilePage = () => {
               <FeatherIcon size={20} weight="fill" className="text-accent-hover" />
               <h4 className="m-0 underline underline-offset-4">Description</h4>
             </div>
-            <p className="italic text-text-secondary">
+            <p className="italic text-text-secondary max-h-50 overflow-y-scroll">
               {user.description || 'No description inscribed yet.'}
             </p>
           </div>
@@ -182,7 +182,7 @@ const PublicProfilePage = () => {
                 {subjects.map((sub: string) => (
                   <span
                     key={sub}
-                    className="rounded-[2px] border border-accent bg-bg px-4 py-1.5 italic text-text-secondary transition-colors duration-300 hover:bg-accent hover:text-light"
+                    className="rounded-[2px] border border-accent bg-bg px-4 py-1.5 italic text-text-secondary transition-colors duration-300 hover:bg-accent hover:text-light max-h-50 overflow-y-scroll"
                   >
                     {sub}
                   </span>

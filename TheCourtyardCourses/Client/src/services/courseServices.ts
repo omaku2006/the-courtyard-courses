@@ -82,4 +82,9 @@ export const courseServices = {
     const res = await api.post(`/course/${courseId}/progress`, { chapterIndex });
     return res.data;
   },
+
+  deleteCourse: async (courseId: string) => {
+    const res = await api.delete(`/course/${courseId}`);
+    return res.data;
+  },
 };

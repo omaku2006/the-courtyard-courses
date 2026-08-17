@@ -110,10 +110,6 @@ const userSchema = new mongoose.Schema(
         issuedAt: Date,
       },
     ],
-
-    description: {
-      type: String,
-    },
   },
   {
     timestamps: true,

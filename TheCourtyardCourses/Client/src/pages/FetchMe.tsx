@@ -12,6 +12,7 @@ import {
   PencilSimpleIcon,
   SignOutIcon,
   SparkleIcon,
+  TrashIcon,
   XIcon,
 } from '@phosphor-icons/react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -19,8 +20,14 @@ import { useEffect, useState } from 'react';
 import { useForm, type SubmitHandler } from 'react-hook-form';
 import { Link } from 'react-router-dom';
 import HrWrapper from '../components/ui/HrWrapper';
+import ConfirmModal from '../components/ui/ConfirmModal';
 import { useMyCourses } from '../features/course/useCourse';
-import { useFetchMyProfile, useLogout, useUpdateProfile } from '../features/auth/useAuth';
+import {
+  useFetchMyProfile,
+  useLogout,
+  useUpdateProfile,
+  useDeleteUser,
+} from '../features/auth/useAuth';
 import { imageUrl } from '../utils/imageUrl';
 import LoadingPage from './system/LoadingPage';
 import ServerErrorPage from './system/ServerErrorPage';
@@ -50,10 +57,12 @@ const FetchMe = () => {
   const { mutate: updateProfile, isPending } = useUpdateProfile();
   const [isEditing, setIsEditing] = useState<boolean>(false);
   const [previewImage, setPreviewImage] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const isTeacher = data?.user?.role === 'teacher';
   const myCourses = useMyCourses(!!isTeacher);
   const userLogout = useLogout();
+  const { mutate: deleteUser, isPending: deletePending } = useDeleteUser();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -147,7 +156,7 @@ const FetchMe = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.45, ease: 'easeOut' }}
       onSubmit={handleSubmit(onSubmit)}
-      className="mx-auto flex w-full max-w-4xl flex-col gap-6"
+      className="mx-auto my-10 flex w-full max-w-4xl flex-col gap-6"
     >
       <div className="overflow-hidden rounded-[4px] border-2 border-accent bg-surface shadow-[0_16px_40px_-16px_rgba(46,57,69,0.45)]">
         <div className="relative h-52 overflow-hidden bg-gradient-to-br from-highlight via-highlight to-accent-hover md:h-64">
@@ -460,6 +469,14 @@ const FetchMe = () => {
           <SignOutIcon size={18} weight="bold" />
           Logout
         </button>
+        <button
+          type="button"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-[2px] border-2 border-error/40 bg-error/10 px-4 py-2 font-heading text-sm text-error transition-colors hover:bg-error/20 disabled:pointer-events-none disabled:opacity-60"
+          onClick={() => setDeleteConfirmOpen(true)}
+        >
+          <TrashIcon size={18} weight="bold" />
+          Delete Account
+        </button>
       </div>
 
       <AnimatePresence>
@@ -491,6 +508,20 @@ const FetchMe = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ConfirmModal
+        isOpen={deleteConfirmOpen}
+        title="Permanently Delete Your Account?"
+        message={`This action cannot be undone. Your profile, enrolled courses, and all associated data will be erased from the Courtyard forever.`}
+        confirmLabel="Yes, Delete"
+        cancelLabel="Keep Account"
+        isPending={deletePending}
+        onConfirm={() => {
+          setDeleteConfirmOpen(false);
+          deleteUser(data.user.username);
+        }}
+        onCancel={() => setDeleteConfirmOpen(false)}
+      />
     </motion.form>
   );
 };

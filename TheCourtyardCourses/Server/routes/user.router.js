@@ -5,6 +5,7 @@ import {
   loginUser,
   fetchProfile,
   fetchMyProfile,
+  fetchAllProfile,
   updateUser,
   deleteUser,
   fetchMyCourses,
@@ -37,6 +38,7 @@ userRouter.post('/auth/login', checkValidInputForLogin, loginUser);
 // Profile
 userRouter.get('/users/me/profile', verifyToken, fetchMyProfile); // Private
 userRouter.get('/users/:username', fetchProfile); // Public
+userRouter.get('/users', fetchAllProfile); // Public
 userRouter.put(
   '/users/:username',
   upload.fields([

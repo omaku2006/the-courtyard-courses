@@ -58,7 +58,7 @@ const CourseChapterProgress = ({
       </h4>
 
       {!isEnrolled ? (
-        <p className="m-0 text-sm italic text-text-muted font-body">
+        <p className="m-0 text-sm italic text-text-muted font-body p-4 border border-dashed border-accent text-center">
           Enrol in this curriculum to begin tracking your progress.
         </p>
       ) : (

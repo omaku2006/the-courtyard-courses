@@ -1,4 +1,5 @@
 import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 import { courseServices } from '../../services/courseServices';
 import { toast } from 'sonner';
 
@@ -284,6 +285,31 @@ export const useToggleWishlist = () => {
           error?.response?.data?.message ||
           error?.message ||
           'A complication has arisen. Pray, try again.',
+      });
+    },
+  });
+};
+
+export const useDeleteCourse = () => {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  return useMutation({
+    mutationFn: (courseId: string) => courseServices.deleteCourse(courseId),
+    onSuccess: () => {
+      toast.success('Course Deleted.', {
+        description: 'The course has been removed from the Courtyard.',
+      });
+      queryClient.invalidateQueries({ queryKey: ['myCourses'] });
+      queryClient.invalidateQueries({ queryKey: ['courses'] });
+      navigate('/dashboard/my-courses');
+    },
+    onError: (error: any) => {
+      toast.error('Deletion Failed.', {
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          'A complication has arisen.',
       });
     },
   });

@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/user.js';
+import Course from '../models/course.js';
 import { deleteFromCloudinary } from '../utils/uploadToCloudinary.js';
 
 export const registerUser = async (req, res) => {
@@ -164,7 +165,7 @@ export const fetchProfile = async (req, res) => {
   const { username } = req.params;
 
   try {
-    const user = await User.findOne({ username }).populate('courses').populate('wishlist');
+    const user = await User.findOne({ username }).populate('wishlist');
 
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -172,6 +173,20 @@ export const fetchProfile = async (req, res) => {
 
     const userObj = user.toObject();
     delete userObj.password;
+
+    if (user.role === 'teacher') {
+      const taught = await Course.find({ creator: user._id })
+        .select('title slug description thumbnail coverImage category level language tags price averageRating publishedAt')
+        .populate('creator', 'name username avatarImage')
+        .lean();
+      userObj.courses = taught;
+    } else {
+      const enrolled = await Course.find({ _id: { $in: user.courses } })
+        .select('title slug description thumbnail coverImage category level language tags price averageRating publishedAt')
+        .populate('creator', 'name username avatarImage')
+        .lean();
+      userObj.courses = enrolled;
+    }
 
     return res.status(200).json({ user: userObj });
   } catch (e) {
@@ -193,8 +208,18 @@ export const fetchMyProfile = async (req, res) => {
 
     return res.status(200).json({ user: userObj });
   } catch (e) {
-    console.error('Fetch My Profile Error:', e.message);
-    return res.status(500).json({ message: 'Internal Server Error!' });
+    console.error('fetch my profile error:', e.message);
+    return res.status(500).json({ message: 'internal server error!' });
+  }
+};
+
+export const fetchAllProfile = async (req, res) => {
+  try {
+    const users = await User.find().select('-password').lean();
+    return res.status(200).json({ users });
+  } catch (e) {
+    console.error('fetch all profile error:', e.message);
+    return res.status(500).json({ message: 'internal server error!' });
   }
 };
 

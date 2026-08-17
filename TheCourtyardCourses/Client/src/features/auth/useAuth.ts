@@ -113,3 +113,34 @@ export const useFetchWishlist = (enabled = true) => {
     enabled,
   });
 };
+
+export const useDeleteUser = () => {
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (username: string) => authServices.deleteUser(username),
+    onSuccess: () => {
+      dispatch(logout());
+      queryClient.clear();
+      toast.success('Account Deleted.', {
+        description: 'Your account has been permanently erased from the Courtyard.',
+      });
+      navigate('/');
+    },
+    onError: (error: AxiosError<{ message?: string }>) => {
+      const message = error.response?.data?.message || error.message;
+      toast.error('Deletion Failed.', {
+        description: message || 'Something went wrong!',
+      });
+    },
+  });
+};
+
+export const useFetchAllUser = () => {
+  return useQuery({
+    queryKey: ['allUsers'],
+    queryFn: authServices.fetchAllProfile,
+  });
+};

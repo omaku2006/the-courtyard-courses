@@ -26,8 +26,18 @@ export const authServices = {
     return res.data;
   },
 
+  fetchAllProfile: async () => {
+    const res = await api.get('/users');
+    return res.data;
+  },
+
   fetchMyWishlist: async (page = 1, limit = 9) => {
     const res = await api.get('/users/me/wishlist', { params: { page, limit } });
+    return res.data;
+  },
+
+  deleteUser: async (username: string) => {
+    const res = await api.delete(`/users/${username}`);
     return res.data;
   },
 };

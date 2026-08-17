@@ -17,6 +17,11 @@ const CourseChapterInfo = ({
   const [indexOpen, setIndexOpen] = useState<number | null>(null);
   const { data } = useFetchMyProfile();
   const isEnrolled = course.students?.includes(data?.user?._id);
+  const isTeacherOwner =
+    data?.user?.role === 'teacher' &&
+    typeof course.creator === 'object' &&
+    !!course.creator?._id &&
+    data.user._id === course.creator._id;
 
   return (
     <div id="chapterInfo" className="chapterInfo bg-surface p-4 flex flex-col gap-2 max-h-full">
@@ -78,20 +83,7 @@ const CourseChapterInfo = ({
             )}
 
             {/* ✅ Fix: e.stopPropagation() to prevent accordion toggle. Wrapped in button for accessibility */}
-            {!isEnrolled ? (
-              chapter.demo && (
-                <button
-                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-sm transition-colors text-text-muted hover:text-primary hover:bg-accent/10"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectChapter(index);
-                  }}
-                  aria-label="View Chapter Details"
-                >
-                  <ArrowSquareOutIcon weight="bold" size={20} />
-                </button>
-              )
-            ) : (
+            {(isTeacherOwner || isEnrolled || chapter.demo) && (
               <button
                 className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded-sm transition-colors text-text-muted hover:text-primary hover:bg-accent/10"
                 onClick={(e) => {
