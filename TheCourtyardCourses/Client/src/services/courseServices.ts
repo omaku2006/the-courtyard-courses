@@ -28,8 +28,12 @@ export const courseServices = {
     return res.data;
   },
 
-  fetchCourses: async (page = 1, limit = 9) => {
-    const res = await api.get('/course/', { params: { page, limit } });
+  fetchCourses: async (
+    page = 1,
+    limit = 9,
+    filters?: { sortBy?: string; status?: string }
+  ) => {
+    const res = await api.get('/course/', { params: { page, limit, ...filters } });
     return res.data;
   },
 

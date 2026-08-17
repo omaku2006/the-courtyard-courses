@@ -155,9 +155,21 @@ PublicCourseCard.Rating = ({ ratings }: { ratings: number }) => {
 PublicCourseCard.PublishAt = ({ publishAt }: { publishAt?: string | null }) => {
   if (!publishAt) return null;
   return (
-    <p className="m-0 mt-auto pt-3 text-[10px] uppercase tracking-widest text-text-muted font-heading border-t border-border/50">
+    <p className="text-[10px] uppercase tracking-widest text-text-muted font-heading no-margin">
       Est. {new Date(publishAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
     </p>
+  );
+};
+
+PublicCourseCard.StudentCount = ({ count }: { count?: number }) => {
+  if (!count) return null;
+  return (
+    <span
+      className="font-heading text-[10px] uppercase tracking-widest text-text-muted no-margin"
+      style={{ fontSize: '10px' }}
+    >
+      · {count} {count === 1 ? 'Scholar' : 'Scholars'}
+    </span>
   );
 };
 

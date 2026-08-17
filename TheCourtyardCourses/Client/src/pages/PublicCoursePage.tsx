@@ -15,8 +15,14 @@ import { useInfiniteScroll } from '../hooks/useInfiniteScroll';
 import type { User } from '../features/auth/authSlice';
 
 const PublicCoursePage = () => {
+  const [sortBy, setSortBy] = useState('newest');
+  const [statusFilter, setStatusFilter] = useState('all');
+
   const { data, isError, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
-    useFetchCourses();
+    useFetchCourses({
+      sortBy: sortBy === 'newest' ? undefined : sortBy,
+      status: statusFilter === 'all' ? undefined : statusFilter,
+    });
   const fetchedUser = useFetchAllUser();
   const { data: profile } = useFetchMyProfile();
 
@@ -130,6 +136,35 @@ const PublicCoursePage = () => {
           {/* Filters Dropdown (Only visible when searching courses) */}
           {!isSearchingTeachers && (
             <div className="flex flex-wrap gap-3 items-center justify-center w-full lg:w-auto">
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                  Sort By
+                </label>
+                <select
+                  value={sortBy}
+                  onChange={(e) => setSortBy(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="newest">Newest First</option>
+                  <option value="oldest">Oldest First</option>
+                  <option value="popularity">Popularity</option>
+                  <option value="rating">Highest Rated</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1">
+                <label className="text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                  Status
+                </label>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className={selectClass}
+                >
+                  <option value="all">All</option>
+                  <option value="published">Published</option>
+                  <option value="scheduled">Scheduled</option>
+                </select>
+              </div>
               <div className="flex flex-col gap-1">
                 <label className="text-[10px] font-heading uppercase tracking-widest text-text-muted">
                   Access
@@ -321,7 +356,13 @@ const PublicCoursePage = () => {
                       />
                     )}
                     <PublicCourseCard.Rating ratings={course.averageRating ?? 0} />
-                    <PublicCourseCard.PublishAt publishAt={course.publishedAt ?? ''} />
+                    <hr className="border-border/50" />
+                    <div className="flex justify-between items-center">
+                      <PublicCourseCard.PublishAt publishAt={course.publishedAt ?? ''} />
+                      <PublicCourseCard.StudentCount
+                        count={course.studentCount ?? course.students?.length}
+                      />
+                    </div>
                   </PublicCourseCard>
                 </motion.div>
               );

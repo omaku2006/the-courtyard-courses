@@ -144,10 +144,10 @@ export const useUpdateRating = () => {
   });
 };
 
-export const useFetchCourses = () => {
+export const useFetchCourses = (filters?: { sortBy?: string; status?: string }) => {
   return useInfiniteQuery({
-    queryKey: ['courses'],
-    queryFn: ({ pageParam = 1 }) => courseServices.fetchCourses(pageParam),
+    queryKey: ['courses', filters],
+    queryFn: ({ pageParam = 1 }) => courseServices.fetchCourses(pageParam, 9, filters),
     initialPageParam: 1,
     getNextPageParam: (lastPage) =>
       lastPage.pagination?.hasNextPage ? lastPage.pagination.currentPage + 1 : undefined,

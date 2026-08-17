@@ -114,9 +114,18 @@ export const fetchCourses = async (req, res) => {
     const limit = parseInt(req.query.limit) || 30;
     const skip = (page - 1) * limit;
 
-    const { category, level, search } = req.query;
+    const { category, level, search, sortBy, status } = req.query;
 
-    const filter = { publishedAt: { $ne: null } };
+    const filter = {};
+
+    if (status === 'published') {
+      filter.publishedAt = { $ne: null, $lte: new Date() };
+    } else if (status === 'scheduled') {
+      filter.publishedAt = { $gt: new Date() };
+    } else {
+      // Default: only published courses
+      filter.publishedAt = { $ne: null };
+    }
 
     if (category) filter.category = category;
     if (level) filter.level = level;
@@ -128,14 +137,23 @@ export const fetchCourses = async (req, res) => {
     const totalCourses = await Course.countDocuments(filter);
     const totalPages = Math.ceil(totalCourses / limit);
 
+    let sort = { publishedAt: -1 };
+    if (sortBy === 'popularity') {
+      sort = { studentCount: -1, publishedAt: -1 };
+    } else if (sortBy === 'oldest') {
+      sort = { publishedAt: 1 };
+    } else if (sortBy === 'rating') {
+      sort = { averageRating: -1, publishedAt: -1 };
+    }
+
     const courses = await Course.find(filter)
       .select(
-        'title description slug thumbnail coverImage price averageRating creator category level language tags duration publishedAt students'
+        'title description slug thumbnail coverImage price averageRating creator category level language tags duration publishedAt students studentCount'
       )
       .populate('creator', 'name username avatarImage')
       .skip(skip)
       .limit(limit)
-      .sort({ publishedAt: -1 }); // ✅ Fixed
+      .sort(sort);
 
     return res.status(200).json({
       courses,

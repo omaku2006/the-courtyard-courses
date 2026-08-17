@@ -96,7 +96,15 @@ const ViewCourse = () => {
           <div className="flex flex-col items-center justify-between gap-4 rounded-sm border-2 border-primary bg-surface p-4 text-center md:flex-row md:text-left ">
             {/* Left Side: Text (Changes based on enrollment status) */}
             <div className="flex flex-1 flex-col">
-              {isEnrolled ? (
+              {status === 'Scheduled' ? (
+                <>
+                  <h4 className="font-heading text-text m-0 text-lg">Coming Soon</h4>
+                  <p className="m-0 italic text-text-muted font-body text-sm">
+                    This course is scheduled to arrive on {formatDate(course.publishedAt)}. Pray,
+                    check back then.
+                  </p>
+                </>
+              ) : isEnrolled ? (
                 <>
                   <h4 className="font-heading text-text m-0 text-lg">You are Enrolled</h4>
                   <p className="m-0 italic text-text-muted font-body text-sm">
@@ -116,60 +124,73 @@ const ViewCourse = () => {
 
             {/* Right Side: Price (Hidden if already enrolled) + Action + Wishlist */}
             <div className="flex flex-col items-center justify-center gap-4 md:flex-row md:gap-6">
-              {/* Price Tag (Only show if NOT enrolled) */}
-              {!isEnrolled && (
-                <div className="text-center md:text-right border-r-2 border-border pr-0 md:pr-6">
-                  {course.price > 0 ? (
-                    <>
-                      <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
-                        Tuition Fee
-                      </span>
-                      <span className="font-heading text-2xl text-text">₹{course.price}</span>
-                    </>
-                  ) : (
-                    <>
-                      <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
-                        Access
-                      </span>
-                      <span className="font-heading text-xl text-primary">Complimentary</span>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {/* Actions: Enroll / Continue Learning & Wishlist together */}
-              {profile?.user ? (
-                <div className="flex items-center gap-3">
-                  {/* If already enrolled, show Continue Learning button */}
-                  {!isEnrolled && (
-                    <button
-                      type="button"
-                      onClick={() => setEnrollConfirmOpen(true)}
-                      disabled={enrollPending}
-                      className="btnPrimary shrink-0 w-full md:w-auto disabled:pointer-events-none disabled:opacity-60"
-                    >
-                      {enrollPending
-                        ? 'Inscribing...'
-                        : course.price > 0
-                          ? 'Enroll Now'
-                          : 'Enroll Free'}
-                    </button>
-                  )}
-
-                  {/* Wishlist toggle remains visible for enrolled users too */}
-                  <WishlistToggle courseId={course._id} variant="button" />
+              {status === 'Scheduled' ? (
+                <div className="flex items-center gap-2 rounded-sm border-2 border-text-primary bg-highlight/10 px-4 py-2">
+                  <span className="font-heading text-sm uppercase tracking-wider text-text-primary">
+                    Scheduled
+                  </span>
+                  <span className="text-text-muted text-xs">
+                    Arrives {formatDate(course.publishedAt)}
+                  </span>
                 </div>
               ) : (
-                <p className="m-0 italic text-text-secondary font-body text-sm">
-                  Pray,{' '}
-                  <Link
-                    to="/login"
-                    className="font-heading underline decoration-primary underline-offset-4 text-text transition-colors hover:text-primary"
-                  >
-                    sign in
-                  </Link>{' '}
-                  to enrol.
-                </p>
+                <>
+                  {/* Price Tag (Only show if NOT enrolled) */}
+                  {!isEnrolled && (
+                    <div className="text-center md:text-right border-r-2 border-border pr-0 md:pr-6">
+                      {course.price > 0 ? (
+                        <>
+                          <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                            Tuition Fee
+                          </span>
+                          <span className="font-heading text-2xl text-text">₹{course.price}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="block text-[10px] font-heading uppercase tracking-widest text-text-muted">
+                            Access
+                          </span>
+                          <span className="font-heading text-xl text-primary">Complimentary</span>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Actions: Enroll / Continue Learning & Wishlist together */}
+                  {profile?.user ? (
+                    <div className="flex items-center gap-3">
+                      {/* If already enrolled, show Continue Learning button */}
+                      {!isEnrolled && (
+                        <button
+                          type="button"
+                          onClick={() => setEnrollConfirmOpen(true)}
+                          disabled={enrollPending}
+                          className="btnPrimary shrink-0 w-full md:w-auto disabled:pointer-events-none disabled:opacity-60"
+                        >
+                          {enrollPending
+                            ? 'Inscribing...'
+                            : course.price > 0
+                              ? 'Enroll Now'
+                              : 'Enroll Free'}
+                        </button>
+                      )}
+
+                      {/* Wishlist toggle remains visible for enrolled users too */}
+                      <WishlistToggle courseId={course._id} variant="button" />
+                    </div>
+                  ) : (
+                    <p className="m-0 italic text-text-secondary font-body text-sm">
+                      Pray,{' '}
+                      <Link
+                        to="/login"
+                        className="font-heading underline decoration-primary underline-offset-4 text-text transition-colors hover:text-primary"
+                      >
+                        sign in
+                      </Link>{' '}
+                      to enrol.
+                    </p>
+                  )}
+                </>
               )}
             </div>
           </div>
