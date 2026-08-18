@@ -82,6 +82,25 @@ export const verifyToken = async (req, res, next) => {
   }
 };
 
+// ✅ Optional token: logged-in hoi to req.user set thay, na hoy to proceed without blocking
+export const optionalVerifyToken = async (req, _res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader?.startsWith('Bearer ')) return next();
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const user = await User.findById(decoded.id);
+
+    if (user) {
+      req.user = { id: decoded.id, role: decoded.role, username: user.username };
+    }
+  } catch {
+    // Token invalid/expired — proceed without req.user
+  }
+  next();
+};
+
 export const isTeacher = (req, res, next) => {
   if (req.user.role !== 'teacher') {
     return res.status(403).json({ message: 'Only teachers can perform this action!' });

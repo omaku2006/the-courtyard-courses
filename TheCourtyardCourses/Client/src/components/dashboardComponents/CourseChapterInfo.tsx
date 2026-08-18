@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { type Chapter, type Course } from '../../types/FetchDataTypes.ts';
-import { ArrowSquareOutIcon, CheckCircleIcon } from '@phosphor-icons/react';
+import { ArrowSquareOutIcon, CheckCircleIcon, QueueIcon } from '@phosphor-icons/react';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
 
 const CourseChapterInfo = ({
@@ -16,7 +16,7 @@ const CourseChapterInfo = ({
 }) => {
   const [indexOpen, setIndexOpen] = useState<number | null>(null);
   const { data } = useFetchMyProfile();
-  const isEnrolled = course.students?.includes(data?.user?._id);
+  const isEnrolled = course.students?.some(s => String(s) === String(data?.user?._id));
   const isTeacherOwner =
     data?.user?.role === 'teacher' &&
     typeof course.creator === 'object' &&
@@ -26,11 +26,12 @@ const CourseChapterInfo = ({
   return (
     <div id="chapterInfo" className="chapterInfo bg-surface p-4 flex flex-col gap-2 max-h-full">
       {/* ✅ Polish: Classic Index Heading */}
-      <h4 className="font-heading text-sm uppercase tracking-widest text-text-secondary border-b border-border pb-2 mb-2">
+      <h4 className="font-heading text-sm uppercase tracking-widest text-text-secondary border-b border-border pb-2 mb-2 flex items-center gap-2">
+        <QueueIcon size={16} weight="fill" className="shrink-0 text-primary" />
         Table of Chapters
       </h4>
 
-      {course.chapters.map((chapter: Chapter, index: number) => (
+      {(course.chapters ?? []).map((chapter: Chapter, index: number) => (
         // ✅ Fix: key={index} add karyu
         <div
           key={index}

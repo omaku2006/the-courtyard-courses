@@ -15,8 +15,19 @@ export interface Creator {
 export interface Community {
   _id: string;
   name: string;
-  thumbnail?: string | ImageRef | null;
+  description?: string;
+  slug: string;
+  thumbnail?: ImageRef | null;
+  headerImage?: ImageRef | null;
+  creator: Creator | string;
+  courses: string;
+  members?: string[];
   memberCount?: number;
+  canEveryOneMessage?: boolean;
+  userMessagePermission?: string[];
+  isPrivate?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Chapter {
@@ -52,7 +63,7 @@ export interface Course {
   level: 'beginner' | 'intermediate' | 'advanced';
   language: string;
   duration?: string;
-  chapters: Chapter[];
+  chapters?: Chapter[];
   price: number;
   students?: string[];
   studentCount?: number;
@@ -83,4 +94,37 @@ export interface FetchMyCoursesResponse {
     hasPrevPage: boolean;
     limit: number;
   };
+}
+
+export interface PostFile {
+  url: string;
+  publicId: string;
+  name?: string;
+  type?: string;
+}
+
+export interface Comment {
+  _id?: string;
+  author: Creator | string;
+  content: string;
+  createdAt?: string;
+}
+
+export interface Post {
+  _id: string;
+  community: Community | string;
+  author: Creator | string;
+  content: string;
+  images: ImageRef[];
+  files: PostFile[];
+  likes: string[];
+  comments: Comment[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface FetchPostsResponse {
+  posts: Post[];
+  totalPosts: number;
+  message: string;
 }

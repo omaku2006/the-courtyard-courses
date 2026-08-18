@@ -19,6 +19,11 @@
   --color-success: #4e5e44;
   --color-highlight: #2e3945;
   --color-light: #f5eddf;
+  /* Legacy aliases (old code uses primary/background/cta/card) */
+  --color-primary: #c9a86a;
+  --color-background: #f5eddf;
+  --color-cta: #7b5a3a;
+  --color-card: #ede4d0;
     --base-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem); /* 18px to 20px */
   --radius-min: 2px;
   --radius-max: 4px;
@@ -39,6 +44,11 @@
   --color-success: #4e5e44;
   --color-highlight: #2e3945;
   --color-light: #f5eddf;
+  /* Legacy aliases (old code uses primary/background/cta/card) */
+  --color-primary: #c9a86a;
+  --color-background: #f5eddf;
+  --color-cta: #7b5a3a;
+  --color-card: #ede4d0;
   --base-size: clamp(1.125rem, 1rem + 0.5vw, 1.25rem); /* 18px to 20px */
   --radius-min: 2px;
   --radius-max: 4px;
@@ -58,6 +68,11 @@
   --color-success: #6b7d5f;
   --color-highlight: #2e3945;
   --color-light: #f5eddf;
+  /* Legacy aliases (old code uses primary/background/cta/card) */
+  --color-primary: #d8c9b0;
+  --color-background: #1f1e1c;
+  --color-cta: #d8c9b0;
+  --color-card: #3d3a34;
 }
 
 html {
@@ -67,7 +82,7 @@ body {
   font-family: var(--font-body);
   font-size: var(--base-size);
   line-height: 1.7; /* Victorian books have slightly wider line height for readability */
-  color: var(--text-color);
+  color: var(--color-text-primary);
   background-color: var(--color-bg);
   transition:
     background-color 0.4s ease,
@@ -543,7 +558,7 @@ body {
 }
 
 .inputField {
-  width: full;
+  width: 100%;
   padding: 10px 20px;
   margin: 10px 0;
   border: 2px solid var(--color-border);
@@ -669,13 +684,42 @@ body.is-scrolling::-webkit-scrollbar-thumb:hover {
   display: grid;
   width: 100%;
   box-sizing: border-box;
-  grid-template-columns: 1fr 2fr 1fr;
-  grid-template-rows: auto 1fr 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr);
   grid-template-areas:
-    "header header header"
-    "courseTeacher courseVideo courseReview"
-    "chapterInfo courseVideo courseReview"
-    "community courseDescription courseProgress";
+    "header"
+    "courseVideo"
+    "chapterInfo"
+    "courseProgress"
+    "courseDescription"
+    "courseTeacher"
+    "courseReview"
+    "community";
+}
+
+/* ✅ Tablet: 2-column layout */
+@media (min-width: 768px) {
+  #course {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "header header"
+      "courseVideo courseVideo"
+      "chapterInfo courseProgress"
+      "courseDescription courseTeacher"
+      "community courseReview";
+  }
+}
+
+/* ✅ Desktop: 3-column layout */
+@media (min-width: 1024px) {
+  #course {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr) minmax(0, 1fr);
+    grid-template-rows: auto 1fr 1fr 1fr;
+    grid-template-areas:
+      "header header header"
+      "courseTeacher courseVideo courseReview"
+      "chapterInfo courseVideo courseReview"
+      "community courseDescription courseProgress";
+  }
 }
 #courseTeacher,
 #chapterInfo,
@@ -688,12 +732,12 @@ body.is-scrolling::-webkit-scrollbar-thumb:hover {
   min-height: 0;
   overflow: auto;
   border-radius: 2px;
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
 }
 #courseHeadline {
   grid-area: header;
   border-radius: 2px;
-  border: 1px solid var(--color-border);
+  border: 2px solid var(--color-border);
 }
 
 #courseTeacher {
@@ -730,6 +774,12 @@ body.is-scrolling::-webkit-scrollbar-thumb:hover {
 }
 .group:hover .marquee-on-hover {
   animation: chapter-marquee 10s linear infinite;
+}
+/* ✅ Touch devices (no hover): marquee always scrolls */
+@media (hover: none) {
+  .group .marquee-on-hover {
+    animation: chapter-marquee 10s linear infinite;
+  }
 }
 @keyframes chapter-marquee {
   from {

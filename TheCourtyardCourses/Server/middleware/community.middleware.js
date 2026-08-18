@@ -22,12 +22,12 @@ export const checkValidInputForCreateCommunity = (req, res, next) => {
     return res.status(400).json({ message: 'Description cannot exceed 500 characters' });
   }
 
-  // ✅ 3. Boolean Fields Validation (Security mate jaruri chhe)
-  if (isPrivate !== undefined && typeof isPrivate !== 'boolean') {
+  // ✅ 3. Boolean Fields Validation (FormData sends strings, so accept both)
+  if (isPrivate !== undefined && typeof isPrivate !== 'boolean' && !['true', 'false'].includes(isPrivate)) {
     return res.status(400).json({ message: 'isPrivate must be a boolean (true or false)' });
   }
 
-  if (canEveryOneMessage !== undefined && typeof canEveryOneMessage !== 'boolean') {
+  if (canEveryOneMessage !== undefined && typeof canEveryOneMessage !== 'boolean' && !['true', 'false'].includes(canEveryOneMessage)) {
     return res.status(400).json({ message: 'canEveryOneMessage must be a boolean (true or false)' });
   }
 

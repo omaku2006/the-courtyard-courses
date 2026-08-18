@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { CaretLeftIcon, CaretRightIcon, SealWarningIcon } from '@phosphor-icons/react';
+import { CaretLeftIcon, CaretRightIcon, SealWarningIcon, StarIcon } from '@phosphor-icons/react';
 import { FleurDeLis } from '../ui/FleurDeLis';
 import { useFetchCourseRatings, useUpdateRating } from '../../features/course/useCourse';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
@@ -141,7 +141,8 @@ const CourseReview = ({ courseId, isEnrolled = false }: CourseReviewProps) => {
       >
         {/* Header Section */}
         <section className="flex flex-col items-center gap-2 snap-start shrink-0">
-          <h3 className="font-heading text-lg uppercase tracking-widest text-text m-0">
+          <h3 className="font-heading text-lg uppercase tracking-widest text-text m-0 flex items-center justify-center gap-2">
+            <StarIcon size={18} weight="fill" className="text-primary" />
             Scholars' Review
           </h3>
           <p className="m-0 text-xs text-text-muted italic font-body">
@@ -161,7 +162,7 @@ const CourseReview = ({ courseId, isEnrolled = false }: CourseReviewProps) => {
           <>
             {/* Own Review Section */}
             <section className="flex flex-col items-center gap-3 snap-start shrink-0">
-              <h4 className="m-0 font-heading text-sm uppercase tracking-widest text-text-secondary">
+              <h4 className="m-0 font-heading text-sm uppercase tracking-widest text-text-secondary flex items-center justify-center gap-2">
                 Your Review
               </h4>
 
@@ -201,7 +202,7 @@ const CourseReview = ({ courseId, isEnrolled = false }: CourseReviewProps) => {
 
             {/* Other Reviews Section (Carousel) */}
             <section className="flex flex-col items-center gap-4 snap-start shrink-0">
-              <h4 className="m-0 font-heading text-sm uppercase tracking-widest text-text-secondary">
+              <h4 className="m-0 font-heading text-sm uppercase tracking-widest text-text-secondary flex items-center justify-center gap-2">
                 Scholars' Reviews
               </h4>
 

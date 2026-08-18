@@ -1,4 +1,4 @@
-import { CheckCircleIcon, SealCheckIcon, CircleDashedIcon, PlayIcon } from '@phosphor-icons/react';
+import { CheckCircleIcon, SealCheckIcon, CircleDashedIcon, GaugeIcon, PlayIcon } from '@phosphor-icons/react';
 import { useToggleChapterComplete } from '../../features/course/useCourse';
 import Fence from '../ui/Fence';
 import type { Course } from '../../types/FetchDataTypes';
@@ -37,7 +37,7 @@ const CourseChapterProgress = ({
 
   const progress = progressData?.progress ?? 0;
   const completedChapters = progressData?.completedChapters ?? [];
-  const totalChapters = progressData?.totalChapters ?? course.chapters.length;
+  const totalChapters = progressData?.totalChapters ?? (course.chapters ?? []).length;
   const totalDurationMinutes = progressData?.totalDurationMinutes ?? 0;
   const completedDurationMinutes = progressData?.completedDurationMinutes ?? 0;
   const completed = progressData?.completed ?? false;
@@ -53,7 +53,8 @@ const CourseChapterProgress = ({
       id="courseChapterProgress"
       className="bg-surface p-4 flex flex-col gap-3 min-h-0 overflow-y-auto"
     >
-      <h4 className="font-heading text-sm uppercase tracking-widest text-text-secondary border-b border-border pb-2 mb-1">
+      <h4 className="font-heading text-sm uppercase tracking-widest text-text-secondary border-b border-border pb-2 mb-1 flex items-center gap-2">
+        <GaugeIcon size={16} weight="fill" className="shrink-0 text-primary" />
         Course Progress
       </h4>
 
@@ -64,7 +65,7 @@ const CourseChapterProgress = ({
       ) : (
         <>
           {/* ✅ Current Chapter & Title */}
-          {course.chapters[selectedChapter] && (
+          {course.chapters?.[selectedChapter] && (
             <div className="flex items-center gap-3 rounded-sm border-2 border-primary bg-background p-3 shrink-0">
               <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-sm bg-primary text-light">
                 <PlayIcon size={18} weight="fill" />
@@ -77,7 +78,7 @@ const CourseChapterProgress = ({
                   Currently Viewing
                 </span>
                 <p className="m-0 no-margin truncate font-heading text-sm text-text-primary leading-snug">
-                  Chapter {selectedChapter + 1}: {course.chapters[selectedChapter].title}
+                  Chapter {selectedChapter + 1}: {course.chapters?.[selectedChapter]?.title}
                 </p>
               </div>
             </div>

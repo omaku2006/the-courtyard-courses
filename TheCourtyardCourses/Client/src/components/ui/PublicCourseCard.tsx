@@ -57,7 +57,7 @@ PublicCourseCard.Description = ({
   language: string;
 }) => {
   return (
-    <div className="flex flex-col gap-1.5 text-sm mt-1">
+    <div className="flex flex-1 flex-col gap-1.5 text-sm mt-1">
       <div className="flex flex-wrap items-center gap-2">
         {duration && (
           <span className="font-heading text-[10px] uppercase tracking-widest text-text-secondary">
@@ -164,11 +164,8 @@ PublicCourseCard.PublishAt = ({ publishAt }: { publishAt?: string | null }) => {
 PublicCourseCard.StudentCount = ({ count }: { count?: number }) => {
   if (!count) return null;
   return (
-    <span
-      className="font-heading text-[10px] uppercase tracking-widest text-text-muted no-margin"
-      style={{ fontSize: '10px' }}
-    >
-      · {count} {count === 1 ? 'Scholar' : 'Scholars'}
+    <span className="font-heading text-[10px] uppercase tracking-widest text-text-muted">
+      {count} {count === 1 ? 'Scholar' : 'Scholars'}
     </span>
   );
 };

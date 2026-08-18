@@ -105,3 +105,80 @@ export const uploadCourseAssets = async (req, res, next) => {
     next(e);
   }
 };
+
+export const uploadCommunityImages = async (req, res, next) => {
+  try {
+    let thumbnail = null;
+    let headerImage = null;
+
+    if (req.files?.thumbnail?.[0]) {
+      const file = req.files.thumbnail[0];
+      thumbnail = await uploadToCloudinary(file.path);
+      await cleanup(file);
+    }
+
+    if (req.files?.headerImage?.[0]) {
+      const file = req.files.headerImage[0];
+      headerImage = await uploadToCloudinary(file.path);
+      await cleanup(file);
+    }
+
+    req.cloudinaryImages = { thumbnail, headerImage };
+    next();
+  } catch (e) {
+    if (req.files?.thumbnail?.[0]) await cleanup(req.files.thumbnail[0]);
+    if (req.files?.headerImage?.[0]) await cleanup(req.files.headerImage[0]);
+    next(e);
+  }
+};
+
+const ALLOWED_FILE_MIME =
+  /^(image\/|application\/pdf|text\/|application\/msword|application\/vnd\.ms-|application\/vnd\.openxmlformats-officedocument\.)/;
+
+const fileTypeFor = (mimetype) => {
+  if (mimetype.startsWith('image/')) return 'image';
+  if (mimetype.startsWith('video/')) return 'video';
+  return 'document';
+};
+
+export const uploadPostAssets = async (req, res, next) => {
+  try {
+    const images = [];
+    const files = [];
+    const allFiles = Object.values(req.files ?? {}).flat();
+
+    for (const file of allFiles) {
+      if (file.fieldname === 'images') {
+        const uploaded = await uploadToCloudinary(file.path, {
+          resourceType: 'image',
+          filename: file.originalname,
+        });
+        images.push(uploaded);
+      } else if (file.fieldname === 'files') {
+        if (!ALLOWED_FILE_MIME.test(file.mimetype)) {
+          const err = new Error(`"${file.originalname}" has an unsupported file type!`);
+          err.status = 400;
+          throw err;
+        }
+        const resourceType = file.mimetype.startsWith('image/') ? 'image' : 'raw';
+        const uploaded = await uploadToCloudinary(file.path, {
+          resourceType,
+          filename: file.originalname,
+        });
+        files.push({
+          ...uploaded,
+          name: file.originalname,
+          type: fileTypeFor(file.mimetype),
+        });
+      }
+      await cleanup(file);
+    }
+
+    req.cloudinaryImages = { images, files };
+    next();
+  } catch (e) {
+    const allFiles = Object.values(req.files ?? {}).flat();
+    for (const file of allFiles) await cleanup(file);
+    next(e);
+  }
+};

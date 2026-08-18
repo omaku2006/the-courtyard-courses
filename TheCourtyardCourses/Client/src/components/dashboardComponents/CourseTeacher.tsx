@@ -31,7 +31,7 @@ const CourseTeacher = ({ course }: { course: Course }) => {
             <img
               src={avatar}
               alt={creator.name}
-              className="block w-24 h-24 object-cover object-center border-2 border-primary rounded-sm shadow-sm"
+              className="block w-24 h-24 object-cover object-center border-2 border-primary rounded-sm"
             />
           ) : (
             // ✅ Polish: Fallback initials in a Gold framed box

@@ -15,6 +15,9 @@ import ViewCourse from './components/course/ViewCourse';
 import CourtyardBackground from './components/ui/CourtyardBackground';
 import PublicCoursePage from './pages/PublicCoursePage';
 import PublicProfilePage from './pages/PublicProfilePage';
+import CommunityPage from './pages/CommunityPage';
+import CommunityDetails from './pages/CommunityDetails';
+import CommunityChat from './components/community/CommunityChat';
 
 const App = () => {
   useAutoHideScrollbar();
@@ -50,6 +53,9 @@ const App = () => {
               <Route path="/dashboard/my-courses" element={<MyCourses />} />
               <Route path="/dashboard/:slug" element={<ViewCourse />} />
               <Route path="/dashboard/users/:username" element={<PublicProfilePage />} />
+              <Route path="/dashboard/communities" element={<CommunityPage />} />
+              <Route path="/dashboard/communities/:slug/details" element={<CommunityDetails />} />
+              <Route path="/dashboard/communities/:slug" element={<CommunityChat />} />
             </Route>
           </Route>
           {/*No Layout*/}

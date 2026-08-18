@@ -1,20 +1,48 @@
 import Community from "../models/community.js"; // ✅ .js extension add karo (ES Modules mate)
+import Course from "../models/course.js";
+import { deleteFromCloudinary } from "../utils/uploadToCloudinary.js";
+
+const cleanupCloudinary = async (items) => {
+  for (const item of items ?? []) {
+    if (item?.publicId) {
+      try {
+        await deleteFromCloudinary(item.publicId);
+      } catch {
+        // Don't fail the request if cleanup fails
+      }
+    }
+  }
+};
 
 export const createCommunity = async (req, res) => {
-  const { name, description, isPrivate, canEveryOneMessage, slug } = req.body;
+  const { name, description, isPrivate, canEveryOneMessage, slug, courses } = req.body;
   const creator = req.user.id;
+  const { thumbnail, headerImage } = req.cloudinaryImages || {};
+
+  const courseIds = Array.isArray(courses) ? courses : courses ? [courses] : [];
 
   try {
     const community = await Community.create({
       name,
       description,
-      isPrivate: isPrivate || false,
-      canEveryOneMessage: canEveryOneMessage || false,
+      isPrivate: isPrivate === 'true' || isPrivate === true,
+      canEveryOneMessage: canEveryOneMessage === 'true' || canEveryOneMessage === true,
       slug,
       creator,
-      members: [creator], // ✅ Creator ne first member banao
-      memberCount: 1, // ✅ Initial count 1 rakho
+      courses: courseIds,
+      ...(thumbnail && { thumbnail }),
+      ...(headerImage && { headerImage }),
+      members: [creator],
+      memberCount: 1,
     });
+
+    // ✅ 1b. Attached courses par community nu reference mukho (Course page ma card jova mate)
+    if (courseIds.length > 0) {
+      await Course.updateMany(
+        { _id: { $in: courseIds } },
+        { $set: { community: community._id } }
+      );
+    }
 
     // ✅ 2. Creation mate 201 (Created) status code vaparvo
     return res.status(201).json({
@@ -52,7 +80,8 @@ export const fetchAllCommunity = async (req, res) => {
     // ✅ Only required fields (no sensitive data)
     const communities = await Community.find()
       .select("-__v")
-      .populate("creator", "name username avatarImage") // ✅ Creator details
+      .populate("creator", "name username avatarImage")
+      .populate("courses", "title thumbnail slug")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 }); // ✅ Newest first
@@ -82,19 +111,66 @@ export const fetchAllCommunity = async (req, res) => {
   }
 };
 
+export const fetchMyCommunities = async (req, res) => {
+  try {
+    const communities = await Community.find({ creator: req.user.id })
+      .select("-__v")
+      .populate("creator", "name username avatarImage")
+      .populate("courses", "title thumbnail slug")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      communities,
+      message: "Your Communities Fetched Successfully!",
+    });
+  } catch (e) {
+    console.error("Fetch My Communities Error:", e.message);
+    return res.status(500).json({
+      message: "Something went wrong!",
+      error: e.message,
+    });
+  }
+};
+
 export const fetchCommunity = async (req, res) => {
   const { slug } = req.params; // ✅ Variable naam 'slug' rakho
 
   try {
-    const community = await Community.findOne({ slug }) // ✅ Clean syntax
-      .select("-__v")
-      .populate("creator", "name username avatarImage")
-      .populate("members", "name username avatarImage"); // ✅ Bonus: Members ni basic details pan lakho
+    const community = await Community.findOne({ slug }).select("-__v");
 
     // ✅ 404 Check
     if (!community) {
       return res.status(404).json({ message: "Community not found!" });
     }
+
+    // ✅ Private gate: faktu creator ane attached course ma enrolled scholars j kholi shake
+    if (community.isPrivate) {
+      const userId = req.user?.id;
+      const isCreator = userId && community.creator.toString() === userId;
+
+      if (!isCreator) {
+        const enrolled =
+          userId &&
+          (await Course.exists({
+            _id: { $in: community.courses ?? [] },
+            students: { $in: [userId] },
+          }));
+
+        if (!enrolled) {
+          return res.status(403).json({
+            code: "COMMUNITY_LOCKED",
+            message:
+              "This gathering is reserved for enrolled scholars. Pray, enroll in the attached course first — then the gates will open.",
+          });
+        }
+      }
+    }
+
+    await community.populate([
+      { path: "creator", select: "name username avatarImage" },
+      { path: "members", select: "name username avatarImage" },
+      { path: "courses", select: "title thumbnail slug" },
+    ]);
 
     return res.status(200).json({
       community,
@@ -113,11 +189,12 @@ export const updateCommunity = async (req, res) => {
   const {
     name,
     description,
-    thumbnail,
     canEveryOneMessage,
     userMessagePermission,
     isPrivate,
   } = req.body;
+
+  const { thumbnail, headerImage } = req.cloudinaryImages || {};
 
   // ✅ 1. Sahi tarike slug extract karo
   const { slug } = req.params;
@@ -143,12 +220,17 @@ export const updateCommunity = async (req, res) => {
 
     if (name !== undefined) updateData.name = name;
     if (description !== undefined) updateData.description = description;
-    if (thumbnail !== undefined) updateData.thumbnail = thumbnail;
+    if (isPrivate !== undefined)
+      updateData.isPrivate = isPrivate === 'true' || isPrivate === true;
     if (canEveryOneMessage !== undefined)
-      updateData.canEveryOneMessage = canEveryOneMessage;
+      updateData.canEveryOneMessage =
+        canEveryOneMessage === 'true' || canEveryOneMessage === true;
     if (userMessagePermission !== undefined)
       updateData.userMessagePermission = userMessagePermission;
-    if (isPrivate !== undefined) updateData.isPrivate = isPrivate;
+
+    // ✅ Navi images upload thai hoy to j replace karo
+    if (thumbnail) updateData.thumbnail = thumbnail;
+    if (headerImage) updateData.headerImage = headerImage;
 
     // ✅ 5. Update karo with { new: true }
     const updatedCommunity = await Community.findOneAndUpdate(
@@ -156,6 +238,22 @@ export const updateCommunity = async (req, res) => {
       { $set: updateData },
       { new: true } // ✅ Navu updated document return kare
     );
+
+    // ✅ 6. Juuni images ne Cloudinary mathi remove karo (replace thai gai hoy to)
+    if (
+      thumbnail &&
+      community.thumbnail?.publicId &&
+      community.thumbnail.publicId !== thumbnail.publicId
+    ) {
+      await cleanupCloudinary([community.thumbnail]);
+    }
+    if (
+      headerImage &&
+      community.headerImage?.publicId &&
+      community.headerImage.publicId !== headerImage.publicId
+    ) {
+      await cleanupCloudinary([community.headerImage]);
+    }
 
     return res.status(200).json({
       message: "Community updated successfully!",
@@ -196,6 +294,12 @@ export const deleteCommunity = async (req, res) => {
       });
     }
 
+    // ✅ Attached courses mathi community reference remove karo
+    await Course.updateMany(
+      { community: deletedCommunity._id },
+      { $set: { community: null } }
+    );
+
     return res.status(200).json({
       message: "Community deleted successfully!",
     });
@@ -225,6 +329,22 @@ export const joinCommunity = async (req, res) => {
       return res.status(400).json({
         message: "You are already a member of this community!",
       });
+    }
+
+    // ✅ Private gate: enrolled scholars j private gathering ma join kari shake
+    if (community.isPrivate && community.creator.toString() !== userId) {
+      const enrolled = await Course.exists({
+        _id: { $in: community.courses ?? [] },
+        students: { $in: [userId] },
+      });
+
+      if (!enrolled) {
+        return res.status(403).json({
+          code: "COMMUNITY_LOCKED",
+          message:
+            "This gathering is reserved for enrolled scholars. Pray, enroll in the attached course first — then the gates will open.",
+        });
+      }
     }
 
     // ✅ 3. $push thi member add karo ane $inc thi count vadharo

@@ -2,6 +2,7 @@ import slugify from 'slugify';
 import Course from '../models/course.js';
 import User from '../models/user.js';
 import Enrollment from '../models/enrollment.js';
+import Community from '../models/community.js';
 import { extractYouTubeId, youtubeDuration } from '../utils/youtubeDuration.js';
 import razorpay from '../config/razorpay';
 import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils';
@@ -268,12 +269,29 @@ export const fetchCourse = async (req, res) => {
       })
       .populate({
         path: 'community',
-        select: 'name thumbnail memberCount',
+        select: 'name slug thumbnail description memberCount isPrivate canEveryOneMessage',
       })
       .lean(); // Plain JavaScript object return kare (faster)
 
     if (!courseDetails) {
       return res.status(404).json({ message: 'Course not found!' });
+    }
+
+    // ✅ Lazy backfill: juna courses ma community reference nathi hoy
+    // to community.courses ma thi link shodhi ne set karo (self-healing)
+    if (!courseDetails.community) {
+      const linkedCommunity = await Community.findOne({
+        courses: courseDetails._id,
+      }).select(
+        'name slug thumbnail description memberCount isPrivate canEveryOneMessage'
+      );
+      if (linkedCommunity) {
+        await Course.updateOne(
+          { _id: courseDetails._id },
+          { $set: { community: linkedCommunity._id } }
+        );
+        courseDetails.community = linkedCommunity;
+      }
     }
 
     delete courseDetails.__v;

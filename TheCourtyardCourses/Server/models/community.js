@@ -42,11 +42,12 @@ const communitySchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    courses: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Course',
-      required: true,
-    },
+    courses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Course',
+      },
+    ],
     members: [
       {
         type: mongoose.Schema.Types.ObjectId,

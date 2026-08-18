@@ -315,7 +315,7 @@ const PublicCoursePage = () => {
           <AnimatePresence mode="popLayout">
             {filteredCourses.map((course) => {
               const creator = typeof course.creator === 'object' ? course.creator : null;
-              const isEnrolled = !!userId && !!course.students?.includes(userId);
+              const isEnrolled = !!userId && course.students?.some(s => String(s) === String(userId));
               return (
                 <motion.div
                   key={course._id}

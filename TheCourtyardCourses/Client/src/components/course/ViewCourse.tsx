@@ -67,7 +67,7 @@ const ViewCourse = () => {
     !!course.creator?._id &&
     profile?.user?._id === course.creator._id;
 
-  const isEnrolled = !!profile?.user?._id && !!course?.students?.includes(profile.user._id);
+  const isEnrolled = !!profile?.user?._id && course?.students?.some(s => String(s) === String(profile.user._id));
 
   const progressQuery = useCourseProgress(course?._id ?? '', isEnrolled && !!profile?.user);
   const completedChapters = progressQuery.data?.completedChapters ?? [];
@@ -87,8 +87,8 @@ const ViewCourse = () => {
   };
 
   return (
-    <section id="course" className={`gap-4 p-4 content-start min-h-screen max-h-[130vh]`}>
-      <div style={{ gridArea: 'header' }} className="flex flex-col gap-3">
+    <section id="course" className="gap-4 p-4 content-start min-h-screen lg:max-h-[130vh]">
+      <div style={{ gridArea: 'header' }} className="flex flex-col gap-3 min-w-0 overflow-hidden">
         <CourseHeadline title={course.title} />
 
         {/* ✅ FIX: Removed !isEnrolled condition so enrolled users see the block too */}
@@ -158,7 +158,7 @@ const ViewCourse = () => {
 
                   {/* Actions: Enroll / Continue Learning & Wishlist together */}
                   {profile?.user ? (
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       {/* If already enrolled, show Continue Learning button */}
                       {!isEnrolled && (
                         <button
@@ -204,7 +204,7 @@ const ViewCourse = () => {
         setSelectChapter={setSelectedChapter}
         completedChapters={completedChapters}
       />
-      <CourseCommunity />
+      <CourseCommunity course={course} />
       <CourseVideo course={course} selectedChapter={selectedChapter} />
       <CourseDescription course={course} selectedChapter={selectedChapter} />
       <CourseReview courseId={course._id} isEnrolled={isEnrolled} />
@@ -252,7 +252,7 @@ const ViewCourse = () => {
             </div>
 
             <div className="flex flex-1 min-w-[260px] flex-col gap-3 md:border-l-2 border-border md:pl-4">
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <input
                   type="datetime-local"
                   value={schedule}

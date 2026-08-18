@@ -16,10 +16,20 @@ const postSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    images: {
-      type: [String],
-      default: [],
-    },
+    images: [
+      {
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+      },
+    ],
+    files: [
+      {
+        url: { type: String, required: true },
+        publicId: { type: String, required: true },
+        name: { type: String },
+        type: { type: String },
+      },
+    ],
     likes: [
       {
         type: mongoose.Schema.Types.ObjectId,

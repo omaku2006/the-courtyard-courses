@@ -52,7 +52,7 @@ const TeacherCourseCard = ({
   return (
     // ✅ Polished: Classic frame shadow ane padding
     <div
-      className="flex flex-col gap-4 rounded-[2px] border-2 border-border bg-surface p-5 shadow-[4px_4px_0_var(--color-border)] transition-shadow hover:shadow-[6px_6px_0_var(--color-border)]"
+      className="flex h-full flex-col gap-4 rounded-[2px] border-2 border-border bg-surface p-5 shadow-[4px_4px_0_var(--color-border)] hover:shadow-[6px_6px_0_var(--color-border)] cursor-pointer hover:-translate-y-1 hover:border-accent-hover transition-all duration-300"
       onClick={() => navigate(`/dashboard/${course.slug}`)}
     >
       {/* Thumbnail with subtle border */}
@@ -68,9 +68,11 @@ const TeacherCourseCard = ({
 
       <div className="flex items-start justify-between gap-3">
         <h3 className="font-heading text-lg leading-tight text-text">{course.title}</h3>
-        {/* ✅ Polished: Engraved badge style */}
+        {/* ✅ Status Stamp: slim vertical tag (90° read) beside the title — never overflows */}
         <span
-          className={`shrink-0 rounded-[2px] px-2 py-1 text-[10px] font-heading uppercase tracking-widest ${STATUS_STYLES[status]}`}
+          style={{ writingMode: 'vertical-rl' }}
+          className={`shrink-0 rounded-[2px] border px-1.5 py-2 text-[10px] font-heading uppercase tracking-widest shadow-[2px_2px_0_var(--color-border)] ${STATUS_STYLES[status]}`}
+          aria-label={`Status: ${status}`}
         >
           {status}
         </span>
@@ -92,7 +94,10 @@ const TeacherCourseCard = ({
       </div>
 
       {!isPublished && (
-        <div className="mt-auto flex flex-col gap-3 pt-2">
+        <div
+          className="mt-auto flex flex-col gap-3 pt-2"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Schedule Section */}
           <div className="flex items-center gap-2">
             <input
@@ -135,16 +140,18 @@ const TeacherCourseCard = ({
         </div>
       )}
 
-      <ConfirmModal
-        isOpen={confirmOpen}
-        title="Publish this course?"
-        message={`Publish "${course.title}" now? Scholars will be able to view and enrol in the curriculum immediately.`}
-        confirmLabel="Publish"
-        cancelLabel="Hold On"
-        isPending={isPending}
-        onConfirm={handleConfirmPublish}
-        onCancel={() => setConfirmOpen(false)}
-      />
+      <div onClick={(e) => e.stopPropagation()}>
+        <ConfirmModal
+          isOpen={confirmOpen}
+          title="Publish this course?"
+          message={`Publish "${course.title}" now? Scholars will be able to view and enrol in the curriculum immediately.`}
+          confirmLabel="Publish"
+          cancelLabel="Hold On"
+          isPending={isPending}
+          onConfirm={handleConfirmPublish}
+          onCancel={() => setConfirmOpen(false)}
+        />
+      </div>
     </div>
   );
 };
