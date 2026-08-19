@@ -18,6 +18,9 @@ import PublicProfilePage from './pages/PublicProfilePage';
 import CommunityPage from './pages/CommunityPage';
 import CommunityDetails from './pages/CommunityDetails';
 import CommunityChat from './components/community/CommunityChat';
+import PublicCommunityPage from './pages/PublicCommunityPage';
+import SchedulePage from './pages/SchedulePage';
+import AnalysisPage from './pages/AnalysisPage';
 
 const App = () => {
   useAutoHideScrollbar();
@@ -39,6 +42,7 @@ const App = () => {
           <Route element={<PublicLayout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/courses" element={<PublicCoursePage />} />
+            <Route path="/communities" element={<PublicCommunityPage />} />
             <Route path="/user/:username" element={<PublicProfilePage />} />
             <Route path="/login" element={<AuthPage />} />
             <Route path="/background" element={<CourtyardBackground />} />
@@ -56,6 +60,8 @@ const App = () => {
               <Route path="/dashboard/communities" element={<CommunityPage />} />
               <Route path="/dashboard/communities/:slug/details" element={<CommunityDetails />} />
               <Route path="/dashboard/communities/:slug" element={<CommunityChat />} />
+              <Route path="/dashboard/schedule" element={<SchedulePage />} />
+              <Route path="/dashboard/analysis" element={<AnalysisPage />} />
             </Route>
           </Route>
           {/*No Layout*/}

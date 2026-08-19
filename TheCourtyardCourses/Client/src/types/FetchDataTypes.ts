@@ -7,6 +7,7 @@ export interface Creator {
   _id: string;
   name: string;
   username: string;
+  role?: string;
   avatarImage?: ImageRef | null;
   description?: string | null;
   occupation?: string | null;
@@ -20,7 +21,7 @@ export interface Community {
   thumbnail?: ImageRef | null;
   headerImage?: ImageRef | null;
   creator: Creator | string;
-  courses: string;
+  courses: (string | { _id: string; title: string; thumbnail?: ImageRef | null; slug: string })[];
   members?: string[];
   memberCount?: number;
   canEveryOneMessage?: boolean;

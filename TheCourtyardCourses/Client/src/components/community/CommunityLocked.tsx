@@ -14,7 +14,7 @@ const CommunityLocked = ({ message }: { message?: string }) => {
             'This gathering is reserved for enrolled scholars of its attached curriculum.'}
         </p>
       </div>
-      <Link to="/courses" className="btnPrimary inline-flex items-center gap-2 !py-2 text-xs">
+      <Link to="/courses" className="btnPrimary inline-flex items-center gap-2 py-2! w-fit! text-xs">
         <BookOpenIcon size={16} weight="fill" />
         Browse Courses
       </Link>

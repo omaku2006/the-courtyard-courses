@@ -132,6 +132,32 @@ export const fetchMyCommunities = async (req, res) => {
   }
 };
 
+// ✅ New: Joined communities (creator OR member) — works for both teachers & students
+export const fetchJoinedCommunities = async (req, res) => {
+  try {
+    const userId = req.user.id;
+
+    const communities = await Community.find({
+      $or: [{ creator: userId }, { members: userId }],
+    })
+      .select("-__v")
+      .populate("creator", "name username avatarImage")
+      .populate("courses", "title thumbnail slug")
+      .sort({ createdAt: -1 });
+
+    return res.status(200).json({
+      communities,
+      message: "Joined Communities Fetched Successfully!",
+    });
+  } catch (e) {
+    console.error("Fetch Joined Communities Error:", e.message);
+    return res.status(500).json({
+      message: "Something went wrong!",
+      error: e.message,
+    });
+  }
+};
+
 export const fetchCommunity = async (req, res) => {
   const { slug } = req.params; // ✅ Variable naam 'slug' rakho
 

@@ -4,6 +4,7 @@ import {
   createCommunity,
   fetchAllCommunity,
   fetchMyCommunities,
+  fetchJoinedCommunities,
   fetchCommunity,
   updateCommunity,
   deleteCommunity,
@@ -38,6 +39,7 @@ communityRouter.post(
 );
 communityRouter.get('/', fetchAllCommunity);
 communityRouter.get('/my', verifyToken, isTeacher, fetchMyCommunities);
+communityRouter.get('/joined', verifyToken, fetchJoinedCommunities);
 communityRouter.get('/:slug', optionalVerifyToken, fetchCommunity);
 communityRouter.put(
   '/:slug',

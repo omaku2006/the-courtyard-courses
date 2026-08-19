@@ -54,6 +54,23 @@ const CommunityDetailsPage = () => {
   const [thumbFile, setThumbFile] = useState<File | null>(null);
   const [headerFile, setHeaderFile] = useState<File | null>(null);
 
+  const [thumbPreview, setThumbPreview] = useState<string | null>(null);
+  const [headerPreview, setHeaderPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!thumbFile) { setThumbPreview(null); return; }
+    const url = URL.createObjectURL(thumbFile);
+    setThumbPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [thumbFile]);
+
+  useEffect(() => {
+    if (!headerFile) { setHeaderPreview(null); return; }
+    const url = URL.createObjectURL(headerFile);
+    setHeaderPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [headerFile]);
+
   const [editName, setEditName] = useState('');
   const [editDesc, setEditDesc] = useState('');
   const [editPrivate, setEditPrivate] = useState(false);
@@ -100,8 +117,6 @@ const CommunityDetailsPage = () => {
   const memberCount = community.memberCount ?? members.length;
   const thumbSrc = community.thumbnail?.url ?? null;
   const headerSrc = community.headerImage?.url ?? null;
-  const thumbPreview = thumbFile ? URL.createObjectURL(thumbFile) : null;
-  const headerPreview = headerFile ? URL.createObjectURL(headerFile) : null;
 
   const formatDate = (ts?: string) => {
     if (!ts) return 'Unknown';

@@ -84,7 +84,7 @@ const ChatBubble = ({ post, communityId }: ChatBubbleProps) => {
       initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: 'easeOut' }}
-      className={`flex flex-col gap-1.5 w-full max-w-[85%] ${isMine ? 'self-end items-end' : 'self-start items-start'}`}
+      className={`flex flex-col gap-1.5 w-full max-w-[92%] sm:max-w-[85%] lg:max-w-[75%] ${isMine ? 'self-end items-end' : 'self-start items-start'}`}
     >
       {/* Attachments above the bubble */}
       {(images.length > 0 || files.length > 0) && (
@@ -93,7 +93,7 @@ const ChatBubble = ({ post, communityId }: ChatBubbleProps) => {
 
       {/* Bubble — w-fit so width hugs content */}
       <div
-        className={`w-fit max-w-full rounded-[var(--radius-min)] border-2 px-4 py-2.5 shadow-[2px_2px_0_var(--color-border)] ${
+        className={`w-fit max-w-full rounded-[var(--radius-min)] border-2 px-3 py-2 sm:px-4 sm:py-2.5 shadow-[2px_2px_0_var(--color-border)] ${
           isMine ? 'bg-success text-light border-success' : 'bg-accent text-text border-accent'
         }`}
       >
@@ -130,7 +130,7 @@ const ChatBubble = ({ post, communityId }: ChatBubbleProps) => {
         {/* Time */}
         {post.createdAt && (
           <span
-            className={`text-[9px] font-heading mt-1 block ${
+            className={`text-[10px] font-heading mt-1 block ${
               isMine ? 'text-light/70' : 'text-text/60'
             }`}
             style={{ fontSize: '10px' }}
@@ -191,7 +191,7 @@ const ChatBubble = ({ post, communityId }: ChatBubbleProps) => {
               transition={{ duration: 0.25, ease: 'easeOut' }}
               className="w-full overflow-hidden rounded-[var(--radius-min)] border border-border/60 bg-surface p-3"
             >
-              <div className="flex flex-col gap-3 max-h-64 overflow-y-auto pr-1">
+              <div className="flex flex-col gap-3 max-h-48 sm:max-h-64 overflow-y-auto pr-1 scrollbar-thin">
                 {comments.length === 0 && (
                   <p className="text-[11px] text-text-muted italic font-heading m-0">
                     No remarks yet. Be the first to reply.
@@ -252,7 +252,7 @@ const ChatBubble = ({ post, communityId }: ChatBubbleProps) => {
                 <button
                   onClick={handleComment}
                   disabled={!commentText.trim() || addComment.isPending}
-                  className="btnSecondary !py-1.5 !px-4 text-[10px] w-auto disabled:opacity-50 disabled:pointer-events-none"
+                  className="btnSecondary py-1.5! px-4! text-[10px] w-auto! disabled:opacity-50 disabled:pointer-events-none"
                 >
                   {addComment.isPending ? '...' : 'Reply'}
                 </button>

@@ -259,7 +259,7 @@ const PublicCoursePage = () => {
         ) : (
           <motion.div
             layout
-            className="grid justify-items-center gap-8 grid-cols-[repeat(auto-fit,minmax(280px,1fr))]"
+            className="grid items-start gap-8 grid-cols-[repeat(auto-fit,minmax(280px,1fr))] [grid-auto-rows:auto]"
           >
             <AnimatePresence mode="popLayout">
               {filteredTeachers.map((teacher) => (
@@ -270,7 +270,7 @@ const PublicCoursePage = () => {
                   animate={{ opacity: 1, scale: 1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.3, ease: 'easeInOut' }}
-                  className="w-full h-full cursor-pointer"
+                  className="w-full cursor-pointer"
                   onClick={() => navigate(`/dashboard/users/${teacher.username}`)}
                 >
                   <PublicTeacherCard>
@@ -310,7 +310,7 @@ const PublicCoursePage = () => {
       ) : (
         <motion.div
           layout
-          className="grid justify-items-center gap-8 grid-cols-[repeat(auto-fit,minmax(300px,1fr))]"
+          className="grid items-start gap-8 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] [grid-auto-rows:auto]"
         >
           <AnimatePresence mode="popLayout">
             {filteredCourses.map((course) => {

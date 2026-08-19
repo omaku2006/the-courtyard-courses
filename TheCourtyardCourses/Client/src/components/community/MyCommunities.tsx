@@ -15,7 +15,7 @@ import HrWrapper from '../ui/HrWrapper';
 
 const MyCommunities = () => {
   const { data } = useFetchMyProfile();
-  const user: User = data?.user;
+  const user = data?.user;
   const { data: communitiesData, isLoading } = useFetchMyCommunities();
   const [formOpen, setFormOpen] = useState(false);
 

@@ -12,6 +12,7 @@ export const useCreateCommunity = () => {
         description: 'Your community has been inscribed in the Courtyard archives.',
       });
       queryClient.invalidateQueries({ queryKey: ['communities'] });
+      queryClient.invalidateQueries({ queryKey: ['joinedCommunities'] });
     },
     onError: (error: any) => {
       toast.error('Interruption in Proceedings', {
@@ -28,6 +29,13 @@ export const useFetchMyCommunities = () => {
   return useQuery({
     queryKey: ['myCommunities'],
     queryFn: () => communityServices.fetchMyCommunities(),
+  });
+};
+
+export const useFetchJoinedCommunities = () => {
+  return useQuery({
+    queryKey: ['joinedCommunities'],
+    queryFn: () => communityServices.fetchJoinedCommunities(),
   });
 };
 
@@ -59,6 +67,8 @@ export const useJoinCommunity = () => {
         description: 'You have joined the community.',
       });
       queryClient.invalidateQueries({ queryKey: ['community'] });
+      queryClient.invalidateQueries({ queryKey: ['communities'] });
+      queryClient.invalidateQueries({ queryKey: ['joinedCommunities'] });
     },
     onError: (error: any) => {
       toast.error('Could Not Join', {
@@ -81,6 +91,8 @@ export const useLeaveCommunity = () => {
         description: 'You have left the community.',
       });
       queryClient.invalidateQueries({ queryKey: ['community'] });
+      queryClient.invalidateQueries({ queryKey: ['communities'] });
+      queryClient.invalidateQueries({ queryKey: ['joinedCommunities'] });
     },
     onError: (error: any) => {
       toast.error('Could Not Leave', {

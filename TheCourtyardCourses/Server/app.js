@@ -4,6 +4,8 @@ import userRouter from './routes/user.router.js';
 import courseRouter from './routes/course.router.js';
 import communityRouter from './routes/community.router.js';
 import postRouter from './routes/post.router.js';
+import scheduleRouter from './routes/schedule.router.js';
+import analyticsRouter from './routes/analytics.router.js';
 import cors from 'cors';
 
 const app = express();
@@ -21,6 +23,8 @@ app.use('/api', userRouter);
 app.use('/api/course', courseRouter);
 app.use('/api/community', communityRouter);
 app.use('/api', postRouter);
+app.use('/api', scheduleRouter);
+app.use('/api', analyticsRouter);
 
 // Error handler (keep last)
 app.use((err, req, res, next) => {

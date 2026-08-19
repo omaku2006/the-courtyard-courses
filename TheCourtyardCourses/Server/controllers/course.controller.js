@@ -3,6 +3,7 @@ import Course from '../models/course.js';
 import User from '../models/user.js';
 import Enrollment from '../models/enrollment.js';
 import Community from '../models/community.js';
+import DailyActivity from '../models/dailyActivity.js';
 import { extractYouTubeId, youtubeDuration } from '../utils/youtubeDuration.js';
 import razorpay from '../config/razorpay';
 import { validatePaymentVerification } from 'razorpay/dist/utils/razorpay-utils';
@@ -933,10 +934,39 @@ export const updateChapterCompletion = async (req, res) => {
     }
 
     let completedChapters = enrollment.completedChapters ?? [];
-    if (completedChapters.includes(index)) {
+    const wasCompleted = completedChapters.includes(index);
+
+    if (wasCompleted) {
       completedChapters = completedChapters.filter((c) => c !== index);
+
+      const today = new Date().toISOString().split('T')[0];
+      await DailyActivity.findOneAndUpdate(
+        { user: userId, date: today },
+        {
+          $pull: {
+            entries: { course: courseId, chapterIndex: index },
+          },
+          $inc: { totalCompleted: -1 },
+        }
+      );
     } else {
       completedChapters = [...completedChapters, index];
+
+      const today = new Date().toISOString().split('T')[0];
+      await DailyActivity.findOneAndUpdate(
+        { user: userId, date: today },
+        {
+          $push: {
+            entries: {
+              course: courseId,
+              chapterIndex: index,
+              completedAt: new Date(),
+            },
+          },
+          $inc: { totalCompleted: 1 },
+        },
+        { upsert: true, new: true }
+      );
     }
     completedChapters.sort((a, b) => a - b);
 

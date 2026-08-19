@@ -2,7 +2,7 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import type { Course } from '../../types/FetchDataTypes';
 import { useMyCourses } from '../../features/course/useCourse';
 import { useCreateCommunity } from '../../features/community/useCommunity';
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
 import { CheckIcon, ImageIcon, SpinnerGapIcon, XIcon } from '@phosphor-icons/react';
 import ToggleButton from '../ui/ToggleButton';
 
@@ -46,6 +46,23 @@ const CommunityForm = ({ onCreated }: CommunityFormProps) => {
   const [headerFile, setHeaderFile] = useState<File | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [thumbPreview, setThumbPreview] = useState<string | null>(null);
+  const [headerPreview, setHeaderPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!thumbnailFile) { setThumbPreview(null); return; }
+    const url = URL.createObjectURL(thumbnailFile);
+    setThumbPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [thumbnailFile]);
+
+  useEffect(() => {
+    if (!headerFile) { setHeaderPreview(null); return; }
+    const url = URL.createObjectURL(headerFile);
+    setHeaderPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [headerFile]);
 
   const nameValue = watch('name');
   const descriptionValue = watch('description');
@@ -119,7 +136,7 @@ const CommunityForm = ({ onCreated }: CommunityFormProps) => {
             {thumbnailFile ? (
               <>
                 <img
-                  src={URL.createObjectURL(thumbnailFile)}
+                  src={thumbPreview ?? ''}
                   alt="Thumbnail preview"
                   className="h-full w-full object-cover"
                 />
@@ -162,7 +179,7 @@ const CommunityForm = ({ onCreated }: CommunityFormProps) => {
             {headerFile ? (
               <>
                 <img
-                  src={URL.createObjectURL(headerFile)}
+                  src={headerPreview ?? ''}
                   alt="Banner preview"
                   className="h-full w-full object-cover"
                 />

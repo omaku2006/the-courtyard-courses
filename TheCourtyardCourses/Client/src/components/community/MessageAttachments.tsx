@@ -26,7 +26,7 @@ const MessageAttachments = ({ images = [], files = [], isMine = false }: Message
             href={img.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="shrink-0 w-24 h-24 rounded-[var(--radius-min)] border-2 border-border overflow-hidden block shadow-[2px_2px_0_var(--color-border)] hover:border-accent-hover hover:shadow-[3px_3px_0_var(--color-border)] hover:-translate-y-0.5 transition-all group"
+            className="shrink-0 w-20 h-20 sm:w-24 sm:h-24 rounded-[var(--radius-min)] border-2 border-border overflow-hidden block shadow-[2px_2px_0_var(--color-border)] hover:border-accent-hover hover:shadow-[3px_3px_0_var(--color-border)] hover:-translate-y-0.5 transition-all group"
             title="Open image"
           >
             <img
@@ -44,7 +44,7 @@ const MessageAttachments = ({ images = [], files = [], isMine = false }: Message
           href={file.url}
           target="_blank"
           rel="noopener noreferrer"
-          className="shrink-0 flex items-center gap-2 w-44 h-24 rounded-[var(--radius-min)] border-2 border-border bg-bg p-2 shadow-[2px_2px_0_var(--color-border)] hover:border-accent-hover hover:shadow-[3px_3px_0_var(--color-border)] hover:-translate-y-0.5 transition-all no-underline group"
+          className="shrink-0 flex items-center gap-2 w-40 sm:w-44 h-20 sm:h-24 rounded-[var(--radius-min)] border-2 border-border bg-bg p-2 shadow-[2px_2px_0_var(--color-border)] hover:border-accent-hover hover:shadow-[3px_3px_0_var(--color-border)] hover:-translate-y-0.5 transition-all no-underline group"
           title={file.name || 'Open file'}
         >
           <div className="w-10 h-10 rounded-sm bg-accent/20 flex items-center justify-center shrink-0 border border-border group-hover:bg-accent/30 transition-colors">

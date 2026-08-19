@@ -4,7 +4,7 @@ import {
   XIcon,
   FileTextIcon,
 } from '@phosphor-icons/react';
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useCreatePost } from '../../features/post/usePost';
 
 interface ChatInputProps {
@@ -50,30 +50,47 @@ const ChatInput = ({ communityId }: ChatInputProps) => {
 
   const canSend = content.trim() || selectedFiles.length > 0;
 
+  const filePreviews = useMemo(
+    () =>
+      selectedFiles.map((file) => ({
+        isImage: file.type.startsWith('image/'),
+        url: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+        name: file.name,
+      })),
+    [selectedFiles],
+  );
+
+  useEffect(() => {
+    return () => {
+      filePreviews.forEach((p) => {
+        if (p.url) URL.revokeObjectURL(p.url);
+      });
+    };
+  }, [filePreviews]);
+
   return (
     <div className="w-full border-t-2 border-border bg-surface shrink-0">
       {/* File preview strip */}
       {selectedFiles.length > 0 && (
-        <div className="flex gap-2 w-full overflow-x-auto px-4 pt-3 pb-1 scrollbar-thin border-b border-border/30">
-          {selectedFiles.map((file, i) => {
-            const isImage = file.type.startsWith('image/');
+        <div className="flex gap-2 w-full overflow-x-auto px-2 sm:px-4 pt-3 pb-1 scrollbar-thin border-b border-border/30">
+          {filePreviews.map((preview, i) => {
             return (
               <div key={i} className="relative shrink-0 group">
-                {isImage ? (
-                  <div className="w-20 h-20 rounded-sm border-2 border-border overflow-hidden shadow-[2px_2px_0_var(--color-border)]">
+                {preview.isImage && preview.url ? (
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-sm border-2 border-border overflow-hidden shadow-[2px_2px_0_var(--color-border)]">
                     <img
-                      src={URL.createObjectURL(file)}
-                      alt={file.name}
+                      src={preview.url}
+                      alt={preview.name}
                       className="w-full h-full object-cover"
                     />
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 w-36 h-20 rounded-sm border-2 border-border bg-bg p-2 shadow-[2px_2px_0_var(--color-border)]">
-                    <div className="w-8 h-8 rounded-sm bg-accent/20 flex items-center justify-center shrink-0 border border-border">
-                      <FileTextIcon size={16} weight="fill" className="text-accent" />
+                  <div className="flex items-center gap-2 w-32 sm:w-36 h-16 sm:h-20 rounded-sm border-2 border-border bg-bg p-2 shadow-[2px_2px_0_var(--color-border)]">
+                    <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-sm bg-accent/20 flex items-center justify-center shrink-0 border border-border">
+                      <FileTextIcon size={14} weight="fill" className="text-accent" />
                     </div>
                     <span className="text-[10px] text-text font-heading truncate">
-                      {file.name}
+                      {preview.name}
                     </span>
                   </div>
                 )}
@@ -91,7 +108,7 @@ const ChatInput = ({ communityId }: ChatInputProps) => {
       )}
 
       {/* Input row */}
-      <div className="flex items-center gap-2 px-4 py-3">
+      <div className="flex items-center gap-2 px-2 sm:px-4 py-2.5 sm:py-3">
         <input
           type="file"
           ref={fileInputRef}
@@ -121,13 +138,13 @@ const ChatInput = ({ communityId }: ChatInputProps) => {
             }
           }}
           placeholder="Inscribe your message..."
-          className="flex-1 h-10 text-sm font-body px-4 rounded-sm border-2 border-border bg-bg text-text placeholder:text-text-muted/60 focus:outline-none focus:border-accent-hover transition-colors"
+          className="flex-1 min-w-0 h-10 text-sm font-body px-3 sm:px-4 rounded-sm border-2 border-border bg-bg text-text placeholder:text-text-muted/60 focus:outline-none focus:border-accent-hover transition-colors"
         />
 
         <button
           onClick={handleSubmit}
           disabled={!canSend || createPost.isPending}
-          className="h-10 w-10 flex items-center justify-center btnPrimary shrink-0 !p-0 disabled:opacity-50 disabled:pointer-events-none"
+          className="h-10 w-10 flex items-center justify-center rounded-sm border-2 border-border bg-highlight text-light hover:bg-accent-hover hover:border-accent-hover transition-colors shrink-0 disabled:opacity-50 disabled:pointer-events-none"
           aria-label="Send message"
           title="Send"
         >

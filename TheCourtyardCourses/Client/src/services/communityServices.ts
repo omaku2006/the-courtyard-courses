@@ -11,6 +11,11 @@ export const communityServices = {
     return res.data;
   },
 
+  fetchJoinedCommunities: async () => {
+    const res = await api.get('/community/joined');
+    return res.data;
+  },
+
   fetchCommunities: async (page = 1, limit = 10) => {
     const res = await api.get('/community', { params: { page, limit } });
     return res.data;

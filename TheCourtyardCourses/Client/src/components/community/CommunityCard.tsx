@@ -17,11 +17,20 @@ const CommunityCard = ({ community, onClick }: CommunityCardProps) => {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
       onClick={() => {
         onClick?.();
         navigate(`/dashboard/communities/${community.slug}`);
       }}
-      className="group relative flex flex-col rounded-sm border-2 border-border bg-surface overflow-hidden shadow-[4px_4px_0_var(--color-border)] hover:shadow-[6px_6px_0_var(--color-border)] hover:-translate-y-0.5 hover:border-accent-hover transition-all cursor-pointer"
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick?.();
+          navigate(`/dashboard/communities/${community.slug}`);
+        }
+      }}
+      className="group relative flex flex-col h-full rounded-sm border-2 border-border bg-surface overflow-hidden shadow-[4px_4px_0_var(--color-border)] hover:shadow-[6px_6px_0_var(--color-border)] hover:-translate-y-0.5 hover:border-accent-hover transition-all cursor-pointer"
     >
       {/* Content */}
       <div className="flex flex-col gap-2.5 p-4 flex-1">

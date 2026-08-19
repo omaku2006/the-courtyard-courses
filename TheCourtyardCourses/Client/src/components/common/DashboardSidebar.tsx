@@ -36,7 +36,7 @@ const DashboardSidebar = () => {
 
   return (
     <nav
-      className="w-30 h-screen sticky top-0 bg-surface z-5 "
+      className="w-30 h-screen sticky top-0 bg-surface z-40 "
       onMouseEnter={() => setIsCollapsed(false)}
       onMouseLeave={() => setIsCollapsed(true)}
     >
@@ -73,7 +73,7 @@ const DashboardSidebar = () => {
             }
           >
             <DotsNineIcon size={40} weight="fill" className="mx-6" />
-            <h5 className="italic text-nowrap">Dashboard</h5>
+            <h5 className="italic text-nowrap uppercase">Dashboard</h5>
           </NavLink>
           <NavLink
             to={'/dashboard/my-courses'}
@@ -82,7 +82,7 @@ const DashboardSidebar = () => {
             }
           >
             <BookBookmarkIcon size={40} weight="fill" className="mx-6" />
-            <h5 className="italic text-nowrap">My Courses</h5>
+            <h5 className="italic text-nowrap uppercase">My Courses</h5>
           </NavLink>
           <NavLink
             to={'/dashboard/courses'}
@@ -91,7 +91,7 @@ const DashboardSidebar = () => {
             }
           >
             <BooksIcon size={40} weight="fill" className="mx-6" />
-            <h5 className="italic text-nowrap">Courses</h5>
+            <h5 className="italic text-nowrap uppercase">Courses</h5>
           </NavLink>
           <NavLink
             to={'/dashboard/communities'}
@@ -100,7 +100,7 @@ const DashboardSidebar = () => {
             }
           >
             <UsersThreeIcon size={40} weight="fill" className="mx-6" />
-            <h5 className="italic text-nowrap">Communities</h5>
+            <h5 className="italic text-nowrap uppercase">Communities</h5>
           </NavLink>
           {data.user.role === 'student' && (
             <NavLink
@@ -110,7 +110,7 @@ const DashboardSidebar = () => {
               }
             >
               <CalendarDotsIcon size={40} weight="fill" className="mx-6" />
-              <h5 className="italic text-nowrap">Schedule</h5>
+              <h5 className="italic text-nowrap uppercase">Schedule</h5>
             </NavLink>
           )}
           <NavLink
@@ -120,7 +120,7 @@ const DashboardSidebar = () => {
             }
           >
             <ChartLineIcon size={40} weight="fill" className="mx-6" />
-            <h5 className="italic text-nowrap">Analysis</h5>
+            <h5 className="italic text-nowrap uppercase">Analysis</h5>
           </NavLink>
         </div>
         <div className="bottomPartContainer mt-auto">
