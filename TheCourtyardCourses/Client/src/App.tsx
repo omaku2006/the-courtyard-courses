@@ -21,17 +21,15 @@ import CommunityChat from './components/community/CommunityChat';
 import PublicCommunityPage from './pages/PublicCommunityPage';
 import SchedulePage from './pages/SchedulePage';
 import AnalysisPage from './pages/AnalysisPage';
+import DashboardPage from './pages/DashboardPage';
+import AboutPage from './pages/AboutPage';
 
 const App = () => {
   useAutoHideScrollbar();
   const theme = useAppSelector((state) => state.theme.mode);
   useEffect(() => {
     const html = document.documentElement;
-    if (theme === 'dark') {
-      html.setAttribute('data-theme', 'dark');
-    } else {
-      html.setAttribute('data-theme', '');
-    }
+    html.setAttribute('data-theme', theme === 'light' ? '' : theme);
   }, [theme]);
 
   return (
@@ -45,13 +43,14 @@ const App = () => {
             <Route path="/communities" element={<PublicCommunityPage />} />
             <Route path="/user/:username" element={<PublicProfilePage />} />
             <Route path="/login" element={<AuthPage />} />
+            <Route path="/about" element={<AboutPage />} />
             <Route path="/background" element={<CourtyardBackground />} />
           </Route>
 
           {/* Dashboard */}
           <Route element={<RequireAuth />}>
             <Route element={<DashboardLayout />}>
-              <Route path="/dashboard" element={<HomePage />} />
+              <Route path="/dashboard" element={<DashboardPage />} />
               <Route path="/dashboard/me" element={<FetchMe />} />
               <Route path="/dashboard/courses" element={<PublicCoursePage />} />
               <Route path="/dashboard/my-courses" element={<MyCourses />} />

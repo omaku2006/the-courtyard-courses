@@ -258,11 +258,11 @@ export const updateCommunity = async (req, res) => {
     if (thumbnail) updateData.thumbnail = thumbnail;
     if (headerImage) updateData.headerImage = headerImage;
 
-    // ✅ 5. Update karo with { new: true }
+    // ✅ 5. Update karo with { returnDocument: 'after' }
     const updatedCommunity = await Community.findOneAndUpdate(
       { slug },
       { $set: updateData },
-      { new: true } // ✅ Navu updated document return kare
+      { returnDocument: 'after' } // ✅ Navu updated document return kare
     );
 
     // ✅ 6. Juuni images ne Cloudinary mathi remove karo (replace thai gai hoy to)
@@ -380,7 +380,7 @@ export const joinCommunity = async (req, res) => {
         $push: { members: userId }, // ✅ Array ma add karo
         $inc: { memberCount: 1 }, // ✅ Number ne 1 thi vadharo
       },
-      { new: true } // ✅ Navu updated document return kare
+      { returnDocument: 'after' } // ✅ Navu updated document return kare
     );
 
     return res.status(200).json({
@@ -411,7 +411,7 @@ export const leaveCommunity = async (req, res) => {
         $pull: { members: userId },
         $inc: { memberCount: -1 },
       },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     // ✅ Jo null aave, etle ya toh community exist j nathi, ya toh user member j nathi
@@ -479,7 +479,7 @@ export const updatePermissions = async (req, res) => {
     const community = await Community.findOneAndUpdate(
       { slug, creator: teacherId }, // ✅ Smart authorization check!
       { $set: updateData }, // ✅ Sahi syntax
-      { new: true } // ✅ Navu document return kare
+      { returnDocument: 'after' } // ✅ Navu document return kare
     );
 
     if (!community) {

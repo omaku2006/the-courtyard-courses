@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import {
   UsersThreeIcon,
   PlusIcon,
@@ -29,7 +29,6 @@ const CommunityPage = () => {
   const {
     data: allData,
     isLoading: allLoading,
-    isError: allError,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
@@ -37,8 +36,7 @@ const CommunityPage = () => {
   const fetchedUsers = useFetchAllUser();
 
   const user: User | undefined = profileData?.user;
-  const userId = user?._id;
-  const userCourseIds: string[] = (user?.courses as any[])?.map((c: any) => String(c?._id ?? c)) ?? [];
+  const userCourseIds: string[] = ((user as any)?.courses ?? []).map((c: any) => String(c?._id ?? c)) ?? [];
   const joinedCommunities: Community[] = joinedData?.communities ?? [];
   const joinedIds = new Set(joinedCommunities.map((c) => c._id));
   const allPages = allData?.pages ?? [];
@@ -176,14 +174,15 @@ const CommunityPage = () => {
             className="grid items-start gap-8 grid-cols-[repeat(auto-fit,minmax(280px,1fr))] [grid-auto-rows:auto]"
           >
             <AnimatePresence mode="popLayout">
-              {filteredTeachers.map((teacher) => (
+              {filteredTeachers.map((teacher, i) => (
                 <motion.div
                   key={teacher._id}
                   layout
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
                   className="w-full"
                 >
                   <TeacherCard teacher={teacher} />
@@ -194,19 +193,27 @@ const CommunityPage = () => {
         )
       ) : (
         <>
-          {/* MY COMMUNITIES (Horizontal Scroll) */}
-          <div className="mb-10">
-            <div className="flex flex-wrap justify-between items-center gap-3 mb-2">
-              <h3 className="flex gap-4 items-center font-heading text-2xl text-text m-0">
-                <UsersThreeIcon size={32} weight="fill" className="text-accent-hover" />
-                My Communities
-              </h3>
+          {/* MY COMMUNITIES (Grid) */}
+          <div className="mb-12">
+            <div className="flex flex-wrap justify-between items-end gap-3 mb-1">
+              <div className="flex flex-wrap items-center gap-3">
+                <h3 className="flex gap-4 items-center font-heading text-2xl text-text m-0">
+                  <UsersThreeIcon size={32} weight="fill" className="text-accent-hover" />
+                  My Communities
+                </h3>
+                {filteredJoined.length > 0 && (
+                  <span className="font-heading text-[10px] uppercase tracking-widest text-text-muted border border-border bg-surface rounded-sm px-2.5 py-1 shadow-[2px_2px_0_var(--color-border)]">
+                    {filteredJoined.length} gathering{filteredJoined.length !== 1 ? 's' : ''}
+                  </span>
+                )}
+              </div>
+
               {user?.role === 'teacher' && (
                 <button
                   className="btnSecondary inline-flex items-center gap-2 hover:-translate-y-0.5 transition-transform"
                   onClick={() => setFormOpen(true)}
                 >
-                  <PlusIcon weight="fill" size={20} />
+                  <PlusIcon weight="fill" size={18} />
                   Add Community
                 </button>
               )}
@@ -214,10 +221,10 @@ const CommunityPage = () => {
             <HrWrapper name="Your Gatherings" className="my-4" />
 
             {filteredJoined.length === 0 ? (
-              <div className="flex flex-col items-center gap-4 py-12 text-text-muted">
+              <div className="flex flex-col items-center justify-center gap-3 py-12 border-2 border-dashed border-border rounded-sm text-text-muted">
                 <UsersThreeIcon size={48} weight="thin" className="text-accent/40" />
-                <p className="font-heading text-lg m-0">No communities yet.</p>
-                <p className="text-sm italic m-0">Establish your first community to begin.</p>
+                <p className="font-heading text-lg m-0 text-text">No communities yet.</p>
+                <p className="text-sm italic m-0">Join one below, or establish your own banner.</p>
                 {user?.role === 'teacher' && (
                   <button
                     className="btnSecondary inline-flex items-center gap-2 mt-2"
@@ -229,11 +236,31 @@ const CommunityPage = () => {
                 )}
               </div>
             ) : (
-              <div className="community-scroll hide-scrollbar">
-                {filteredJoined.map((community) => (
-                  <CommunityCard key={community._id} community={community} />
-                ))}
-              </div>
+              <motion.div
+                layout
+                className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+              >
+                <AnimatePresence mode="popLayout">
+                  {filteredJoined.map((community, i) => (
+                    <motion.div
+                      key={community._id}
+                      layout
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true, amount: 0.1 }}
+                      exit={{ opacity: 0, scale: 0.92 }}
+                      transition={{
+                        duration: 0.35,
+                        delay: Math.min(i, 8) * 0.05,
+                        ease: 'easeOut',
+                      }}
+                      className="h-full"
+                    >
+                      <CommunityCard community={community} />
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </motion.div>
             )}
           </div>
 
@@ -261,8 +288,16 @@ const CommunityPage = () => {
               </div>
             ) : (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredOther.map((community) => (
-                  <CommunityCard key={community._id} community={community} />
+                {filteredOther.map((community, i) => (
+                  <motion.div
+                    key={community._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, amount: 0.1 }}
+                    transition={{ duration: 0.4, delay: i * 0.06, ease: 'easeOut' }}
+                  >
+                    <CommunityCard community={community} />
+                  </motion.div>
                 ))}
               </div>
             )}

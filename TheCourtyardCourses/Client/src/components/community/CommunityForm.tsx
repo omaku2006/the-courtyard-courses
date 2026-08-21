@@ -2,7 +2,7 @@ import { useForm, type SubmitHandler, Controller } from 'react-hook-form';
 import type { Course } from '../../types/FetchDataTypes';
 import { useMyCourses } from '../../features/course/useCourse';
 import { useCreateCommunity } from '../../features/community/useCommunity';
-import { useRef, useState, useEffect, useCallback, useMemo } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import { CheckIcon, ImageIcon, SpinnerGapIcon, XIcon } from '@phosphor-icons/react';
 import ToggleButton from '../ui/ToggleButton';
 

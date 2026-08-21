@@ -37,7 +37,8 @@ const poles = [
 export default function CourtyardBackground({ className }: { className?: string }) {
   const theme = useAppSelector((state) => state.theme.mode);
 
-  const Pole = theme === 'dark' ? NightPole : DayPole;
+  const isDark = theme.startsWith('dark');
+  const Pole = isDark ? NightPole : DayPole;
 
   const [viewport, setViewport] = useState({
     width: window.innerWidth,
@@ -67,7 +68,7 @@ export default function CourtyardBackground({ className }: { className?: string 
     <div className={`${className} fixed inset-0 overflow-hidden z-10 bg-surface`}>
       {/* Camera */}
 
-      {theme === 'dark' && <Fog />}
+      {isDark && <Fog />}
       <div
         className="absolute top-1/2 left-1/2"
         style={{
@@ -86,13 +87,13 @@ export default function CourtyardBackground({ className }: { className?: string 
         {/* Background */}
 
         <img
-          src={theme === 'dark' ? '/courtyardBgNight.jpg' : '/courtyardBg.jpg'}
+          src={isDark ? '/courtyardBgNight.jpg' : '/courtyardBg.jpg'}
           alt=""
           draggable={false}
           loading="eager"
           decoding="async"
           className={`
-            ${theme === 'dark' ? 'brightness-90' : 'opacity-60'}
+            ${isDark ? 'brightness-90' : 'opacity-60'}
             absolute
             inset-0
             w-full
@@ -115,7 +116,7 @@ export default function CourtyardBackground({ className }: { className?: string 
               transformOrigin: 'bottom center',
             }}
           >
-            <Pole height={pole.height} className={theme === 'dark' ? 'lamp-glow-intense' : ''} />
+            <Pole height={pole.height} className={isDark ? 'lamp-glow-intense' : ''} />
           </div>
         ))}
       </div>

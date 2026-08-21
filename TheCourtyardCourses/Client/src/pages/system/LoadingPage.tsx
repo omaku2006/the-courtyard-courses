@@ -36,13 +36,14 @@ const LoadingPage = () => {
   };
 
   const theme = useAppSelector((state) => state.theme.mode);
+  const isDark = theme.startsWith('dark');
 
   return (
     <SystemBase>
       <MagicTextInOut
         text={loadingMessages[messageIndex]}
         glowColor="#c9a86a"
-        textColor={theme === 'dark' ? '#f7f3ea' : '#3a2b1e'}
+        textColor={isDark ? '#f7f3ea' : '#3a2b1e'}
         animationDuration={1.5} // 👈 100 nathi, seconds ma chhe!
         holdingDuration={2}
         both={true}

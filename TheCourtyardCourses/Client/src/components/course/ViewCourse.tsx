@@ -67,7 +67,8 @@ const ViewCourse = () => {
     !!course.creator?._id &&
     profile?.user?._id === course.creator._id;
 
-  const isEnrolled = !!profile?.user?._id && course?.students?.some(s => String(s) === String(profile.user._id));
+  const isEnrolled =
+    !!profile?.user?._id && course?.students?.some((s: any) => String(s) === String(profile.user._id));
 
   const progressQuery = useCourseProgress(course?._id ?? '', isEnrolled && !!profile?.user);
   const completedChapters = progressQuery.data?.completedChapters ?? [];

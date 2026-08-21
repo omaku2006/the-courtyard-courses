@@ -8,7 +8,7 @@ import ChatBubble from './ChatBubble';
 import ChatInput from './ChatInput';
 import CommunityLocked from './CommunityLocked';
 import LoadingPage from '../../pages/system/LoadingPage';
-import { UsersThreeIcon, SpinnerGapIcon } from '@phosphor-icons/react';
+import { UsersThreeIcon, SpinnerGapIcon, LockSimpleIcon } from '@phosphor-icons/react';
 import { useEffect, useRef } from 'react';
 
 const CommunityChat = () => {
@@ -16,7 +16,7 @@ const CommunityChat = () => {
   const { data: communityData, isLoading: communityLoading, isError, error } = useFetchCommunity(slug ?? '');
   const community = communityData?.community;
   const theme = useAppSelector((state) => state.theme.mode);
-  const isDark = theme === 'dark';
+  const isDark = theme.startsWith('dark');
 
   const { data: meData } = useFetchMyProfile();
   const me = meData?.user;
@@ -27,10 +27,15 @@ const CommunityChat = () => {
       ? community.creator
       : (community?.creator as any)?._id;
   const isCreator = creatorId === me?._id;
-  const isMember = (community?.members ?? []).some((m) =>
-    (typeof m === 'string' ? m : (m as any)?._id) === me?._id
+  const isMember = (community?.members ?? []).some((m: any) =>
+    (typeof m === 'string' ? m : m?._id) === me?._id
   );
-  const canChat = isCreator || isMember;
+
+  const everyoneCanMessage = community?.canEveryOneMessage !== false;
+  const hasPermission = (community?.userMessagePermission ?? []).some((id: any) =>
+    (typeof id === 'string' ? id : id?._id) === me?._id
+  );
+  const canChat = isCreator || (everyoneCanMessage && isMember) || hasPermission;
 
   const communityId = community?._id ?? '';
   const { data: postsData, isLoading: postsLoading } = useFetchPosts(communityId);
@@ -132,7 +137,7 @@ const CommunityChat = () => {
             </div>
           ) : (
             <div className="flex flex-col gap-4 w-full pb-4 sm:pb-6">
-              {posts.map((post) => (
+              {posts.map((post: any) => (
                 <ChatBubble key={post._id} post={post} communityId={communityId} />
               ))}
             </div>
@@ -142,6 +147,13 @@ const CommunityChat = () => {
 
       {canChat ? (
         <ChatInput communityId={communityId} />
+      ) : isMember ? (
+        <div className="w-full shrink-0 border-t-2 border-border bg-surface px-2 py-2.5 sm:px-4 sm:py-3 flex items-center justify-center gap-2">
+          <LockSimpleIcon size={14} weight="fill" className="text-text-muted" />
+          <span className="text-text-muted font-heading text-xs italic">
+            Only the teacher can post messages here.
+          </span>
+        </div>
       ) : (
         <div className="w-full shrink-0 border-t-2 border-border bg-surface px-2 py-2.5 sm:px-4 sm:py-3">
           <button

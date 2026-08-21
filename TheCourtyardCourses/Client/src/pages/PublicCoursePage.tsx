@@ -262,14 +262,15 @@ const PublicCoursePage = () => {
             className="grid items-start gap-8 grid-cols-[repeat(auto-fit,minmax(280px,1fr))] [grid-auto-rows:auto]"
           >
             <AnimatePresence mode="popLayout">
-              {filteredTeachers.map((teacher) => (
+              {filteredTeachers.map((teacher, i) => (
                 <motion.div
                   key={teacher._id}
                   layout
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
                   className="w-full cursor-pointer"
                   onClick={() => navigate(`/dashboard/users/${teacher.username}`)}
                 >
@@ -313,17 +314,18 @@ const PublicCoursePage = () => {
           className="grid items-start gap-8 grid-cols-[repeat(auto-fit,minmax(300px,1fr))] [grid-auto-rows:auto]"
         >
           <AnimatePresence mode="popLayout">
-            {filteredCourses.map((course) => {
+            {filteredCourses.map((course, i) => {
               const creator = typeof course.creator === 'object' ? course.creator : null;
               const isEnrolled = !!userId && course.students?.some(s => String(s) === String(userId));
               return (
                 <motion.div
                   key={course._id}
                   layout
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.1 }}
                   exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.3, ease: 'easeInOut' }}
+                  transition={{ duration: 0.4, delay: i * 0.05, ease: 'easeOut' }}
                   className="w-full h-full cursor-pointer"
                   onClick={() => navigate(`/dashboard/${course.slug}`)}
                 >

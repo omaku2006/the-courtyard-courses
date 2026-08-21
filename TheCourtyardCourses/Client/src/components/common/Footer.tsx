@@ -12,19 +12,28 @@ import Fog from '../ui/Fog';
 
 const Footer = () => {
   const theme = useAppSelector((state) => state.theme.mode);
+  const isDark = theme.startsWith('dark');
   return (
     <footer className="footer border-3 border-accent-hover rounded-[4px] p-5 overflow-x-hidden relative">
       <div className="footerAbovePart xl:grid xl:grid-cols-[1fr_auto_1fr_auto_1fr] flex flex-col justify-center items-center">
-        {theme === 'dark' && <Fog />}
-        <section id="footerLogo" className="flex justify-center items-center my-10">
-          {theme === 'dark' ? (
-            <img src="/TheCourtyardCourses(Dark).Plain.Stroke.svg" alt="" />
+        {isDark && <Fog />}
+        <section id="footerLogo" className="flex justify-center items-center my-10 relative">
+          {isDark ? (
+            <img
+              src="/TheCourtyardCourses(Dark).Plain.Stroke.svg"
+              alt=""
+              className="w-[90%] max-[1280px]:w-[40%]"
+            />
           ) : (
-            <img src="/TheCourtyardCourses(Light).Stroke.Plain.svg" alt="" />
+            <img
+              src="/TheCourtyardCourses(Light).Stroke.Plain.svg"
+              alt=""
+              className="w-[90%] max-[1280px]:w-[40%]"
+            />
           )}
         </section>
         <div className="pole xl:relative absolute lg:left-0 md:-left-10 -left-50">
-          {theme === 'dark' ? <NightPole className="lamp-glow" /> : <DayPole />}
+          {isDark ? <NightPole className="lamp-glow" /> : <DayPole />}
         </div>
         <section id="footerLinks" className="flex flex-col items-center justify-center my-10">
           <h5 className="mb-2">Useful Links</h5>
@@ -54,7 +63,7 @@ const Footer = () => {
           </ul>
         </section>
         <div className="pole xl:relative absolute lg:right-0 md:-right-10 -right-50">
-          {theme === 'dark' ? <NightPole className="lamp-glow" /> : <DayPole />}
+          {isDark ? <NightPole className="lamp-glow" /> : <DayPole />}
         </div>
         <section id="footerFollowMe" className="flex flex-col items-center justify-center my-10">
           <h5 className="mb-2">Follow Me</h5>

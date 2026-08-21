@@ -51,7 +51,7 @@ const AuthPage = () => {
           <div className="logoWrapper flex justify-evenly items-center gap-3">
             <img
               src={
-                theme === 'dark'
+                theme.startsWith('dark')
                   ? '/TheCourtyardCourses(Dark).Plain.Stroke.svg'
                   : '/TheCourtyardCourses(Light).Stroke.Plain.svg'
               }

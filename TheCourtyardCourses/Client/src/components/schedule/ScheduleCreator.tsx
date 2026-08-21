@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { XIcon, CheckIcon, SpinnerGapIcon } from '@phosphor-icons/react';
 import { useCreateSchedule } from '../../features/schedule/useSchedule';
-import type { Course } from '../../types/FetchDataTypes';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 

@@ -12,7 +12,7 @@ const SystemBase = ({ children }: { children: ReactNode }) => {
         <div className="leftPart flex justify-center items-center min-[1400px]:pr-5 max-[1400px]:pb-5 min-[1400px]:border-r-3 min-[1400px]:border-r-accent-hover max-[1400px]:border-b-3 max-[1400px]:border-b-accent-hover shrink-0">
           <img
             src={
-              theme === 'dark'
+              theme.startsWith('dark')
                 ? '/TheCourtyardCourses(Dark).Plain.Stroke.svg'
                 : '/TheCourtyardCourses(Light).Stroke.Plain.svg'
             }

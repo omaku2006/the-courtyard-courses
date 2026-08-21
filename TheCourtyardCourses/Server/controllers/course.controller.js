@@ -393,7 +393,7 @@ export const updateCourse = async (req, res) => {
     const updatedCourse = await Course.findOneAndUpdate(
       { _id: courseId },
       { $set: updateData },
-      { new: true, runValidators: true }
+      { returnDocument: 'after', runValidators: true }
     );
 
     return res.status(200).json({
@@ -495,7 +495,7 @@ const completeEnrollment = async (course, studentId) => {
   await Enrollment.findOneAndUpdate(
     { student: studentId, course: course._id },
     { $setOnInsert: { student: studentId, course: course._id } },
-    { upsert: true, new: true }
+    { upsert: true, returnDocument: 'after' }
   );
 
   return { alreadyEnrolled: false };
@@ -965,7 +965,7 @@ export const updateChapterCompletion = async (req, res) => {
           },
           $inc: { totalCompleted: 1 },
         },
-        { upsert: true, new: true }
+        { upsert: true, returnDocument: 'after' }
       );
     }
     completedChapters.sort((a, b) => a - b);

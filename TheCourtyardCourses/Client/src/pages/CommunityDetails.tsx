@@ -28,7 +28,7 @@ import {
   useLeaveCommunity,
   useUpdateCommunity,
 } from '../features/community/useCommunity';
-import type { Community, Creator } from '../types/FetchDataTypes';
+import type { Creator } from '../types/FetchDataTypes';
 import CommunityLocked from '../components/community/CommunityLocked';
 import LoadingPage from './system/LoadingPage';
 import NotFoundPage from './system/NotFoundPage';

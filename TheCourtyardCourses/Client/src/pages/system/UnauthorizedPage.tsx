@@ -6,7 +6,7 @@ import SystemBase from './SystemBase';
 const UnauthorizedPage = () => {
   const navigate = useNavigate();
   const theme = useAppSelector((state) => state.theme.mode);
-  const fuzzColor = theme === 'dark' ? '#f7f3ea' : '#3a2b1e';
+  const fuzzColor = theme.startsWith('dark') ? '#f7f3ea' : '#3a2b1e';
   return (
     <SystemBase>
       <div className="flex flex-col items-center justify-center text-center gap-4">

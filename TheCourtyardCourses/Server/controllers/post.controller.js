@@ -186,7 +186,7 @@ export const updatePost = async (req, res) => {
     const post = await Post.findOneAndUpdate(
       { _id: postId, author: userId },
       { $set: updateData },
-      { new: true }
+      { returnDocument: 'after' }
     )
       .populate('author', 'name username avatarImage role')
       .populate('comments.author', 'name username avatarImage');
@@ -243,7 +243,7 @@ export const likePost = async (req, res) => {
     const updatedPost = await Post.findByIdAndUpdate(
       postId,
       isLiked ? { $pull: { likes: userId } } : { $addToSet: { likes: userId } },
-      { new: true }
+      { returnDocument: 'after' }
     )
       .populate('author', 'name username avatarImage role')
       .populate('comments.author', 'name username avatarImage');
@@ -274,7 +274,7 @@ export const addComment = async (req, res) => {
     const post = await Post.findOneAndUpdate(
       { _id: postId },
       { $push: { comments: { author: userId, content } } },
-      { new: true }
+      { returnDocument: 'after' }
     )
       .populate('author', 'name username avatarImage role')
       .populate('comments.author', 'name username avatarImage');

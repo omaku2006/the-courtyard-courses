@@ -69,7 +69,7 @@ export const createSchedule = async (req, res) => {
         targetChaptersPerDay: targetChaptersPerDay || 1,
         isActive: true,
       },
-      { upsert: true, new: true, runValidators: true }
+      { upsert: true, returnDocument: 'after', runValidators: true }
     ).populate('course', 'title slug thumbnail chapters');
 
     return res.status(200).json({ message: 'Schedule updated!', schedule });

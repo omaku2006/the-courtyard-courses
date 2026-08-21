@@ -1,11 +1,11 @@
-import { ListIcon, XIcon, SunIcon, MoonIcon } from '@phosphor-icons/react';
+import { ListIcon, XIcon } from '@phosphor-icons/react';
 import { useState } from 'react';
-import { useAppDispatch, useAppSelector } from '../../app/hooks';
-import { toggleTheme } from '../../features/themes/themeSlice';
+import { useAppSelector } from '../../app/hooks';
 import { Link, NavLink } from 'react-router-dom';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
 import LoadingPage from '../../pages/system/LoadingPage';
 import ServerErrorPage from '../../pages/system/ServerErrorPage';
+import ThemePicker from '../ui/ThemePicker';
 
 // ✅ Fix & Polish: Reusable Navlink component for cleaner code
 // ✅ Polished NavTab with Stronger Hover & Active States
@@ -43,7 +43,6 @@ const Navbar = () => {
   const { data, isError, isLoading } = useFetchMyProfile();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const theme = useAppSelector((state) => state.theme.mode);
-  const dispatch = useAppDispatch();
 
   if (isLoading) return <LoadingPage />;
   if (isError) return <ServerErrorPage />;
@@ -75,7 +74,7 @@ const Navbar = () => {
           <Link to="/">
             <img
               src={
-                theme === 'dark'
+                theme.startsWith('dark')
                   ? '/TheCourtyardCourses(Dark).Plain.Stroke.svg'
                   : '/TheCourtyardCourses(Light).Stroke.Plain.svg'
               }
@@ -96,19 +95,9 @@ const Navbar = () => {
           </ul>
         </div>
 
-        {/* Right Side: Theme Toggle + Auth */}
+        {/* Right Side: Theme Picker + Auth */}
         <div className="flex items-center gap-3">
-          <button
-            className="p-2 text-text hover:text-primary transition-colors"
-            onClick={() => dispatch(toggleTheme())}
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <MoonIcon size={24} weight="fill" />
-            ) : (
-              <SunIcon size={24} weight="fill" />
-            )}
-          </button>
+          <ThemePicker />
 
           {data?.user ? (
             <Link

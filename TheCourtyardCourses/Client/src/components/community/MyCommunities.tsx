@@ -6,7 +6,6 @@ import {
 } from '@phosphor-icons/react';
 import { useFetchMyProfile } from '../../features/auth/useAuth';
 import { useFetchMyCommunities } from '../../features/community/useCommunity';
-import type { User } from '../../features/auth/authSlice';
 import { useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
 import CommunityForm from './CommunityForm';

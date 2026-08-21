@@ -4,7 +4,7 @@ import SystemBase from './SystemBase';
 
 const ServerErrorPage = ({ error = 500 }: { error?: number }) => {
   const theme = useAppSelector((state) => state.theme.mode);
-  const fuzzColor = theme === 'dark' ? '#f7f3ea' : '#3a2b1e';
+  const fuzzColor = theme.startsWith('dark') ? '#f7f3ea' : '#3a2b1e';
   return (
     <SystemBase>
       <div className="flex flex-col items-center justify-center text-center gap-4">

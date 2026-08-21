@@ -5,7 +5,7 @@ import { useAppSelector } from '../../app/hooks';
 
 const NotFoundPage = () => {
   const theme = useAppSelector((state) => state.theme.mode);
-  const fuzzColor = theme === 'dark' ? '#f7f3ea' : '#3a2b1e';
+  const fuzzColor = theme.startsWith('dark') ? '#f7f3ea' : '#3a2b1e';
 
   return (
     <SystemBase>

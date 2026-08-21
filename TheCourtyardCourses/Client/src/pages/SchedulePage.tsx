@@ -7,6 +7,7 @@ import ScheduleCreator from '../components/schedule/ScheduleCreator';
 import QuickCourseCard from '../components/schedule/QuickCourseCard';
 import LoadingPage from './system/LoadingPage';
 import NotFoundPage from './system/NotFoundPage';
+import FadeInView from '../components/ui/Animate';
 
 const SchedulePage = () => {
   const { data: scheduleData, isLoading, isError } = useFetchSchedule();
@@ -19,23 +20,23 @@ const SchedulePage = () => {
   if (isError) return <NotFoundPage />;
 
   const schedules = scheduleData?.schedules || [];
-  const todayActivity = scheduleData?.todayActivity || { entries: [], totalCompleted: 0 };
   const todayByCourse = scheduleData?.todayByCourse || {};
   const stats = scheduleData?.stats || { totalEnrolled: 0, scheduled: 0, unscheduled: 0 };
   const enrolledCourses = enrolledData?.pages?.flatMap((p) => p.courses ?? []) || [];
 
-  const todayTarget = schedules.reduce((sum, s) => {
+  const todayTarget = schedules.reduce((sum: number, s: any) => {
     const info = todayByCourse[s.course?._id];
     return sum + (info?.scheduledToday ? s.targetChaptersPerDay || 1 : 0);
   }, 0);
-  const todayDone = schedules.reduce((sum, s) => {
+  const todayDone = schedules.reduce((sum: number, s: any) => {
     const info = todayByCourse[s.course?._id];
     return sum + (info?.completed || 0);
   }, 0);
 
   return (
     <section className="flex flex-col gap-6 w-full min-h-0 p-4">
-{/* Header */}
+      {/* Header */}
+      <FadeInView>
       <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
         <div>
           <h1
@@ -55,6 +56,7 @@ const SchedulePage = () => {
           + Set Schedule
         </button>
       </div>
+      </FadeInView>
 
       {/* Stats Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -147,7 +149,7 @@ const SchedulePage = () => {
               </p>
             </div>
           ) : (
-            schedules.map((schedule) => (
+            schedules.map((schedule: any) => (
               <QuickCourseCard
                 key={schedule._id}
                 schedule={schedule}

@@ -14,7 +14,7 @@ import CommunityCard from '../components/community/CommunityCard';
 import TeacherCard from '../components/ui/TeacherCard';
 
 const PublicCommunityPage = () => {
-  const { data, isLoading, isError, fetchNextPage, hasNextPage, isFetchingNextPage } = useFetchCommunities();
+  const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useFetchCommunities();
   const fetchedUsers = useFetchAllUser();
 
   const allPages = data?.pages ?? [];

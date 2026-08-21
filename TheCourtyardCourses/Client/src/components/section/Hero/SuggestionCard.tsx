@@ -1,17 +1,33 @@
+import { motion } from 'motion/react';
 import type { ReactNode } from 'react';
 
 const SuggestionCard = ({ children }: { children: ReactNode }) => {
   return (
-    <article className="bg-surface p-8 rounded-[4px] flex flex-col justify-center items-center hover:-translate-y-2.5 duration-300">
+    <motion.article
+      className="bg-surface p-8 rounded-[4px] flex flex-col justify-center items-center"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      whileHover={{ y: -10, transition: { duration: 0.3 } }}
+    >
       {children}
-    </article>
+    </motion.article>
   );
 };
 
 SuggestionCard.Header = ({ tag, title }: { tag: string; title: string }) => {
   return (
     <div className="cardHeader flex flex-col justify-center items-center">
-      <span className="tag bg-accent px-5 py-2 rounded-[2px] my-4 text-center">{tag}</span>
+      <motion.span
+        className="tag bg-accent px-5 py-2 rounded-[2px] my-4 text-center"
+        initial={{ opacity: 0, scale: 0.8 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
+        {tag}
+      </motion.span>
       <h3 className="title mb-4 italic text-center">{title}</h3>
     </div>
   );

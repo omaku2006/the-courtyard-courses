@@ -16,6 +16,8 @@ import LoadingPage from './system/LoadingPage';
 import NotFoundPage from './system/NotFoundPage';
 import ProgressChart from '../components/analysis/ProgressChart';
 import StatsCard from '../components/analysis/StatsCard';
+import Fence from '../components/ui/Fence';
+import FadeInView from '../components/ui/Animate';
 
 const AnalysisPage = () => {
   const { data: profileData } = useFetchMyProfile();
@@ -33,6 +35,7 @@ const AnalysisPage = () => {
   return (
     <section className="flex flex-col gap-6 w-full min-h-0 p-4">
       {/* Header */}
+      <FadeInView>
       <div>
         <h1
           className="no-margin font-heading text-text"
@@ -46,6 +49,7 @@ const AnalysisPage = () => {
             : 'Track your learning progress and achievements.'}
         </p>
       </div>
+      </FadeInView>
 
       {/* Student Analytics */}
       {!isTeacher && studentData && <StudentView data={studentData} />}
@@ -135,11 +139,14 @@ const StudentView = ({ data }: { data: any }) => {
                 <span className="no-margin text-text-muted font-heading" style={{ fontSize: '0.625rem' }}>
                   {cp.completedChapters}/{cp.totalChapters} chapters
                 </span>
-                <div className="w-full h-1.5 rounded-full bg-border mt-1.5 overflow-hidden">
+                <div className="relative w-full shrink-0 overflow-hidden border-2 border-border bg-background mt-1.5" style={{ height: 28 }}>
+                  <Fence fill size={22} spacing={0} tileHeight={28} />
                   <div
-                    className="h-full rounded-full bg-accent transition-all"
-                    style={{ width: `${cp.progress}%` }}
-                  />
+                    className="absolute inset-0 overflow-hidden transition-all duration-500"
+                    style={{ width: `${Math.min(100, Math.max(0, cp.progress))}%` }}
+                  >
+                    <Fence fill size={22} spacing={0} tileHeight={28} color="var(--color-success)" />
+                  </div>
                 </div>
               </div>
               <span className="no-margin font-heading font-bold text-text shrink-0" style={{ fontSize: '0.75rem' }}>
