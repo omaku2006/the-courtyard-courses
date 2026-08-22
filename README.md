@@ -1,19 +1,15 @@
-<div align="center">
-  <img src=".github/assets/hero.svg" alt="The Courtyard Courses — a modern institution of classical learning" width="100%" />
+# The Courtyard Courses
 
-  [![React 19](https://img.shields.io/badge/React_19-1f1e1c?style=flat-square&logo=react&logoColor=c9a86a)](https://react.dev)
-  [![Vite](https://img.shields.io/badge/Vite-1f1e1c?style=flat-square&logo=vite&logoColor=c9a86a)](https://vite.dev)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-1f1e1c?style=flat-square&logo=typescript&logoColor=c9a86a)](https://www.typescriptlang.org)
-  [![Tailwind v4](https://img.shields.io/badge/Tailwind_v4-1f1e1c?style=flat-square&logo=tailwindcss&logoColor=c9a86a)](https://tailwindcss.com)
-  [![Express](https://img.shields.io/badge/Express_5-1f1e1c?style=flat-square&logo=express&logoColor=c9a86a)](https://expressjs.com)
-  [![MongoDB](https://img.shields.io/badge/MongoDB-1f1e1c?style=flat-square&logo=mongodb&logoColor=c9a86a)](https://www.mongodb.com)
-  [![Bun](https://img.shields.io/badge/Bun-1f1e1c?style=flat-square&logo=bun&logoColor=c9a86a)](https://bun.sh)
+> A full-stack e-learning platform dressed as a Victorian academy.
 
-</div>
+[![React 19](https://img.shields.io/badge/React_19-1f1e1c?style=flat-square&logo=react&logoColor=c9a86a)](https://react.dev)
+[![Vite](https://img.shields.io/badge/Vite-1f1e1c?style=flat-square&logo=vite&logoColor=c9a86a)](https://vite.dev)
+[![TypeScript](https://img.shields.io/badge/TypeScript-1f1e1c?style=flat-square&logo=typescript&logoColor=c9a86a)](https://www.typescriptlang.org)
+[![Tailwind v4](https://img.shields.io/badge/Tailwind_v4-1f1e1c?style=flat-square&logo=tailwindcss&logoColor=c9a86a)](https://tailwindcss.com)
+[![Express](https://img.shields.io/badge/Express_5-1f1e1c?style=flat-square&logo=express&logoColor=c9a86a)](https://expressjs.com)
+[![MongoDB](https://img.shields.io/badge/MongoDB-1f1e1c?style=flat-square&logo=mongodb&logoColor=c9a86a)](https://www.mongodb.com)
+[![Bun](https://img.shields.io/badge/Bun-1f1e1c?style=flat-square&logo=bun&logoColor=c9a86a)](https://bun.sh)
 
-## ⚜ What is this?
-
-**The Courtyard Courses** is a full-stack e-learning platform dressed as a Victorian academy.
 Teachers publish courses with chaptered video lessons; students enroll — free or through
 Razorpay checkout — and work toward daily reading targets. Between lectures they gather in
 course-gated communities, plan their study schedule, and watch their progress charted in a
@@ -76,14 +72,6 @@ bun install
 cp .env.example .env   # then fill in the values
 bun run dev
 ```
-
-| Environment variable | Purpose |
-|---|---|
-| `MONGODB` | MongoDB connection string |
-| `JWT_SECRET` | Auth token signing secret |
-| `CLOUDINARY_URL` | Image uploads (avatars, thumbnails) |
-| `YOUTUBE_KEY` | Lesson embeds |
-| `RAZORPAY_KEY_ID` / `RAZORPAY_KEY_SECRET` | Paid enrollments |
 
 **2 — Client** (runs on `http://localhost:5173`, proxies `/api` to port 3000)
 
