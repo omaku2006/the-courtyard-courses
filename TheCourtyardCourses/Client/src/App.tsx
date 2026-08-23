@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Analytics } from '@vercel/analytics/react';
 import HomePage from './pages/HomePage';
 import { useAppSelector } from './app/hooks';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
@@ -83,6 +84,7 @@ const App = () => {
           },
         }}
       />
+      <Analytics />
     </BrowserRouter>
   );
 };
