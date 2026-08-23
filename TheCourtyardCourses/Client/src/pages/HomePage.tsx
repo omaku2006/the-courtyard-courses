@@ -60,9 +60,9 @@ const HomePage = () => {
           <h2 className="underline mb-10">-:The Faculties of Learning:-</h2>
         </FadeInView>
         <FadeInView delay={0.2}>
-          <p className="w-[80%] max-[600]:w-full">
-            Mastery is not given, but earned through rigorous study. Peruse the prospectus and select
-            the discipline wherein your intellect shall be forged.
+          <p className="w-[80%] max-[600]:w-full mx-auto text-center">
+            Mastery is not given, but earned through rigorous study. Peruse the prospectus and
+            select the discipline wherein your intellect shall be forged.
           </p>
         </FadeInView>
         {coursesLoading ? (
@@ -97,10 +97,10 @@ const HomePage = () => {
           <h2 className="text-center underline mb-10">-:The Learned Masters:-</h2>
         </FadeInView>
         <FadeInView delay={0.2}>
-          <p className="w-[80%] max-[600]:w-full">
+          <p className="w-[80%] max-[600]:w-full mx-auto text-center">
             Our faculty are not merely educators, but custodians of history and lore. Dedicated
-            scholars who have spent a lifetime traversing the corridors of antiquity, now guiding the
-            next generation of thinkers.
+            scholars who have spent a lifetime traversing the corridors of antiquity, now guiding
+            the next generation of thinkers.
           </p>
         </FadeInView>
         {usersLoading ? (
@@ -135,9 +135,9 @@ const HomePage = () => {
           <h2 className="text-center underline mb-10">-:Voices from the Alumni:-</h2>
         </FadeInView>
         <FadeInView delay={0.2}>
-          <p className="w-[80%] max-[600]:w-full">
-            Hear from those who have walked the cobblestone paths and emerged with minds sharpened and
-            horizons broadened.
+          <p className="w-[80%] max-[600]:w-full mx-auto text-center">
+            Hear from those who have walked the cobblestone paths and emerged with minds sharpened
+            and horizons broadened.
           </p>
         </FadeInView>
         <div className="flex max-w-[1780px] justify-between gap-6 max-[1180px]:flex-col max-[1180px]:w-1/2 max-[900px]:w-[80%] p-6">
