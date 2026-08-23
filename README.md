@@ -19,6 +19,11 @@
 </p>
 
 <p align="center">
+  <a href="https://the-courtyard-courses.vercel.app"><img src="https://img.shields.io/badge/Live_Site-1f1e1c?style=for-the-badge&logo=vercel&logoColor=c9a86a" alt="Live Site"></a>
+  <a href="https://the-courtyard-courses.onrender.com"><img src="https://img.shields.io/badge/API-1f1e1c?style=for-the-badge&logo=render&logoColor=c9a86a" alt="API"></a>
+</p>
+
+<p align="center">
   <a href="#-features">Features</a> ·
   <a href="#-themes">Themes</a> ·
   <a href="#-tech-stack">Tech Stack</a> ·

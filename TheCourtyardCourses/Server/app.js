@@ -11,7 +11,7 @@ import cors from 'cors';
 const app = express();
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: ['http://localhost:5173', 'https://the-courtyard-courses.vercel.app'],
     credentials: true,
   })
 );
