@@ -1,4 +1,6 @@
 import axios from 'axios';
+import { store } from '../app/store';
+import { logout } from '../features/auth/authSlice';
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || '/api',
@@ -25,8 +27,9 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 && localStorage.getItem('token')) {
       localStorage.removeItem('token');
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
-        window.location.href = '/login';
+      store.dispatch(logout());
+      if (window.location.pathname !== '/login') {
+        window.location.replace('/login');
       }
     }
     return Promise.reject(error);
